@@ -120,16 +120,25 @@ export default function Layout({ children }: LayoutProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              {theme === 'light' ? (
-                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              ) : (
-                <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              )}
-            </button>
+            <div className="relative">
+              <button
+                onClick={toggleTheme}
+                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 group"
+                title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+              >
+                {theme === 'light' ? (
+                  <>
+                    <Sun className="w-5 h-5 text-yellow-500 transition-transform group-hover:rotate-45" />
+                    <span className="hidden md:inline text-sm font-medium text-gray-700">Light</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-5 h-5 text-blue-400 transition-transform group-hover:rotate-12" />
+                    <span className="hidden md:inline text-sm font-medium text-gray-300">Dark</span>
+                  </>
+                )}
+              </button>
+            </div>
 
             <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors relative">
               <Bell className="w-5 h-5 text-gray-600 dark:text-gray-300" />
@@ -172,7 +181,7 @@ export default function Layout({ children }: LayoutProps) {
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   isActive
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                    ? 'bg-blue-600 text-white shadow-sm'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
               >
