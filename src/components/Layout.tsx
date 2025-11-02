@@ -16,7 +16,6 @@ import {
   Bell,
   Menu,
   X,
-  Building2,
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -93,8 +92,8 @@ export default function Layout({ children }: LayoutProps) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-30">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 z-30 shadow-sm">
         <div className="h-full px-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -109,7 +108,7 @@ export default function Layout({ children }: LayoutProps) {
             </button>
 
             <div className="flex items-center gap-2">
-              <Building2 className="w-8 h-8 text-blue-600" />
+              <img src="/logo-baubau.png" alt="Logo Kota Baubau" className="w-10 h-10" />
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-gray-900 dark:text-white">
                   Admin Retribusi & Pajak
@@ -167,7 +166,7 @@ export default function Layout({ children }: LayoutProps) {
       </div>
 
       <div
-        className={`fixed left-0 top-16 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-20 transform transition-transform lg:translate-x-0 ${
+        className={`fixed left-0 top-16 bottom-0 w-64 bg-white dark:bg-gray-800 border-r border-gray-100 dark:border-gray-700 z-20 transform transition-transform lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

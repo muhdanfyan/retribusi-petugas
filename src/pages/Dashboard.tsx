@@ -8,7 +8,7 @@ export default function Dashboard() {
       change: '+12.5%',
       trend: 'up',
       icon: <DollarSign className="w-6 h-6" />,
-      color: 'bg-green-500',
+      color: 'bg-baubau-green',
     },
     {
       label: 'Collection Rate',
@@ -16,7 +16,7 @@ export default function Dashboard() {
       change: '+5.2%',
       trend: 'up',
       icon: <TrendingUp className="w-6 h-6" />,
-      color: 'bg-blue-500',
+      color: 'bg-baubau-blue',
     },
     {
       label: 'Tagihan Pending',
@@ -24,7 +24,7 @@ export default function Dashboard() {
       change: '-8.1%',
       trend: 'down',
       icon: <FileText className="w-6 h-6" />,
-      color: 'bg-yellow-500',
+      color: 'bg-baubau-yellow',
     },
     {
       label: 'Wajib Pajak Aktif',
@@ -32,7 +32,7 @@ export default function Dashboard() {
       change: '+15.3%',
       trend: 'up',
       icon: <Users className="w-6 h-6" />,
-      color: 'bg-purple-500',
+      color: 'bg-violet-500',
     },
   ];
 
@@ -55,9 +55,9 @@ export default function Dashboard() {
   ];
 
   const kpiProgress = [
-    { label: 'Target Bulanan', current: 87, target: 100, color: 'bg-blue-500' },
-    { label: 'Efisiensi Koleksi', current: 92, target: 100, color: 'bg-green-500' },
-    { label: 'Verifikasi SLA', current: 78, target: 100, color: 'bg-yellow-500' },
+    { label: 'Target Bulanan', current: 87, target: 100, color: 'bg-baubau-blue' },
+    { label: 'Efisiensi Koleksi', current: 92, target: 100, color: 'bg-baubau-green' },
+    { label: 'Verifikasi SLA', current: 78, target: 100, color: 'bg-baubau-yellow' },
   ];
 
   return (
@@ -79,7 +79,7 @@ export default function Dashboard() {
         {kpiData.map((kpi, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700"
+            className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -89,20 +89,20 @@ export default function Dashboard() {
                 </p>
                 <span
                   className={`inline-flex items-center text-sm font-medium ${
-                    kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                    kpi.trend === 'up' ? 'text-emerald-600' : 'text-rose-600'
                   }`}
                 >
                   {kpi.change} vs bulan lalu
                 </span>
               </div>
-              <div className={`${kpi.color} p-3 rounded-lg text-white`}>{kpi.icon}</div>
+              <div className={`${kpi.color} p-3 rounded-xl text-white shadow-sm`}>{kpi.icon}</div>
             </div>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
             Tren Pendapatan (Miliar Rupiah)
           </h2>
@@ -117,9 +117,9 @@ export default function Dashboard() {
                     Rp {data.amount}M
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3">
                   <div
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all"
+                    className="bg-gradient-to-r from-baubau-blue-light to-baubau-blue h-3 rounded-full transition-all"
                     style={{ width: `${(data.amount / maxAmount) * 100}%` }}
                   ></div>
                 </div>
@@ -128,7 +128,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
             KPI Monitoring
           </h2>
@@ -143,7 +143,7 @@ export default function Dashboard() {
                     {kpi.current}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                   <div
                     className={`${kpi.color} h-2 rounded-full transition-all`}
                     style={{ width: `${kpi.current}%` }}
@@ -153,14 +153,14 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="mt-6 p-4 bg-yellow-50 dark:bg-blue-900/20 rounded-lg border border-yellow-100 dark:border-blue-800">
             <div className="flex gap-2">
-              <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-baubau-yellow-dark dark:text-blue-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                <p className="text-sm font-medium text-yellow-900 dark:text-blue-300">
                   Perhatian
                 </p>
-                <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
+                <p className="text-xs text-yellow-700 dark:text-blue-400 mt-1">
                   Verifikasi SLA di bawah target. Tingkatkan efisiensi proses approval.
                 </p>
               </div>
@@ -169,8 +169,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Transaksi Terbaru
           </h2>
@@ -196,7 +196,7 @@ export default function Dashboard() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {recentTransactions.map((transaction) => (
                 <tr
                   key={transaction.id}
@@ -218,10 +218,10 @@ export default function Dashboard() {
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         transaction.status === 'lunas'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
                           : transaction.status === 'pending'
                           ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                          : 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
                       }`}
                     >
                       {transaction.status}
