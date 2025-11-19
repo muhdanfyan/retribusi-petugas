@@ -13,24 +13,26 @@ const departmentCategoryMapping: Record<string, string[]> = {
   'Dinas Lingkungan Hidup': ['Retribusi Pelayanan Persampahan/Kebersihan'],
 };
 
+const departments = Object.keys(departmentCategoryMapping);
+
 export default function MasterData() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'tarif' | 'zona' | 'klasifikasi'>('tarif');
 
   const [tarifs, setTarifs] = useState<Tarif[]>([
-    { id: '1', name: 'Pasar Tradisional', category: 'Retribusi Pelayanan Pasar', amount: 50000, unit: 'per bulan', status: 'active' },
-    { id: '2', name: 'Kios', category: 'Retribusi Pelayanan Pasar', amount: 150000, unit: 'per bulan', status: 'active' },
-    { id: '3', name: 'Reklame Billboard', category: 'Pajak Reklame', amount: 500000, unit: 'per m²', status: 'active' },
-    { id: '4', name: 'Parkir Mobil', category: 'Retribusi Parkir', amount: 5000, unit: 'per jam', status: 'active' },
-    { id: '5', name: 'Parkir Motor', category: 'Retribusi Parkir', amount: 2000, unit: 'per jam', status: 'inactive' },
-    { id: '6', name: 'Jasa Kepelabuhanan', category: 'Jasa Kepelabuhanan', amount: 25000, unit: 'per kapal', status: 'active' },
-    { id: '7', name: 'Retribusi Terminal', category: 'Retribusi Terminal', amount: 10000, unit: 'per bus', status: 'active' },
-    { id: '8', name: 'Izin Mendirikan Bangunan (IMB)', category: 'Retribusi Perizinan Tertentu', amount: 1500000, unit: 'per izin', status: 'active' },
-    { id: '9', name: 'Persetujuan Bangunan Gedung (PBG)', category: 'Retribusi IMB/PBG', amount: 2000000, unit: 'per izin', status: 'active' },
-    { id: '10', name: 'Tempat Rekreasi', category: 'Retribusi Tempat Rekreasi dan Olahraga', amount: 15000, unit: 'per orang', status: 'active' },
-    { id: '11', name: 'PDAM', category: 'Retribusi PDAM', amount: 75000, unit: 'per bulan', status: 'active' },
-    { id: '12', name: 'Sewa Alat Berat', category: 'Sewa Alat Berat', amount: 500000, unit: 'per hari', status: 'active' },
-    { id: '13', name: 'Pelayanan Persampahan', category: 'Retribusi Pelayanan Persampahan/Kebersihan', amount: 30000, unit: 'per bulan', status: 'active' },
+    { id: '1', name: 'Pasar Tradisional', category: 'Retribusi Pelayanan Pasar', amount: 50000, unit: 'per bulan', status: 'active', department: 'Disperindag' },
+    { id: '2', name: 'Kios', category: 'Retribusi Pelayanan Pasar', amount: 150000, unit: 'per bulan', status: 'active', department: 'Disperindag' },
+    { id: '3', name: 'Reklame Billboard', category: 'Pajak Reklame', amount: 500000, unit: 'per m²', status: 'active', department: 'DPMPTSP' },
+    { id: '4', name: 'Parkir Mobil', category: 'Retribusi Parkir', amount: 5000, unit: 'per jam', status: 'active', department: 'Dishub' },
+    { id: '5', name: 'Parkir Motor', category: 'Retribusi Parkir', amount: 2000, unit: 'per jam', status: 'inactive', department: 'Dishub' },
+    { id: '6', name: 'Jasa Kepelabuhanan', category: 'Jasa Kepelabuhanan', amount: 25000, unit: 'per kapal', status: 'active', department: 'Dishub' },
+    { id: '7', name: 'Retribusi Terminal', category: 'Retribusi Terminal', amount: 10000, unit: 'per bus', status: 'active', department: 'Dishub' },
+    { id: '8', name: 'Izin Mendirikan Bangunan (IMB)', category: 'Retribusi Perizinan Tertentu', amount: 1500000, unit: 'per izin', status: 'active', department: 'DPMPTSP' },
+    { id: '9', name: 'Persetujuan Bangunan Gedung (PBG)', category: 'Retribusi IMB/PBG', amount: 2000000, unit: 'per izin', status: 'active', department: 'Dinas PUPR' },
+    { id: '10', name: 'Tempat Rekreasi', category: 'Retribusi Tempat Rekreasi dan Olahraga', amount: 15000, unit: 'per orang', status: 'active', department: 'Disparekraf' },
+    { id: '11', name: 'PDAM', category: 'Retribusi PDAM', amount: 75000, unit: 'per bulan', status: 'active', department: 'PDAM' },
+    { id: '12', name: 'Sewa Alat Berat', category: 'Sewa Alat Berat', amount: 500000, unit: 'per hari', status: 'active', department: 'Dinas PUPR' },
+    { id: '13', name: 'Pelayanan Persampahan', category: 'Retribusi Pelayanan Persampahan/Kebersihan', amount: 30000, unit: 'per bulan', status: 'active', department: 'Dinas Lingkungan Hidup' },
   ]);
 
   const filteredTarifs = useMemo(() => {
@@ -60,6 +62,7 @@ export default function MasterData() {
     amount: '',
     unit: '',
     status: 'active' as const,
+    department: 'Disperindag',
   });
 
   const [zonaForm, setZonaForm] = useState({
@@ -71,7 +74,7 @@ export default function MasterData() {
 
   const handleAddTarif = () => {
     setEditingTarif(null);
-    setTarifForm({ name: '', category: 'Retribusi Pasar', amount: '', unit: '', status: 'active' });
+    setTarifForm({ name: '', category: 'Retribusi Pasar', amount: '', unit: '', status: 'active', department: 'Disperindag' });
     setShowTarifModal(true);
   };
 
@@ -83,6 +86,7 @@ export default function MasterData() {
       amount: tarif.amount.toString(),
       unit: tarif.unit,
       status: tarif.status,
+      department: tarif.department || '',
     });
     setShowTarifModal(true);
   };
@@ -242,6 +246,9 @@ export default function MasterData() {
                         Kategori
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                        OPD Terkait
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Tarif
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
@@ -263,6 +270,9 @@ export default function MasterData() {
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                           {tarif.category}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                          {tarif.department}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
                           {formatCurrency(tarif.amount)}
@@ -407,6 +417,21 @@ export default function MasterData() {
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  OPD atau Dinas Terkait
+                </label>
+                <select
+                  value={tarifForm.department}
+                  onChange={(e) => setTarifForm({ ...tarifForm, department: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                >
+                  {departments.map((dep) => (
+                    <option key={dep} value={dep}>{dep}</option>
+                  ))}
+                </select>
               </div>
 
               <div>

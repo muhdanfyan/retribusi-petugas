@@ -45,6 +45,7 @@ export interface Tarif {
   amount: number;
   unit: string;
   status: 'active' | 'inactive';
+  department?: string;
 }
 
 export interface Zona {

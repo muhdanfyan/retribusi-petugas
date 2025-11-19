@@ -1,4 +1,16 @@
 import { TrendingUp, DollarSign, FileText, Users, AlertCircle } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default marker icon
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
 
 export default function Dashboard() {
   const kpiData = [
@@ -60,6 +72,13 @@ export default function Dashboard() {
     { label: 'Verifikasi SLA', current: 78, target: 100, color: 'bg-baubau-yellow' },
   ];
 
+  const retributionPotentials = [
+    { position: [-5.47, 122.6], name: 'Retribusi Parkir', agency: 'Dishub' },
+    { position: [-5.48, 122.61], name: 'Retribusi Pelayanan Pasar', agency: 'Disperindag' },
+    { position: [-5.46, 122.59], name: 'Retribusi IMB/PBG', agency: 'DPMPTSP' },
+    { position: [-5.475, 122.605], name: 'Retribusi Tempat Rekreasi', agency: 'Disparekraf' },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -99,6 +118,28 @@ export default function Dashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Peta Potensi Retribusi
+        </h2>
+        <div style={{ height: '400px', width: '100%' }}>
+          <MapContainer center={[-5.47, 122.6]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {retributionPotentials.map((potential, index) => (
+              <Marker key={index} position={potential.position}>
+                <Popup>
+                  <b>{potential.name}</b><br />
+                  {potential.agency}
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
