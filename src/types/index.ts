@@ -7,6 +7,7 @@ export interface User {
   role: UserRole;
   status: 'active' | 'inactive';
   createdAt: string;
+  department?: string;
 }
 
 export interface AuthUser extends User {

@@ -1,17 +1,46 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { Tarif, Zona } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+
+const departmentCategoryMapping: Record<string, string[]> = {
+  Dishub: ['Retribusi Parkir', 'Jasa Kepelabuhanan', 'Retribusi Terminal'],
+  DPMPTSP: ['Retribusi Perizinan Tertentu', 'Pajak Reklame'],
+  Disparekraf: ['Retribusi Tempat Rekreasi dan Olahraga'],
+  PDAM: ['Retribusi PDAM'],
+  Disperindag: ['Retribusi Pelayanan Pasar'],
+  'Dinas PUPR': ['Retribusi IMB/PBG', 'Sewa Alat Berat'],
+  'Dinas Lingkungan Hidup': ['Retribusi Pelayanan Persampahan/Kebersihan'],
+};
 
 export default function MasterData() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'tarif' | 'zona' | 'klasifikasi'>('tarif');
 
   const [tarifs, setTarifs] = useState<Tarif[]>([
-    { id: '1', name: 'Pasar Tradisional', category: 'Retribusi Pasar', amount: 50000, unit: 'per bulan', status: 'active' },
-    { id: '2', name: 'Pasar Modern', category: 'Retribusi Pasar', amount: 150000, unit: 'per bulan', status: 'active' },
+    { id: '1', name: 'Pasar Tradisional', category: 'Retribusi Pelayanan Pasar', amount: 50000, unit: 'per bulan', status: 'active' },
+    { id: '2', name: 'Kios', category: 'Retribusi Pelayanan Pasar', amount: 150000, unit: 'per bulan', status: 'active' },
     { id: '3', name: 'Reklame Billboard', category: 'Pajak Reklame', amount: 500000, unit: 'per m²', status: 'active' },
     { id: '4', name: 'Parkir Mobil', category: 'Retribusi Parkir', amount: 5000, unit: 'per jam', status: 'active' },
     { id: '5', name: 'Parkir Motor', category: 'Retribusi Parkir', amount: 2000, unit: 'per jam', status: 'inactive' },
+    { id: '6', name: 'Jasa Kepelabuhanan', category: 'Jasa Kepelabuhanan', amount: 25000, unit: 'per kapal', status: 'active' },
+    { id: '7', name: 'Retribusi Terminal', category: 'Retribusi Terminal', amount: 10000, unit: 'per bus', status: 'active' },
+    { id: '8', name: 'Izin Mendirikan Bangunan (IMB)', category: 'Retribusi Perizinan Tertentu', amount: 1500000, unit: 'per izin', status: 'active' },
+    { id: '9', name: 'Persetujuan Bangunan Gedung (PBG)', category: 'Retribusi IMB/PBG', amount: 2000000, unit: 'per izin', status: 'active' },
+    { id: '10', name: 'Tempat Rekreasi', category: 'Retribusi Tempat Rekreasi dan Olahraga', amount: 15000, unit: 'per orang', status: 'active' },
+    { id: '11', name: 'PDAM', category: 'Retribusi PDAM', amount: 75000, unit: 'per bulan', status: 'active' },
+    { id: '12', name: 'Sewa Alat Berat', category: 'Sewa Alat Berat', amount: 500000, unit: 'per hari', status: 'active' },
+    { id: '13', name: 'Pelayanan Persampahan', category: 'Retribusi Pelayanan Persampahan/Kebersihan', amount: 30000, unit: 'per bulan', status: 'active' },
   ]);
+
+  const filteredTarifs = useMemo(() => {
+    if (!user || user.role === 'super_admin') {
+      return tarifs;
+    }
+
+    const allowedCategories = departmentCategoryMapping[user.department || ''] || [];
+    return tarifs.filter((tarif) => allowedCategories.includes(tarif.category));
+  }, [user, tarifs]);
 
   const [zonas, setZonas] = useState<Zona[]>([
     { id: '1', name: 'Zona Pusat Kota', code: 'Z01', multiplier: 1.5, description: 'Area pusat bisnis dan pemerintahan' },
@@ -227,7 +256,7 @@ export default function MasterData() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {tarifs.map((tarif) => (
+                    {filteredTarifs.map((tarif) => (
                       <tr key={tarif.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                           {tarif.name}
@@ -389,11 +418,17 @@ export default function MasterData() {
                   onChange={(e) => setTarifForm({ ...tarifForm, category: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  <option>Retribusi Pasar</option>
+                  <option>Retribusi Pelayanan Pasar</option>
                   <option>Pajak Reklame</option>
                   <option>Retribusi Parkir</option>
-                  <option>Pajak Hotel</option>
-                  <option>Pajak Restoran</option>
+                  <option>Jasa Kepelabuhanan</option>
+                  <option>Retribusi Terminal</option>
+                  <option>Retribusi Perizinan Tertentu</option>
+                  <option>Retribusi IMB/PBG</option>
+                  <option>Retribusi Tempat Rekreasi dan Olahraga</option>
+                  <option>Retribusi PDAM</option>
+                  <option>Sewa Alat Berat</option>
+                  <option>Retribusi Pelayanan Persampahan/Kebersihan</option>
                 </select>
               </div>
 

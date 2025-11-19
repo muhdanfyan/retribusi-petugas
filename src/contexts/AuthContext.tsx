@@ -29,6 +29,17 @@ const demoUsers = [
     role: 'admin_dinas' as UserRole,
     status: 'active' as const,
     createdAt: '2024-01-01',
+    department: 'Dishub',
+  },
+  {
+    id: '6',
+    name: 'Admin DPMPTSP',
+    email: 'dpmptsp@baubau',
+    password: 'admin123',
+    role: 'admin_dinas' as UserRole,
+    status: 'active' as const,
+    createdAt: '2024-01-01',
+    department: 'DPMPTSP',
   },
   {
     id: '3',
