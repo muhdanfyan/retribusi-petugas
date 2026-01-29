@@ -107,6 +107,19 @@ export default function Login() {
                 </>
               )}
             </button>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Belum punya akun OPD?{' '}
+                <button
+                  type="button"
+                  onClick={() => navigate('/register/opd')}
+                  className="text-baubau-blue hover:underline font-medium"
+                >
+                  Daftar OPD Baru
+                </button>
+              </p>
+            </div>
           </form>
         </div>
 
