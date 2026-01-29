@@ -1,24 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
-import { Tarif, Zona } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
-
-interface Opd {
-  id: number;
-  name: string;
-  code: string;
-}
-
-interface RetributionType {
-  id: number;
-  opd_id: number;
-  name: string;
-  base_amount: number;
-  unit: string;
-  is_active: boolean;
-  opd?: Opd;
-}
+import { Tarif, Zona, RetributionType, Opd } from '../types';
 
 export default function MasterData() {
   const { user } = useAuth();
@@ -117,11 +101,11 @@ export default function MasterData() {
     setShowTarifModal(true);
   };
 
-  const handleDeleteTarif = async (id: string) => {
+  const handleDeleteTarif = async (id: string | number) => {
     if (confirm('Apakah Anda yakin ingin menghapus tarif ini?')) {
       try {
         await api.delete(`/api/retribution-types/${id}`);
-        setTarifs(tarifs.filter((t) => t.id !== id));
+        setTarifs(tarifs.filter((t) => t.id.toString() !== id.toString()));
       } catch (error) {
         alert('Gagal menghapus tarif');
       }
@@ -190,11 +174,11 @@ export default function MasterData() {
     setShowZonaModal(true);
   };
 
-  const handleDeleteZona = async (id: string) => {
+  const handleDeleteZona = async (id: string | number) => {
     if (confirm('Apakah Anda yakin ingin menghapus zona ini?')) {
       try {
         await api.delete(`/api/zones/${id}`);
-        setZonas(zonas.filter((z) => z.id !== id));
+        setZonas(zonas.filter((z) => z.id.toString() !== id.toString()));
       } catch (error) {
         alert('Gagal menghapus zona');
       }

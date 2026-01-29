@@ -13,6 +13,7 @@ import Reporting from './pages/Reporting';
 import MasterData from './pages/MasterData';
 import OpdManagement from './pages/OpdManagement';
 import SystemAdmin from './pages/SystemAdmin';
+import TaxpayerManagement from './pages/TaxpayerManagement';
 
 function App() {
   return (
@@ -40,6 +41,17 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin', 'opd']}>
                   <Layout>
                     <UserManagement />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/taxpayers"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd']}>
+                  <Layout>
+                    <TaxpayerManagement />
                   </Layout>
                 </ProtectedRoute>
               }

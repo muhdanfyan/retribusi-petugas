@@ -45,6 +45,12 @@ const menuItems: MenuItem[] = [
     roles: ['super_admin', 'opd'],
   },
   {
+    label: 'Wajib Pajak',
+    path: '/taxpayers',
+    icon: <Users className="w-5 h-5" />,
+    roles: ['super_admin', 'opd'],
+  },
+  {
     label: 'Billing & Tagihan',
     path: '/billing',
     icon: <FileText className="w-5 h-5" />,
