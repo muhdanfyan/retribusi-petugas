@@ -25,6 +25,7 @@ export default function MasterData() {
     unit: '',
     status: 'active' as 'active' | 'inactive',
     opd_id: '',
+    icon: null as File | null,
   });
 
   const [zonaForm, setZonaForm] = useState({
@@ -84,6 +85,7 @@ export default function MasterData() {
       unit: '',
       status: 'active',
       opd_id: user?.role === 'opd' ? user.opd_id?.toString() || '' : opds[0]?.id.toString() || '',
+      icon: null,
     });
     setShowTarifModal(true);
   };
@@ -97,6 +99,7 @@ export default function MasterData() {
       unit: tarif.unit,
       status: tarif.status,
       opd_id: (tarif as any).opd_id?.toString() || '',
+      icon: null,
     });
     setShowTarifModal(true);
   };
@@ -114,17 +117,25 @@ export default function MasterData() {
 
   const handleSubmitTarif = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = {
-      name: tarifForm.name,
-      base_amount: Number(tarifForm.amount),
-      unit: tarifForm.unit,
-      is_active: tarifForm.status === 'active',
-      opd_id: Number(tarifForm.opd_id),
-    };
+    
+    const formData = new FormData();
+    formData.append('name', tarifForm.name);
+    formData.append('base_amount', tarifForm.amount);
+    formData.append('unit', tarifForm.unit);
+    formData.append('is_active', tarifForm.status === 'active' ? '1' : '0');
+    formData.append('opd_id', tarifForm.opd_id);
+    
+    if (tarifForm.icon) {
+      formData.append('icon', tarifForm.icon);
+    }
 
     try {
       if (editingTarif) {
-        const updated = await api.put(`/api/retribution-types/${editingTarif.id}`, payload);
+        // Use POST with _method=PUT for Laravel to handle multipart/form-data updates
+        formData.append('_method', 'PUT');
+        const updated = await api.post(`/api/retribution-types/${editingTarif.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         const t = updated.data || updated;
         setTarifs(tarifs.map((prev) => prev.id === editingTarif.id ? {
           id: t.id.toString(),
@@ -135,9 +146,12 @@ export default function MasterData() {
           status: t.is_active ? 'active' : 'inactive',
           department: opds.find(o => o.id === t.opd_id)?.name || 'Unknown',
           opd_id: t.opd_id,
+          icon: t.icon,
         } : prev));
       } else {
-        const created = await api.post('/api/retribution-types', payload);
+        const created = await api.post('/api/retribution-types', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         const t = created.data || created;
         const newTarif: Tarif = {
           id: t.id.toString(),
@@ -148,11 +162,13 @@ export default function MasterData() {
           status: t.is_active ? 'active' : 'inactive',
           department: opds.find(o => o.id === t.opd_id)?.name || 'Unknown',
           opd_id: t.opd_id,
-        };
+          icon: t.icon,
+        } as any;
         setTarifs([...tarifs, newTarif]);
       }
       setShowTarifModal(false);
     } catch (error) {
+      console.error('Submit error:', error);
       alert('Gagal menyimpan tarif');
     }
   };
@@ -290,6 +306,9 @@ export default function MasterData() {
                   <thead className="bg-gray-50 dark:bg-gray-700/50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                        Icon
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Nama Tarif
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
@@ -312,6 +331,15 @@ export default function MasterData() {
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredTarifs.map((tarif) => (
                       <tr key={tarif.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td className="px-6 py-4">
+                          {(tarif as any).icon ? (
+                            <img src={(tarif as any).icon} alt="" className="w-8 h-8 object-contain" />
+                          ) : (
+                            <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center text-gray-400">
+                              -
+                            </div>
+                          )}
+                        </td>
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                           {tarif.name}
                         </td>
@@ -492,6 +520,27 @@ export default function MasterData() {
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   required
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Icon (Gambar)
+                </label>
+                <div className="flex items-center gap-4">
+                  {((tarifForm as any).icon || (editingTarif as any)?.icon) && (
+                    <img 
+                      src={tarifForm.icon ? URL.createObjectURL(tarifForm.icon) : (editingTarif as any).icon} 
+                      alt="Preview" 
+                      className="w-12 h-12 object-contain border rounded p-1"
+                    />
+                  )}
+                  <input
+                    type="file"
+                    onChange={(e) => setTarifForm({ ...tarifForm, icon: e.target.files?.[0] || null })}
+                    className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    accept="image/*"
+                  />
+                </div>
               </div>
 
               <div>
