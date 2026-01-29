@@ -7,24 +7,34 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
 
-    if (login(email, password)) {
+    const { error: loginError } = await login(email, password);
+    
+    if (!loginError) {
       navigate('/dashboard');
     } else {
-      setError('Email atau password salah');
+      setError(loginError || 'Email atau password salah');
     }
+    setIsSubmitting(false);
   };
 
-  const quickLogin = (demoEmail: string, demoPassword: string) => {
-    if (login(demoEmail, demoPassword)) {
+  const quickLogin = async (demoEmail: string, demoPassword: string) => {
+    setIsSubmitting(true);
+    const { error: loginError } = await login(demoEmail, demoPassword);
+    if (!loginError) {
       navigate('/dashboard');
+    } else {
+      setError(loginError);
     }
+    setIsSubmitting(false);
   };
 
   const demoAccounts = [
@@ -61,6 +71,7 @@ export default function Login() {
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-baubau-blue focus:border-transparent"
                 placeholder="admin@baubau"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -75,6 +86,7 @@ export default function Login() {
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-baubau-blue focus:border-transparent"
                 placeholder="••••••••"
                 required
+                disabled={isSubmitting}
               />
             </div>
 
@@ -86,10 +98,17 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full bg-baubau-blue hover:bg-baubau-blue-dark text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm"
+              disabled={isSubmitting}
+              className="w-full bg-baubau-blue hover:bg-baubau-blue-dark text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm disabled:opacity-50"
             >
-              <LogIn className="w-5 h-5" />
-              Login
+              {isSubmitting ? (
+                <span>Memproses...</span>
+              ) : (
+                <>
+                  <LogIn className="w-5 h-5" />
+                  Login
+                </>
+              )}
             </button>
           </form>
         </div>
@@ -107,7 +126,8 @@ export default function Login() {
               <button
                 key={account.email}
                 onClick={() => quickLogin(account.email, account.password)}
-                className={`w-full ${account.color} text-white font-medium py-3 px-4 rounded-lg transition-all hover:shadow-lg text-left`}
+                disabled={isSubmitting}
+                className={`w-full ${account.color} text-white font-medium py-3 px-4 rounded-lg transition-all hover:shadow-lg text-left disabled:opacity-50`}
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -123,7 +143,7 @@ export default function Login() {
           <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
             <p className="text-xs text-blue-900 dark:text-blue-300">
               <strong>Catatan:</strong> Ini adalah prototype dengan data dummy.
-              Setiap role memiliki akses menu yang berbeda sesuai permissions.
+              Sekarang menggunakan Supabase untuk autentikasi.
             </p>
           </div>
         </div>

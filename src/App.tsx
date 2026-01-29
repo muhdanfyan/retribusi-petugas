@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import OpdRegistration from './pages/OpdRegistration';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
 import Billing from './pages/Billing';
@@ -19,11 +20,12 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register/opd" element={<OpdRegistration />} />
 
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'admin_dinas', 'verifikator', 'kasir', 'viewer']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'kasir', 'viewer']}>
                   <Layout>
                     <Dashboard />
                   </Layout>
@@ -34,7 +36,7 @@ function App() {
             <Route
               path="/users"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'admin_dinas']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd']}>
                   <Layout>
                     <UserManagement />
                   </Layout>
@@ -45,7 +47,7 @@ function App() {
             <Route
               path="/billing"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'admin_dinas', 'kasir']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'kasir']}>
                   <Layout>
                     <Billing />
                   </Layout>
@@ -56,7 +58,7 @@ function App() {
             <Route
               path="/verification"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'admin_dinas', 'verifikator']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator']}>
                   <Layout>
                     <Verification />
                   </Layout>
@@ -67,7 +69,7 @@ function App() {
             <Route
               path="/reporting"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'admin_dinas', 'viewer']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'viewer']}>
                   <Layout>
                     <Reporting />
                   </Layout>
@@ -78,7 +80,7 @@ function App() {
             <Route
               path="/master-data"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'admin_dinas']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd']}>
                   <Layout>
                     <MasterData />
                   </Layout>

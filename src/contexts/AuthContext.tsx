@@ -3,15 +3,16 @@ import { User, UserRole } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => boolean;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<{ error: string | null }>;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   hasRole: (roles: UserRole[]) => boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const demoUsers = [
+const demoUsers: (User & { password: string })[] = [
   {
     id: '1',
     name: 'Super Admin',
@@ -31,56 +32,21 @@ const demoUsers = [
     createdAt: '2024-01-01',
     department: 'Dishub',
   },
-  {
-    id: '6',
-    name: 'Admin DPMPTSP',
-    email: 'dpmptsp@baubau',
-    password: 'admin123',
-    role: 'admin_dinas' as UserRole,
-    status: 'active' as const,
-    createdAt: '2024-01-01',
-    department: 'DPMPTSP',
-  },
-  {
-    id: '3',
-    name: 'Verifikator',
-    email: 'verifikator@baubau',
-    password: 'ver123',
-    role: 'verifikator' as UserRole,
-    status: 'active' as const,
-    createdAt: '2024-01-01',
-  },
-  {
-    id: '4',
-    name: 'Kasir',
-    email: 'kasir@baubau',
-    password: 'kasir123',
-    role: 'kasir' as UserRole,
-    status: 'active' as const,
-    createdAt: '2024-01-01',
-  },
-  {
-    id: '5',
-    name: 'Viewer',
-    email: 'viewer@baubau',
-    password: 'view123',
-    role: 'viewer' as UserRole,
-    status: 'active' as const,
-    createdAt: '2024-01-01',
-  },
 ];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+    setLoading(false);
   }, []);
 
-  const login = (email: string, password: string): boolean => {
+  const login = async (email: string, password: string): Promise<{ error: string | null }> => {
     const foundUser = demoUsers.find(
       (u) => u.email === email && u.password === password
     );
@@ -89,12 +55,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { password: _, ...userWithoutPassword } = foundUser;
       setUser(userWithoutPassword);
       localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-      return true;
+      return { error: null };
     }
-    return false;
+    return { error: 'Email atau password salah' };
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     localStorage.removeItem('user');
   };
@@ -111,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         isAuthenticated: !!user,
         hasRole,
+        loading,
       }}
     >
       {children}
