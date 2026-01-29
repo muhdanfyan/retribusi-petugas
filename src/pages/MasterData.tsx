@@ -93,7 +93,14 @@ export default function MasterData() {
 
   const handleAddTarif = () => {
     setEditingTarif(null);
-    setTarifForm({ name: '', category: 'Retribusi Umum', amount: '', unit: '', status: 'active', opd_id: opds[0]?.id.toString() || '' });
+    setTarifForm({
+      name: '',
+      category: 'Retribusi Umum',
+      amount: '',
+      unit: '',
+      status: 'active',
+      opd_id: user?.role === 'opd' ? user.opd_id?.toString() || '' : opds[0]?.id.toString() || '',
+    });
     setShowTarifModal(true);
   };
 
@@ -472,21 +479,23 @@ export default function MasterData() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  OPD atau Dinas Terkait
-                </label>
-                <select
-                  value={tarifForm.opd_id}
-                  onChange={(e) => setTarifForm({ ...tarifForm, opd_id: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Pilih OPD</option>
-                  {opds.map((opd) => (
-                    <option key={opd.id} value={opd.id}>{opd.name}</option>
-                  ))}
-                </select>
-              </div>
+              {user?.role === 'super_admin' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    OPD atau Dinas Terkait
+                  </label>
+                  <select
+                    value={tarifForm.opd_id}
+                    onChange={(e) => setTarifForm({ ...tarifForm, opd_id: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Pilih OPD</option>
+                    {opds.map((opd) => (
+                      <option key={opd.id} value={opd.id}>{opd.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
