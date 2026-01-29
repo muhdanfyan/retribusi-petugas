@@ -17,7 +17,7 @@ export default function UserManagement() {
     email: '',
     password: '',
     role: 'viewer' as UserRole,
-    status: 'active' as const,
+    status: 'active' as 'active' | 'inactive',
   });
 
   useEffect(() => {
@@ -55,11 +55,11 @@ export default function UserManagement() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string | number) => {
     if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
       try {
         await api.delete(`/api/users/${id}`);
-        setUsers(users.filter((u) => u.id !== id));
+        setUsers(users.filter((u) => u.id != id)); // Use loose equality for number/string comparison
       } catch (err: any) {
         alert(err.message || 'Gagal menghapus user');
       }
@@ -71,7 +71,7 @@ export default function UserManagement() {
     try {
       if (editingUser) {
         const updatedUser = await api.put(`/api/users/${editingUser.id}`, formData);
-        setUsers(users.map((u) => (u.id === editingUser.id ? updatedUser : u)));
+        setUsers(users.map((u) => (u.id == editingUser.id ? updatedUser : u)));
       } else {
         const newUser = await api.post('/api/users', formData);
         setUsers([...users, newUser]);
