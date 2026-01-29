@@ -33,7 +33,7 @@ export default function OpdManagement() {
   const fetchOpds = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/opd');
+      const response = await api.get('/api/opds');
       // The API returns { data: [...] }
       setOpds(response.data || []);
       setError(null);
@@ -48,7 +48,7 @@ export default function OpdManagement() {
     const action = status === 'approved' ? 'menyetujui' : 'menolak';
     if (confirm(`Apakah Anda yakin ingin ${action} pendaftaran OPD ini?`)) {
       try {
-        await api.put(`/api/opd/${id}`, { status });
+        await api.put(`/api/opds/${id}`, { status });
         setOpds(opds.map((opd) => (opd.id === id ? { ...opd, status } : opd)));
       } catch (err: any) {
         alert(err.message || `Gagal ${action} OPD`);
