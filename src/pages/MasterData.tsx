@@ -54,6 +54,7 @@ export default function MasterData() {
           status: t.is_active ? 'active' : 'inactive',
           department: t.opd?.name || 'Unknown',
           opd_id: t.opd_id,
+          icon: t.icon,
         })).filter(Boolean);
 
         setTarifs(mappedTarifs);
