@@ -1,16 +1,12 @@
-import { useState } from 'react';
-import { Plus, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Plus, Edit, Trash2, Search, Filter, Loader2 } from 'lucide-react';
 import { User, UserRole } from '../types';
+import { api } from '../lib/api';
 
 export default function UserManagement() {
-  const [users, setUsers] = useState<User[]>([
-    { id: '1', name: 'Super Admin', email: 'admin@baubau', role: 'super_admin', status: 'active', createdAt: '2024-01-01' },
-    { id: '2', name: 'Admin Dinas', email: 'dinas@baubau', role: 'admin_dinas', status: 'active', createdAt: '2024-01-01' },
-    { id: '3', name: 'Verifikator 1', email: 'verifikator@baubau', role: 'verifikator', status: 'active', createdAt: '2024-02-15' },
-    { id: '4', name: 'Kasir 1', email: 'kasir@baubau', role: 'kasir', status: 'active', createdAt: '2024-03-10' },
-    { id: '5', name: 'Viewer', email: 'viewer@baubau', role: 'viewer', status: 'inactive', createdAt: '2024-04-20' },
-  ]);
-
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,13 +15,31 @@ export default function UserManagement() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     role: 'viewer' as UserRole,
     status: 'active' as const,
   });
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await api.get('/api/users');
+      setUsers(data);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || 'Gagal mengambil data user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAdd = () => {
     setEditingUser(null);
-    setFormData({ name: '', email: '', role: 'viewer', status: 'active' });
+    setFormData({ name: '', email: '', password: '', role: 'viewer', status: 'active' });
     setShowModal(true);
   };
 
@@ -34,39 +48,38 @@ export default function UserManagement() {
     setFormData({
       name: user.name,
       email: user.email,
+      password: '', // Keep password empty when editing
       role: user.role,
       status: user.status,
     });
     setShowModal(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
-      setUsers(users.filter((u) => u.id !== id));
+      try {
+        await api.delete(`/api/users/${id}`);
+        setUsers(users.filter((u) => u.id !== id));
+      } catch (err: any) {
+        alert(err.message || 'Gagal menghapus user');
+      }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (editingUser) {
-      setUsers(
-        users.map((u) =>
-          u.id === editingUser.id
-            ? { ...u, ...formData }
-            : u
-        )
-      );
-    } else {
-      const newUser: User = {
-        id: Date.now().toString(),
-        ...formData,
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-      setUsers([...users, newUser]);
+    try {
+      if (editingUser) {
+        const updatedUser = await api.put(`/api/users/${editingUser.id}`, formData);
+        setUsers(users.map((u) => (u.id === editingUser.id ? updatedUser : u)));
+      } else {
+        const newUser = await api.post('/api/users', formData);
+        setUsers([...users, newUser]);
+      }
+      setShowModal(false);
+    } catch (err: any) {
+      alert(err.message || 'Gagal menyimpan data user');
     }
-
-    setShowModal(false);
   };
 
   const filteredUsers = users.filter((user) => {
@@ -79,7 +92,7 @@ export default function UserManagement() {
 
   const roleLabels: Record<UserRole, string> = {
     super_admin: 'Super Admin',
-    admin_dinas: 'Admin Dinas',
+    opd: 'OPD Admin',
     verifikator: 'Verifikator',
     kasir: 'Kasir',
     viewer: 'Viewer',
@@ -135,12 +148,32 @@ export default function UserManagement() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Nama
-                </th>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center p-12">
+              <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-4" />
+              <p className="text-gray-500">Memuat data user...</p>
+            </div>
+          ) : error ? (
+            <div className="p-12 text-center">
+              <p className="text-red-500 mb-4">{error}</p>
+              <button
+                onClick={fetchUsers}
+                className="px-4 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200"
+              >
+                Coba Lagi
+              </button>
+            </div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="p-12 text-center text-gray-500">
+              Tidak ada user ditemukan.
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-700/50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Nama
+                  </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   Email
                 </th>
@@ -203,7 +236,8 @@ export default function UserManagement() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          )}
         </div>
       </div>
 
@@ -240,6 +274,20 @@ export default function UserManagement() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Password {editingUser && '(Kosongkan jika tidak ingin diubah)'}
+                </label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required={!editingUser}
+                  placeholder={editingUser ? '••••••••' : 'Minimal 8 karakter'}
                 />
               </div>
 
