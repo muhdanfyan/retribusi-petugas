@@ -38,11 +38,8 @@ export default function Login() {
   };
 
   const demoAccounts = [
-    { email: 'admin@baubau', password: 'superadmin123', label: 'Super Admin', color: 'bg-rose-500 hover:bg-rose-600' },
-    { email: 'dinas@baubau', password: 'admin123', label: 'Admin Dinas', color: 'bg-baubau-blue hover:bg-baubau-blue-dark' },
-    { email: 'verifikator@baubau', password: 'ver123', label: 'Verifikator', color: 'bg-baubau-green hover:bg-green-700' },
-    { email: 'kasir@baubau', password: 'kasir123', label: 'Kasir', color: 'bg-baubau-yellow hover:bg-baubau-yellow-dark' },
-    { email: 'viewer@baubau', password: 'view123', label: 'Viewer', color: 'bg-slate-500 hover:bg-slate-600' },
+    { email: 'superadmin@sipanda.online', password: 'Sipanda123#', label: 'Dev Super Admin', color: 'bg-rose-500 hover:bg-rose-600' },
+    { email: 'admin@retribusi.id', password: 'password123', label: 'Super Admin', color: 'bg-indigo-600 hover:bg-indigo-700' },
   ];
 
   return (
@@ -142,8 +139,7 @@ export default function Login() {
 
           <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
             <p className="text-xs text-blue-900 dark:text-blue-300">
-              <strong>Catatan:</strong> Ini adalah prototype dengan data dummy.
-              Sekarang menggunakan Supabase untuk autentikasi.
+              <strong>Catatan:</strong> Sekarang terhubung ke `api.sipanda.online` via Sanctum.
             </p>
           </div>
         </div>

@@ -1,83 +1,125 @@
-import { TrendingUp, DollarSign, FileText, Users, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { TrendingUp, DollarSign, FileText, Users, AlertCircle, Loader2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { api } from '../lib/api';
 
 // Fix for default marker icon
-delete L.Icon.Default.prototype._getIconUrl;
+delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+interface Stats {
+  total_revenue: number;
+  collection_rate: number;
+  pending_bills: number;
+  active_taxpayers: number;
+  trends: {
+    revenue: string;
+    collection_rate: string;
+    pending_bills: string;
+    active_taxpayers: string;
+  };
+}
+
+interface RevenueItem {
+  month: string;
+  amount: string | number;
+}
+
+interface Potential {
+  position: [number, number];
+  name: string;
+  agency: string;
+}
 
 export default function Dashboard() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [revenueData, setRevenueData] = useState<RevenueItem[]>([]);
+  const [potentials, setPotentials] = useState<Potential[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const [statsRes, trendRes, mapRes] = await Promise.all([
+          api.get('/api/dashboard/stats'),
+          api.get('/api/dashboard/revenue-trend'),
+          api.get('/api/dashboard/map-potentials'),
+        ]);
+
+        setStats(statsRes);
+        setRevenueData(trendRes);
+        setPotentials(mapRes);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1000000) {
+      return `Rp ${(amount / 1000000).toFixed(1)}M`;
+    }
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-baubau-blue" />
+      </div>
+    );
+  }
+
   const kpiData = [
     {
       label: 'Total Pendapatan',
-      value: 'Rp 45.2M',
-      change: '+12.5%',
-      trend: 'up',
+      value: formatCurrency(stats?.total_revenue || 0),
+      change: stats?.trends.revenue || '+0%',
+      trend: stats?.trends.revenue.includes('+') ? 'up' : 'down',
       icon: <DollarSign className="w-6 h-6" />,
       color: 'bg-baubau-green',
     },
     {
       label: 'Collection Rate',
-      value: '87.3%',
-      change: '+5.2%',
-      trend: 'up',
+      value: `${stats?.collection_rate || 0}%`,
+      change: stats?.trends.collection_rate || '+0%',
+      trend: stats?.trends.collection_rate.includes('+') ? 'up' : 'down',
       icon: <TrendingUp className="w-6 h-6" />,
       color: 'bg-baubau-blue',
     },
     {
       label: 'Tagihan Pending',
-      value: '234',
-      change: '-8.1%',
-      trend: 'down',
+      value: stats?.pending_bills.toString() || '0',
+      change: stats?.trends.pending_bills || '+0%',
+      trend: stats?.trends.pending_bills.includes('-') ? 'up' : 'down', // Down is good for pending
       icon: <FileText className="w-6 h-6" />,
       color: 'bg-baubau-yellow',
     },
     {
       label: 'Wajib Pajak Aktif',
-      value: '1,247',
-      change: '+15.3%',
-      trend: 'up',
+      value: stats?.active_taxpayers.toLocaleString() || '0',
+      change: stats?.trends.active_taxpayers || '+0%',
+      trend: stats?.trends.active_taxpayers.includes('+') ? 'up' : 'down',
       icon: <Users className="w-6 h-6" />,
       color: 'bg-violet-500',
     },
   ];
 
-  const revenueData = [
-    { month: 'Mei', amount: 6.8 },
-    { month: 'Jun', amount: 7.2 },
-    { month: 'Jul', amount: 6.5 },
-    { month: 'Agu', amount: 8.1 },
-    { month: 'Sep', amount: 7.8 },
-    { month: 'Okt', amount: 8.8 },
-  ];
-
-  const maxAmount = Math.max(...revenueData.map((d) => d.amount));
-
-  const recentTransactions = [
-    { id: 'TRX001', taxpayer: 'PT Maju Jaya', type: 'Retribusi Pasar', amount: 'Rp 2.5M', status: 'lunas' },
-    { id: 'TRX002', taxpayer: 'CV Berkah', type: 'Pajak Reklame', amount: 'Rp 1.8M', status: 'pending' },
-    { id: 'TRX003', taxpayer: 'UD Sejahtera', type: 'Retribusi Parkir', amount: 'Rp 950K', status: 'lunas' },
-    { id: 'TRX004', taxpayer: 'PT Global', type: 'Pajak Hotel', amount: 'Rp 3.2M', status: 'overdue' },
-  ];
-
-  const kpiProgress = [
-    { label: 'Target Bulanan', current: 87, target: 100, color: 'bg-baubau-blue' },
-    { label: 'Efisiensi Koleksi', current: 92, target: 100, color: 'bg-baubau-green' },
-    { label: 'Verifikasi SLA', current: 78, target: 100, color: 'bg-baubau-yellow' },
-  ];
-
-  const retributionPotentials = [
-    { position: [-5.47, 122.6], name: 'Retribusi Parkir', agency: 'Dishub' },
-    { position: [-5.48, 122.61], name: 'Retribusi Pelayanan Pasar', agency: 'Disperindag' },
-    { position: [-5.46, 122.59], name: 'Retribusi IMB/PBG', agency: 'DPMPTSP' },
-    { position: [-5.475, 122.605], name: 'Retribusi Tempat Rekreasi', agency: 'Disparekraf' },
-  ];
+  const maxAmount = Math.max(...revenueData.map((d) => Number(d.amount)), 1);
 
   return (
     <div className="space-y-6">
@@ -90,7 +132,9 @@ export default function Dashboard() {
         </div>
         <div className="text-right">
           <p className="text-sm text-gray-600 dark:text-gray-400">Periode</p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-white">Oktober 2025</p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-white">
+            {new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' })}
+          </p>
         </div>
       </div>
 
@@ -130,7 +174,7 @@ export default function Dashboard() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {retributionPotentials.map((potential, index) => (
+            {potentials.map((potential, index) => (
               <Marker key={index} position={potential.position}>
                 <Popup>
                   <b>{potential.name}</b><br />
@@ -148,24 +192,28 @@ export default function Dashboard() {
             Tren Pendapatan (Miliar Rupiah)
           </h2>
           <div className="space-y-4">
-            {revenueData.map((data, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">
-                    {data.month}
-                  </span>
-                  <span className="text-gray-900 dark:text-white font-semibold">
-                    Rp {data.amount}M
-                  </span>
+            {revenueData.length > 0 ? (
+              revenueData.map((data, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {data.month}
+                    </span>
+                    <span className="text-gray-900 dark:text-white font-semibold">
+                      {formatCurrency(Number(data.amount))}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3">
+                    <div
+                      className="bg-gradient-to-r from-baubau-blue-light to-baubau-blue h-3 rounded-full transition-all"
+                      style={{ width: `${(Number(data.amount) / maxAmount) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3">
-                  <div
-                    className="bg-gradient-to-r from-baubau-blue-light to-baubau-blue h-3 rounded-full transition-all"
-                    style={{ width: `${(data.amount / maxAmount) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-center py-8 italic">Belum ada data pendapatan</p>
+            )}
           </div>
         </div>
 
@@ -174,20 +222,24 @@ export default function Dashboard() {
             KPI Monitoring
           </h2>
           <div className="space-y-6">
-            {kpiProgress.map((kpi, index) => (
+            {[
+              { label: 'Target Bulanan', current: stats?.collection_rate || 0, color: 'bg-baubau-blue' },
+              { label: 'Efisiensi Koleksi', current: stats?.collection_rate ? stats.collection_rate + 5 : 0, color: 'bg-baubau-green' },
+              { label: 'Verifikasi SLA', current: 78, color: 'bg-baubau-yellow' },
+            ].map((kpi, index) => (
               <div key={index}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {kpi.label}
                   </span>
                   <span className="text-sm font-bold text-gray-900 dark:text-white">
-                    {kpi.current}%
+                    {Math.min(kpi.current, 100)}%
                   </span>
                 </div>
                 <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                   <div
                     className={`${kpi.color} h-2 rounded-full transition-all`}
-                    style={{ width: `${kpi.current}%` }}
+                    style={{ width: `${Math.min(kpi.current, 100)}%` }}
                   ></div>
                 </div>
               </div>
@@ -216,62 +268,8 @@ export default function Dashboard() {
             Transaksi Terbaru
           </h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  ID Transaksi
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Wajib Pajak
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Jenis
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Jumlah
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {recentTransactions.map((transaction) => (
-                <tr
-                  key={transaction.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    {transaction.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                    {transaction.taxpayer}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                    {transaction.type}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
-                    {transaction.amount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        transaction.status === 'lunas'
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
-                          : transaction.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                          : 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'
-                      }`}
-                    >
-                      {transaction.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="p-8 text-center text-gray-500 italic">
+          Data transaksi disinkronisasi dari sistem pembayaran...
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '../types';
+import { api } from '../lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -12,60 +13,50 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const demoUsers: (User & { password: string })[] = [
-  {
-    id: '1',
-    name: 'Super Admin',
-    email: 'admin@baubau',
-    password: 'superadmin123',
-    role: 'super_admin' as UserRole,
-    status: 'active' as const,
-    createdAt: '2024-01-01',
-  },
-  {
-    id: '2',
-    name: 'Admin Dinas',
-    email: 'dinas@baubau',
-    password: 'admin123',
-    role: 'admin_dinas' as UserRole,
-    status: 'active' as const,
-    createdAt: '2024-01-01',
-    department: 'Dishub',
-  },
-];
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
-    if (savedUser) {
+    const token = localStorage.getItem('token');
+    
+    if (savedUser && token) {
       setUser(JSON.parse(savedUser));
     }
     setLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<{ error: string | null }> => {
-    const foundUser = demoUsers.find(
-      (u) => u.email === email && u.password === password
-    );
-
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      setUser(userWithoutPassword);
-      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
-      return { error: null };
+    try {
+      const response = await api.post('/api/login', { email, password });
+      
+      if (response.token && response.user) {
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        setUser(response.user);
+        return { error: null };
+      }
+      
+      return { error: 'Terjadi kesalahan saat login' };
+    } catch (err: any) {
+      return { error: err.message || 'Email atau password salah' };
     }
-    return { error: 'Email atau password salah' };
   };
 
   const logout = async () => {
-    setUser(null);
-    localStorage.removeItem('user');
+    try {
+      await api.post('/api/logout', {});
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   };
 
-  const hasRole = (roles: UserRole[]): boolean => {
+  const hasRole = (roles: (UserRole | string)[]): boolean => {
     return user ? roles.includes(user.role) : false;
   };
 
