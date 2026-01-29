@@ -16,6 +16,7 @@ import {
   Bell,
   Menu,
   X,
+  Building2,
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -35,37 +36,43 @@ const menuItems: MenuItem[] = [
     label: 'Dashboard',
     path: '/dashboard',
     icon: <LayoutDashboard className="w-5 h-5" />,
-    roles: ['super_admin', 'admin_dinas', 'verifikator', 'kasir', 'viewer'],
+    roles: ['super_admin', 'opd', 'verifikator', 'kasir', 'viewer'],
   },
   {
     label: 'User Management',
     path: '/users',
     icon: <Users className="w-5 h-5" />,
-    roles: ['super_admin', 'admin_dinas'],
+    roles: ['super_admin', 'opd'],
   },
   {
     label: 'Billing & Tagihan',
     path: '/billing',
     icon: <FileText className="w-5 h-5" />,
-    roles: ['super_admin', 'admin_dinas', 'kasir'],
+    roles: ['super_admin', 'opd', 'kasir'],
   },
   {
     label: 'Verifikasi',
     path: '/verification',
     icon: <CheckSquare className="w-5 h-5" />,
-    roles: ['super_admin', 'admin_dinas', 'verifikator'],
+    roles: ['super_admin', 'opd', 'verifikator'],
   },
   {
     label: 'Reporting',
     path: '/reporting',
     icon: <BarChart3 className="w-5 h-5" />,
-    roles: ['super_admin', 'admin_dinas', 'viewer'],
+    roles: ['super_admin', 'opd', 'viewer'],
   },
   {
     label: 'Master Data',
     path: '/master-data',
     icon: <Database className="w-5 h-5" />,
-    roles: ['super_admin', 'admin_dinas'],
+    roles: ['super_admin', 'opd'],
+  },
+  {
+    label: 'Kelola OPD',
+    path: '/opds',
+    icon: <Building2 className="w-5 h-5" />,
+    roles: ['super_admin'],
   },
   {
     label: 'System Admin',

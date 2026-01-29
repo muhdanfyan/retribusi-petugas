@@ -11,6 +11,7 @@ import Billing from './pages/Billing';
 import Verification from './pages/Verification';
 import Reporting from './pages/Reporting';
 import MasterData from './pages/MasterData';
+import OpdManagement from './pages/OpdManagement';
 import SystemAdmin from './pages/SystemAdmin';
 
 function App() {
@@ -94,6 +95,17 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin']}>
                   <Layout>
                     <SystemAdmin />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/opds"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <Layout>
+                    <OpdManagement />
                   </Layout>
                 </ProtectedRoute>
               }
