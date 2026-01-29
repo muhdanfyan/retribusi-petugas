@@ -4,7 +4,6 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     const token = localStorage.getItem('token');
 
     const headers = {
-        'Content-Type': 'application/json',
         'Accept': 'application/json',
         ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...((options.headers as any) || {}),
@@ -32,8 +31,30 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
 }
 
 export const api = {
-    get: (endpoint: string) => apiFetch(endpoint, { method: 'GET' }),
-    post: (endpoint: string, body: any) => apiFetch(endpoint, { method: 'POST', body: JSON.stringify(body) }),
-    put: (endpoint: string, body: any) => apiFetch(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
-    delete: (endpoint: string) => apiFetch(endpoint, { method: 'DELETE' }),
+    get: (endpoint: string, options: RequestInit = {}) => apiFetch(endpoint, { method: 'GET', ...options }),
+    post: (endpoint: string, body: any, options: RequestInit = {}) => {
+        const isFormData = body instanceof FormData;
+        return apiFetch(endpoint, {
+            method: 'POST',
+            body: isFormData ? body : JSON.stringify(body),
+            ...options,
+            headers: {
+                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+                ...((options.headers as any) || {}),
+            }
+        });
+    },
+    put: (endpoint: string, body: any, options: RequestInit = {}) => {
+        const isFormData = body instanceof FormData;
+        return apiFetch(endpoint, {
+            method: 'PUT',
+            body: isFormData ? body : JSON.stringify(body),
+            ...options,
+            headers: {
+                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+                ...((options.headers as any) || {}),
+            }
+        });
+    },
+    delete: (endpoint: string, options: RequestInit = {}) => apiFetch(endpoint, { method: 'DELETE', ...options }),
 };
