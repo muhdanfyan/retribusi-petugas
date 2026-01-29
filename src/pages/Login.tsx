@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { LogIn } from 'lucide-react';
 
@@ -111,13 +111,12 @@ export default function Login() {
             <div className="text-center">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Belum punya akun OPD?{' '}
-                <button
-                  type="button"
-                  onClick={() => navigate('/register/opd')}
+                <Link
+                  to="/register/opd"
                   className="text-baubau-blue hover:underline font-medium"
                 >
                   Daftar OPD Baru
-                </button>
+                </Link>
               </p>
             </div>
           </form>

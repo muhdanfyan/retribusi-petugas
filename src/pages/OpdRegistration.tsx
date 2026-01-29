@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Building2, User, Mail, Lock, Phone, MapPin, ArrowRight, CheckCircle } from 'lucide-react';
 
 export default function OpdRegistration() {
@@ -76,13 +77,13 @@ export default function OpdRegistration() {
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             Pendaftaran OPD Anda telah diterima. Mohon tunggu persetujuan dari Super Admin sebelum dapat login ke sistem.
           </p>
-          <a
-            href="/login"
+          <Link
+            to="/login"
             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
           >
             Ke Halaman Login
             <ArrowRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -365,9 +366,9 @@ export default function OpdRegistration() {
 
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
             Sudah terdaftar?{' '}
-            <a href="/login" className="text-blue-600 hover:underline">
+            <Link to="/login" className="text-blue-600 hover:underline">
               Login di sini
-            </a>
+            </Link>
           </p>
         </form>
       </div>
