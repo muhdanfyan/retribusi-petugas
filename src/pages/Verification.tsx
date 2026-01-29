@@ -1,49 +1,72 @@
-import { useState } from 'react';
-import { Search, Filter, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Filter, Clock, CheckCircle, XCircle, Eye, Loader2 } from 'lucide-react';
 import { Verification as VerificationType } from '../types';
+import { api } from '../lib/api';
 
 export default function Verification() {
-  const [verifications, setVerifications] = useState<VerificationType[]>([
-    { id: '1', documentNumber: 'DOC-2025-001', taxpayerName: 'PT Maju Jaya', type: 'Retribusi Pasar', amount: 2500000, status: 'pending', submittedAt: '2025-10-28 10:30', sla: 2 },
-    { id: '2', documentNumber: 'DOC-2025-002', taxpayerName: 'CV Berkah', type: 'Pajak Reklame', amount: 1800000, status: 'in_review', submittedAt: '2025-10-29 14:15', sla: 5, verifier: 'Verifikator 1' },
-    { id: '3', documentNumber: 'DOC-2025-003', taxpayerName: 'UD Sejahtera', type: 'Retribusi Parkir', amount: 950000, status: 'approved', submittedAt: '2025-10-25 09:00', sla: 0, verifier: 'Verifikator 2' },
-    { id: '4', documentNumber: 'DOC-2025-004', taxpayerName: 'PT Global', type: 'Pajak Hotel', amount: 3200000, status: 'rejected', submittedAt: '2025-10-26 16:45', sla: 0, verifier: 'Verifikator 1' },
-    { id: '5', documentNumber: 'DOC-2025-005', taxpayerName: 'CV Makmur', type: 'Retribusi Pasar', amount: 1500000, status: 'in_review', submittedAt: '2025-10-30 11:20', sla: 8, verifier: 'Verifikator 3' },
-  ]);
-
+  const [verifications, setVerifications] = useState<VerificationType[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'in_review' | 'approved' | 'rejected'>('all');
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [selectedVerification, setSelectedVerification] = useState<VerificationType | null>(null);
+  const [selectedVerification, setSelectedVerification] = useState<any | null>(null);
+  const [reviewNotes, setReviewNotes] = useState('');
+
+  useEffect(() => {
+    async function fetchVerifications() {
+      try {
+        const response = await api.get('/api/verifications');
+        const data = response.data || response;
+        
+        const mapped: VerificationType[] = data.map((v: any) => ({
+          id: v.id.toString(),
+          documentNumber: v.document_number,
+          taxpayerName: v.taxpayer_name,
+          type: v.type,
+          amount: Number(v.amount),
+          status: v.status as any,
+          submittedAt: new Date(v.submitted_at).toLocaleString('id-ID'),
+          sla: 0, // Simplified for now
+          verifier: v.verifier?.name || undefined,
+        }));
+
+        setVerifications(mapped);
+      } catch (error) {
+        console.error('Error fetching verifications:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchVerifications();
+  }, []);
 
   const handleReview = (verification: VerificationType) => {
-    setSelectedVerification(verification);
+    const raw = verifications.find(v => v.id === verification.id);
+    setSelectedVerification(raw);
     setShowReviewModal(true);
   };
 
-  const handleApprove = () => {
-    if (selectedVerification) {
-      setVerifications(
-        verifications.map((v) =>
-          v.id === selectedVerification.id
-            ? { ...v, status: 'approved', verifier: 'Verifikator 1' }
-            : v
-        )
-      );
-      setShowReviewModal(false);
-    }
-  };
+  const updateStatus = async (status: 'approved' | 'rejected' | 'in_review') => {
+    if (!selectedVerification) return;
 
-  const handleReject = () => {
-    if (selectedVerification) {
-      setVerifications(
-        verifications.map((v) =>
-          v.id === selectedVerification.id
-            ? { ...v, status: 'rejected', verifier: 'Verifikator 1' }
-            : v
-        )
-      );
+    try {
+      const response = await api.put(`/api/verifications/${selectedVerification.id}/status`, {
+        status,
+        notes: reviewNotes,
+      });
+
+      const updated = response.data || response;
+      setVerifications(verifications.map(v => v.id === updated.id.toString() ? {
+        ...v,
+        status: updated.status as any,
+        verifier: updated.verifier?.name,
+      } : v));
+
       setShowReviewModal(false);
+      setReviewNotes('');
+    } catch (error) {
+      alert('Gagal mengupdate status verifikasi');
     }
   };
 
@@ -69,6 +92,14 @@ export default function Verification() {
       minimumFractionDigits: 0,
     }).format(amount);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-baubau-blue" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -153,9 +184,6 @@ export default function Verification() {
                   Jumlah
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  SLA
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   Status
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
@@ -164,65 +192,61 @@ export default function Verification() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredVerifications.map((verification) => (
-                <tr key={verification.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-6 py-4 text-sm">
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      {verification.documentNumber}
-                    </div>
-                    <div className="text-gray-500 dark:text-gray-400 text-xs">
-                      {verification.submittedAt}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                    {verification.taxpayerName}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                    {verification.type}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
-                    {formatCurrency(verification.amount)}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    {verification.status === 'pending' || verification.status === 'in_review' ? (
-                      <div className="flex items-center gap-1">
-                        <Clock className={`w-4 h-4 ${verification.sla <= 3 ? 'text-red-500' : 'text-yellow-500'}`} />
-                        <span className={`font-medium ${verification.sla <= 3 ? 'text-red-600' : 'text-yellow-600'}`}>
-                          {verification.sla}h
-                        </span>
+              {filteredVerifications.length > 0 ? (
+                filteredVerifications.map((verification) => (
+                  <tr key={verification.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-6 py-4 text-sm">
+                      <div className="font-medium text-gray-900 dark:text-white">
+                        {verification.documentNumber}
                       </div>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        verification.status === 'approved'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : verification.status === 'rejected'
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                          : verification.status === 'in_review'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                      }`}
-                    >
-                      {verification.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-right">
-                    {(verification.status === 'pending' || verification.status === 'in_review') && (
-                      <button
-                        onClick={() => handleReview(verification)}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                      <div className="text-gray-500 dark:text-gray-400 text-xs">
+                        {verification.submittedAt}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {verification.taxpayerName}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {verification.type}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
+                      {formatCurrency(verification.amount)}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          verification.status === 'approved'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                            : verification.status === 'rejected'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                            : verification.status === 'in_review'
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                        }`}
                       >
-                        <Eye className="w-4 h-4" />
-                        Review
-                      </button>
-                    )}
+                        {verification.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-right">
+                      {(verification.status === 'pending' || verification.status === 'in_review') && (
+                        <button
+                          onClick={() => handleReview(verification)}
+                          className="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Review
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500 italic">
+                    Belum ada data verifikasi
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -263,24 +287,14 @@ export default function Verification() {
                     {formatCurrency(selectedVerification.amount)}
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Submitted At</p>
-                  <p className="text-base font-medium text-gray-900 dark:text-white">
-                    {selectedVerification.submittedAt}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">SLA Remaining</p>
-                  <p className="text-base font-medium text-gray-900 dark:text-white">
-                    {selectedVerification.sla} hours
-                  </p>
-                </div>
               </div>
 
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Catatan Verifikasi</p>
                 <textarea
                   rows={4}
+                  value={reviewNotes}
+                  onChange={(e) => setReviewNotes(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   placeholder="Masukkan catatan verifikasi..."
                 ></textarea>
@@ -294,14 +308,14 @@ export default function Verification() {
                   Batal
                 </button>
                 <button
-                  onClick={handleReject}
+                  onClick={() => updateStatus('rejected')}
                   className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <XCircle className="w-5 h-5" />
                   Reject
                 </button>
                 <button
-                  onClick={handleApprove}
+                  onClick={() => updateStatus('approved')}
                   className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <CheckCircle className="w-5 h-5" />

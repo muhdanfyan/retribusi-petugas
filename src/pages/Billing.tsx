@@ -1,71 +1,129 @@
-import { useState } from 'react';
-import { Plus, Download, Search, Filter, FileText } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Download, Search, Filter, FileText, Loader2 } from 'lucide-react';
 import { Billing as BillingType } from '../types';
+import { api } from '../lib/api';
 
 export default function Billing() {
-  const [billings, setBillings] = useState<BillingType[]>([
-    { id: '1', invoiceNumber: 'INV-2025-001', taxpayerName: 'PT Maju Jaya', taxpayerId: 'WP001', type: 'Retribusi Pasar', amount: 2500000, dueDate: '2025-11-15', status: 'lunas', createdAt: '2025-10-01' },
-    { id: '2', invoiceNumber: 'INV-2025-002', taxpayerName: 'CV Berkah', taxpayerId: 'WP002', type: 'Pajak Reklame', amount: 1800000, dueDate: '2025-11-20', status: 'pending', createdAt: '2025-10-05' },
-    { id: '3', invoiceNumber: 'INV-2025-003', taxpayerName: 'UD Sejahtera', taxpayerId: 'WP003', type: 'Retribusi Parkir', amount: 950000, dueDate: '2025-11-10', status: 'lunas', createdAt: '2025-10-08' },
-    { id: '4', invoiceNumber: 'INV-2025-004', taxpayerName: 'PT Global', taxpayerId: 'WP004', type: 'Pajak Hotel', amount: 3200000, dueDate: '2025-10-25', status: 'overdue', createdAt: '2025-09-25' },
-    { id: '5', invoiceNumber: 'INV-2025-005', taxpayerName: 'CV Makmur', taxpayerId: 'WP005', type: 'Retribusi Pasar', amount: 1500000, dueDate: '2025-11-18', status: 'pending', createdAt: '2025-10-10' },
-  ]);
-
+  const [billings, setBillings] = useState<BillingType[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'lunas' | 'pending' | 'overdue'>('all');
 
+  const [taxpayers, setTaxpayers] = useState<any[]>([]);
+  const [retributionTypes, setRetributionTypes] = useState<any[]>([]);
+
   const [formData, setFormData] = useState({
-    taxpayerName: '',
-    taxpayerId: '',
-    type: 'Retribusi Pasar',
+    taxpayer_id: '',
+    retribution_type_id: '',
     amount: '',
-    dueDate: '',
+    period: '',
+    due_date: '',
   });
 
-  const handleGenerate = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [bulkFormData, setBulkFormData] = useState({
+    retribution_type_id: '',
+    period: '',
+    due_date: '',
+  });
 
-    const newBilling: BillingType = {
-      id: Date.now().toString(),
-      invoiceNumber: `INV-2025-${String(billings.length + 1).padStart(3, '0')}`,
-      taxpayerName: formData.taxpayerName,
-      taxpayerId: formData.taxpayerId,
-      type: formData.type,
-      amount: parseInt(formData.amount),
-      dueDate: formData.dueDate,
-      status: 'pending',
-      createdAt: new Date().toISOString().split('T')[0],
-    };
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [billsRes, taxpayersRes, typesRes] = await Promise.all([
+          api.get('/api/bills'),
+          api.get('/api/taxpayers'),
+          api.get('/api/retribution-types'),
+        ]);
 
-    setBillings([newBilling, ...billings]);
-    setShowModal(false);
-    setFormData({ taxpayerName: '', taxpayerId: '', type: 'Retribusi Pasar', amount: '', dueDate: '' });
-  };
+        const mappedBills: BillingType[] = (billsRes.data || billsRes).map((b: any) => ({
+          id: b.id.toString(),
+          invoiceNumber: b.bill_number,
+          taxpayerName: b.taxpayer?.name || b.user?.name || 'Unknown',
+          taxpayerId: b.taxpayer?.taxpayer_id || 'N/A',
+          type: b.retribution_type?.name || 'N/A',
+          amount: Number(b.amount),
+          dueDate: b.due_date,
+          status: b.status as any,
+          createdAt: b.created_at,
+        }));
 
-  const handleBulkGenerate = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const bulkCount = 10;
-    const newBillings: BillingType[] = [];
-
-    for (let i = 0; i < bulkCount; i++) {
-      newBillings.push({
-        id: (Date.now() + i).toString(),
-        invoiceNumber: `INV-2025-${String(billings.length + i + 1).padStart(3, '0')}`,
-        taxpayerName: `Wajib Pajak ${billings.length + i + 1}`,
-        taxpayerId: `WP${String(billings.length + i + 1).padStart(3, '0')}`,
-        type: 'Retribusi Pasar',
-        amount: 1000000 + (i * 100000),
-        dueDate: '2025-11-30',
-        status: 'pending',
-        createdAt: new Date().toISOString().split('T')[0],
-      });
+        setBillings(mappedBills);
+        setTaxpayers(taxpayersRes.data || taxpayersRes);
+        setRetributionTypes(typesRes.data || typesRes);
+      } catch (error) {
+        console.error('Error fetching billing data:', error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    setBillings([...newBillings, ...billings]);
-    setShowBulkModal(false);
+    fetchData();
+  }, []);
+
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await api.post('/api/bills', {
+        taxpayer_id: Number(formData.taxpayer_id),
+        retribution_type_id: Number(formData.retribution_type_id),
+        amount: Number(formData.amount),
+        period: formData.period,
+        due_date: formData.due_date,
+      });
+
+      const b = response.data || response;
+      const newBilling: BillingType = {
+        id: b.id.toString(),
+        invoiceNumber: b.bill_number,
+        taxpayerName: taxpayers.find(t => t.id === b.taxpayer_id)?.name || 'New Taxpayer',
+        taxpayerId: taxpayers.find(t => t.id === b.taxpayer_id)?.taxpayer_id || 'N/A',
+        type: retributionTypes.find(t => t.id === b.retribution_type_id)?.name || 'N/A',
+        amount: Number(b.amount),
+        dueDate: b.due_date,
+        status: b.status as any,
+        createdAt: b.created_at,
+      };
+
+      setBillings([newBilling, ...billings]);
+      setShowModal(false);
+      setFormData({ taxpayer_id: '', retribution_type_id: '', amount: '', period: '', due_date: '' });
+    } catch (error) {
+      alert('Gagal generate tagihan');
+    }
+  };
+
+  const handleBulkGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await api.post('/api/bills/bulk', {
+        retribution_type_id: Number(bulkFormData.retribution_type_id),
+        period: bulkFormData.period,
+        due_date: bulkFormData.due_date,
+      });
+
+      alert(response.message || 'Bulk generation berhasil');
+      setShowBulkModal(false);
+      // Refresh list
+      setLoading(true);
+      const billsRes = await api.get('/api/bills');
+      const mappedBills: BillingType[] = (billsRes.data || billsRes).map((b: any) => ({
+        id: b.id.toString(),
+        invoiceNumber: b.bill_number,
+        taxpayerName: b.taxpayer?.name || b.user?.name || 'Unknown',
+        taxpayerId: b.taxpayer?.taxpayer_id || 'N/A',
+        type: b.retribution_type?.name || 'N/A',
+        amount: Number(b.amount),
+        dueDate: b.due_date,
+        status: b.status as any,
+        createdAt: b.created_at,
+      }));
+      setBillings(mappedBills);
+      setLoading(false);
+    } catch (error) {
+      alert('Gagal bulk generate');
+    }
   };
 
   const filteredBillings = billings.filter((billing) => {
@@ -91,6 +149,14 @@ export default function Billing() {
       minimumFractionDigits: 0,
     }).format(amount);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-baubau-blue" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -198,43 +264,51 @@ export default function Billing() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredBillings.map((billing) => (
-                <tr key={billing.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                    {billing.invoiceNumber}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="text-gray-900 dark:text-white font-medium">
-                      {billing.taxpayerName}
-                    </div>
-                    <div className="text-gray-500 dark:text-gray-400 text-xs">
-                      {billing.taxpayerId}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                    {billing.type}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
-                    {formatCurrency(billing.amount)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                    {billing.dueDate}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        billing.status === 'lunas'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : billing.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                      }`}
-                    >
-                      {billing.status}
-                    </span>
+              {filteredBillings.length > 0 ? (
+                filteredBillings.map((billing) => (
+                  <tr key={billing.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                      {billing.invoiceNumber}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="text-gray-900 dark:text-white font-medium">
+                        {billing.taxpayerName}
+                      </div>
+                      <div className="text-gray-500 dark:text-gray-400 text-xs">
+                        {billing.taxpayerId}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {billing.type}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
+                      {formatCurrency(billing.amount)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {new Date(billing.dueDate).toLocaleDateString('id-ID')}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          billing.status === 'lunas'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                            : billing.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        }`}
+                      >
+                        {billing.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500 italic">
+                    Belum ada data tagihan
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -252,44 +326,35 @@ export default function Billing() {
             <form onSubmit={handleGenerate} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Nama Wajib Pajak
-                </label>
-                <input
-                  type="text"
-                  value={formData.taxpayerName}
-                  onChange={(e) => setFormData({ ...formData, taxpayerName: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  ID Wajib Pajak
-                </label>
-                <input
-                  type="text"
-                  value={formData.taxpayerId}
-                  onChange={(e) => setFormData({ ...formData, taxpayerId: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Jenis Tagihan
+                  Wajib Pajak Target
                 </label>
                 <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  value={formData.taxpayer_id}
+                  onChange={(e) => setFormData({ ...formData, taxpayer_id: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
                 >
-                  <option>Retribusi Pasar</option>
-                  <option>Pajak Reklame</option>
-                  <option>Retribusi Parkir</option>
-                  <option>Pajak Hotel</option>
-                  <option>Pajak Restoran</option>
+                  <option value="">Pilih Wajib Pajak</option>
+                  {taxpayers.map((tp) => (
+                    <option key={tp.id} value={tp.id}>{tp.name} ({tp.taxpayer_id})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Jenis Retribusi
+                </label>
+                <select
+                  value={formData.retribution_type_id}
+                  onChange={(e) => setFormData({ ...formData, retribution_type_id: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Pilih Jenis</option>
+                  {retributionTypes.map((rt) => (
+                    <option key={rt.id} value={rt.id}>{rt.name}</option>
+                  ))}
                 </select>
               </div>
 
@@ -308,12 +373,26 @@ export default function Billing() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Periode (e.g., Januari 2026)
+                </label>
+                <input
+                  type="text"
+                  value={formData.period}
+                  onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+                  placeholder="Januari 2026"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Jatuh Tempo
                 </label>
                 <input
                   type="date"
-                  value={formData.dueDate}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                  value={formData.due_date}
+                  onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -348,14 +427,58 @@ export default function Billing() {
               </h2>
             </div>
 
-            <form onSubmit={handleBulkGenerate} className="p-6">
-              <div className="mb-6">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Sistem akan generate 10 tagihan dummy untuk testing purposes.
+            <form onSubmit={handleBulkGenerate} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Jenis Retribusi
+                </label>
+                <select
+                  value={bulkFormData.retribution_type_id}
+                  onChange={(e) => setBulkFormData({ ...bulkFormData, retribution_type_id: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Pilih Jenis</option>
+                  {retributionTypes.map((rt) => (
+                    <option key={rt.id} value={rt.id}>{rt.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Periode
+                </label>
+                <input
+                  type="text"
+                  value={bulkFormData.period}
+                  onChange={(e) => setBulkFormData({ ...bulkFormData, period: e.target.value })}
+                  placeholder="Januari 2026"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Jatuh Tempo (Semua)
+                </label>
+                <input
+                  type="date"
+                  value={bulkFormData.due_date}
+                  onChange={(e) => setBulkFormData({ ...bulkFormData, due_date: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+                <p className="text-xs text-blue-900 dark:text-blue-300">
+                  Tagihan akan dibuat untuk semua wajib pajak aktif yang terdaftar pada jenis retribusi ini.
                 </p>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowBulkModal(false)}
@@ -367,7 +490,7 @@ export default function Billing() {
                   type="submit"
                   className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                 >
-                  Generate 10 Tagihan
+                  Generate Bulk
                 </button>
               </div>
             </form>

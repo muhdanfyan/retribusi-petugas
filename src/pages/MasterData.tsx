@@ -1,55 +1,33 @@
-import { useState, useMemo } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import { Tarif, Zona } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { api } from '../lib/api';
 
-const departmentCategoryMapping: Record<string, string[]> = {
-  Dishub: ['Retribusi Parkir', 'Jasa Kepelabuhanan', 'Retribusi Terminal'],
-  DPMPTSP: ['Retribusi Perizinan Tertentu', 'Pajak Reklame'],
-  Disparekraf: ['Retribusi Tempat Rekreasi dan Olahraga'],
-  PDAM: ['Retribusi PDAM'],
-  Disperindag: ['Retribusi Pelayanan Pasar'],
-  'Dinas PUPR': ['Retribusi IMB/PBG', 'Sewa Alat Berat'],
-  'Dinas Lingkungan Hidup': ['Retribusi Pelayanan Persampahan/Kebersihan'],
-};
+interface Opd {
+  id: number;
+  name: string;
+  code: string;
+}
 
-const departments = Object.keys(departmentCategoryMapping);
+interface RetributionType {
+  id: number;
+  opd_id: number;
+  name: string;
+  base_amount: number;
+  unit: string;
+  is_active: boolean;
+  opd?: Opd;
+}
 
 export default function MasterData() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'tarif' | 'zona' | 'klasifikasi'>('tarif');
+  const [loading, setLoading] = useState(true);
 
-  const [tarifs, setTarifs] = useState<Tarif[]>([
-    { id: '1', name: 'Pasar Tradisional', category: 'Retribusi Pelayanan Pasar', amount: 50000, unit: 'per bulan', status: 'active', department: 'Disperindag' },
-    { id: '2', name: 'Kios', category: 'Retribusi Pelayanan Pasar', amount: 150000, unit: 'per bulan', status: 'active', department: 'Disperindag' },
-    { id: '3', name: 'Reklame Billboard', category: 'Pajak Reklame', amount: 500000, unit: 'per m²', status: 'active', department: 'DPMPTSP' },
-    { id: '4', name: 'Parkir Mobil', category: 'Retribusi Parkir', amount: 5000, unit: 'per jam', status: 'active', department: 'Dishub' },
-    { id: '5', name: 'Parkir Motor', category: 'Retribusi Parkir', amount: 2000, unit: 'per jam', status: 'inactive', department: 'Dishub' },
-    { id: '6', name: 'Jasa Kepelabuhanan', category: 'Jasa Kepelabuhanan', amount: 25000, unit: 'per kapal', status: 'active', department: 'Dishub' },
-    { id: '7', name: 'Retribusi Terminal', category: 'Retribusi Terminal', amount: 10000, unit: 'per bus', status: 'active', department: 'Dishub' },
-    { id: '8', name: 'Izin Mendirikan Bangunan (IMB)', category: 'Retribusi Perizinan Tertentu', amount: 1500000, unit: 'per izin', status: 'active', department: 'DPMPTSP' },
-    { id: '9', name: 'Persetujuan Bangunan Gedung (PBG)', category: 'Retribusi IMB/PBG', amount: 2000000, unit: 'per izin', status: 'active', department: 'Dinas PUPR' },
-    { id: '10', name: 'Tempat Rekreasi', category: 'Retribusi Tempat Rekreasi dan Olahraga', amount: 15000, unit: 'per orang', status: 'active', department: 'Disparekraf' },
-    { id: '11', name: 'PDAM', category: 'Retribusi PDAM', amount: 75000, unit: 'per bulan', status: 'active', department: 'PDAM' },
-    { id: '12', name: 'Sewa Alat Berat', category: 'Sewa Alat Berat', amount: 500000, unit: 'per hari', status: 'active', department: 'Dinas PUPR' },
-    { id: '13', name: 'Pelayanan Persampahan', category: 'Retribusi Pelayanan Persampahan/Kebersihan', amount: 30000, unit: 'per bulan', status: 'active', department: 'Dinas Lingkungan Hidup' },
-  ]);
-
-  const filteredTarifs = useMemo(() => {
-    if (!user || user.role === 'super_admin') {
-      return tarifs;
-    }
-
-    const allowedCategories = departmentCategoryMapping[user.department || ''] || [];
-    return tarifs.filter((tarif) => allowedCategories.includes(tarif.category));
-  }, [user, tarifs]);
-
-  const [zonas, setZonas] = useState<Zona[]>([
-    { id: '1', name: 'Zona Pusat Kota', code: 'Z01', multiplier: 1.5, description: 'Area pusat bisnis dan pemerintahan' },
-    { id: '2', name: 'Zona Komersial', code: 'Z02', multiplier: 1.3, description: 'Area pertokoan dan mall' },
-    { id: '3', name: 'Zona Residensial', code: 'Z03', multiplier: 1.0, description: 'Area perumahan' },
-    { id: '4', name: 'Zona Pinggiran', code: 'Z04', multiplier: 0.8, description: 'Area pinggiran kota' },
-  ]);
+  const [tarifs, setTarifs] = useState<Tarif[]>([]);
+  const [zonas, setZonas] = useState<Zona[]>([]);
+  const [opds, setOpds] = useState<Opd[]>([]);
 
   const [showTarifModal, setShowTarifModal] = useState(false);
   const [showZonaModal, setShowZonaModal] = useState(false);
@@ -58,11 +36,11 @@ export default function MasterData() {
 
   const [tarifForm, setTarifForm] = useState({
     name: '',
-    category: 'Retribusi Pasar',
+    category: 'Retribusi Umum',
     amount: '',
     unit: '',
-    status: 'active' as const,
-    department: 'Disperindag',
+    status: 'active' as 'active' | 'inactive',
+    opd_id: '',
   });
 
   const [zonaForm, setZonaForm] = useState({
@@ -72,9 +50,50 @@ export default function MasterData() {
     description: '',
   });
 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [typesRes, zonesRes, opdsRes] = await Promise.all([
+          api.get('/api/retribution-types'),
+          api.get('/api/zones'),
+          api.get('/api/opds'),
+        ]);
+
+        // Map RetributionType to Tarif
+        const mappedTarifs: Tarif[] = (typesRes.data || typesRes).map((t: RetributionType) => ({
+          id: t.id.toString(),
+          name: t.name,
+          category: 'Retribusi',
+          amount: Number(t.base_amount),
+          unit: t.unit,
+          status: t.is_active ? 'active' : 'inactive',
+          department: t.opd?.name || 'Unknown',
+          opd_id: t.opd_id,
+        })).filter(Boolean);
+
+        setTarifs(mappedTarifs);
+        setZonas(zonesRes.map((z: any) => ({ ...z, id: z.id.toString() })));
+        setOpds(opdsRes.data || opdsRes);
+      } catch (error) {
+        console.error('Error fetching master data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const filteredTarifs = useMemo(() => {
+    if (!user || user.role === 'super_admin') {
+      return tarifs;
+    }
+    return tarifs.filter((tarif: any) => tarif.opd_id === user.opd_id);
+  }, [user, tarifs]);
+
   const handleAddTarif = () => {
     setEditingTarif(null);
-    setTarifForm({ name: '', category: 'Retribusi Pasar', amount: '', unit: '', status: 'active', department: 'Disperindag' });
+    setTarifForm({ name: '', category: 'Retribusi Umum', amount: '', unit: '', status: 'active', opd_id: opds[0]?.id.toString() || '' });
     setShowTarifModal(true);
   };
 
@@ -86,38 +105,65 @@ export default function MasterData() {
       amount: tarif.amount.toString(),
       unit: tarif.unit,
       status: tarif.status,
-      department: tarif.department || '',
+      opd_id: (tarif as any).opd_id?.toString() || '',
     });
     setShowTarifModal(true);
   };
 
-  const handleDeleteTarif = (id: string) => {
+  const handleDeleteTarif = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus tarif ini?')) {
-      setTarifs(tarifs.filter((t) => t.id !== id));
+      try {
+        await api.delete(`/api/retribution-types/${id}`);
+        setTarifs(tarifs.filter((t) => t.id !== id));
+      } catch (error) {
+        alert('Gagal menghapus tarif');
+      }
     }
   };
 
-  const handleSubmitTarif = (e: React.FormEvent) => {
+  const handleSubmitTarif = async (e: React.FormEvent) => {
     e.preventDefault();
+    const payload = {
+      name: tarifForm.name,
+      base_amount: Number(tarifForm.amount),
+      unit: tarifForm.unit,
+      is_active: tarifForm.status === 'active',
+      opd_id: Number(tarifForm.opd_id),
+    };
 
-    if (editingTarif) {
-      setTarifs(
-        tarifs.map((t) =>
-          t.id === editingTarif.id
-            ? { ...t, ...tarifForm, amount: parseInt(tarifForm.amount) }
-            : t
-        )
-      );
-    } else {
-      const newTarif: Tarif = {
-        id: Date.now().toString(),
-        ...tarifForm,
-        amount: parseInt(tarifForm.amount),
-      };
-      setTarifs([...tarifs, newTarif]);
+    try {
+      if (editingTarif) {
+        const updated = await api.put(`/api/retribution-types/${editingTarif.id}`, payload);
+        const t = updated.data || updated;
+        setTarifs(tarifs.map((prev) => prev.id === editingTarif.id ? {
+          id: t.id.toString(),
+          name: t.name,
+          category: 'Retribusi',
+          amount: Number(t.base_amount),
+          unit: t.unit,
+          status: t.is_active ? 'active' : 'inactive',
+          department: opds.find(o => o.id === t.opd_id)?.name || 'Unknown',
+          opd_id: t.opd_id,
+        } : prev));
+      } else {
+        const created = await api.post('/api/retribution-types', payload);
+        const t = created.data || created;
+        const newTarif: Tarif = {
+          id: t.id.toString(),
+          name: t.name,
+          category: 'Retribusi',
+          amount: Number(t.base_amount),
+          unit: t.unit,
+          status: t.is_active ? 'active' : 'inactive',
+          department: opds.find(o => o.id === t.opd_id)?.name || 'Unknown',
+          opd_id: t.opd_id,
+        };
+        setTarifs([...tarifs, newTarif]);
+      }
+      setShowTarifModal(false);
+    } catch (error) {
+      alert('Gagal menyimpan tarif');
     }
-
-    setShowTarifModal(false);
   };
 
   const handleAddZona = () => {
@@ -137,33 +183,38 @@ export default function MasterData() {
     setShowZonaModal(true);
   };
 
-  const handleDeleteZona = (id: string) => {
+  const handleDeleteZona = async (id: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus zona ini?')) {
-      setZonas(zonas.filter((z) => z.id !== id));
+      try {
+        await api.delete(`/api/zones/${id}`);
+        setZonas(zonas.filter((z) => z.id !== id));
+      } catch (error) {
+        alert('Gagal menghapus zona');
+      }
     }
   };
 
-  const handleSubmitZona = (e: React.FormEvent) => {
+  const handleSubmitZona = async (e: React.FormEvent) => {
     e.preventDefault();
+    const payload = {
+      name: zonaForm.name,
+      code: zonaForm.code,
+      multiplier: Number(zonaForm.multiplier),
+      description: zonaForm.description,
+    };
 
-    if (editingZona) {
-      setZonas(
-        zonas.map((z) =>
-          z.id === editingZona.id
-            ? { ...z, ...zonaForm, multiplier: parseFloat(zonaForm.multiplier) }
-            : z
-        )
-      );
-    } else {
-      const newZona: Zona = {
-        id: Date.now().toString(),
-        ...zonaForm,
-        multiplier: parseFloat(zonaForm.multiplier),
-      };
-      setZonas([...zonas, newZona]);
+    try {
+      if (editingZona) {
+        const updated = await api.put(`/api/zones/${editingZona.id}`, payload);
+        setZonas(zonas.map((z) => z.id === editingZona.id ? { ...updated, id: updated.id.toString() } : z));
+      } else {
+        const created = await api.post('/api/zones', payload);
+        setZonas([...zonas, { ...created, id: created.id.toString() }]);
+      }
+      setShowZonaModal(false);
+    } catch (error) {
+      alert('Gagal menyimpan zona');
     }
-
-    setShowZonaModal(false);
   };
 
   const formatCurrency = (amount: number) => {
@@ -173,6 +224,14 @@ export default function MasterData() {
       minimumFractionDigits: 0,
     }).format(amount);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-baubau-blue" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -243,9 +302,6 @@ export default function MasterData() {
                         Nama Tarif
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                        Kategori
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         OPD Terkait
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
@@ -267,9 +323,6 @@ export default function MasterData() {
                       <tr key={tarif.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                           {tarif.name}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                          {tarif.category}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                           {tarif.department}
@@ -424,36 +477,14 @@ export default function MasterData() {
                   OPD atau Dinas Terkait
                 </label>
                 <select
-                  value={tarifForm.department}
-                  onChange={(e) => setTarifForm({ ...tarifForm, department: e.target.value })}
+                  value={tarifForm.opd_id}
+                  onChange={(e) => setTarifForm({ ...tarifForm, opd_id: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  {departments.map((dep) => (
-                    <option key={dep} value={dep}>{dep}</option>
+                  <option value="">Pilih OPD</option>
+                  {opds.map((opd) => (
+                    <option key={opd.id} value={opd.id}>{opd.name}</option>
                   ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Kategori
-                </label>
-                <select
-                  value={tarifForm.category}
-                  onChange={(e) => setTarifForm({ ...tarifForm, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option>Retribusi Pelayanan Pasar</option>
-                  <option>Pajak Reklame</option>
-                  <option>Retribusi Parkir</option>
-                  <option>Jasa Kepelabuhanan</option>
-                  <option>Retribusi Terminal</option>
-                  <option>Retribusi Perizinan Tertentu</option>
-                  <option>Retribusi IMB/PBG</option>
-                  <option>Retribusi Tempat Rekreasi dan Olahraga</option>
-                  <option>Retribusi PDAM</option>
-                  <option>Sewa Alat Berat</option>
-                  <option>Retribusi Pelayanan Persampahan/Kebersihan</option>
                 </select>
               </div>
 
