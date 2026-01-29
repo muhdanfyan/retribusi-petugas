@@ -13,3 +13,8 @@
 [context.deploy-preview]
   [context.deploy-preview.environment]
     VITE_API_URL = "https://api-dev.sipanda.online"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
