@@ -3,6 +3,40 @@ import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { Tarif, Zona, RetributionType, Opd } from '../types';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
+
+// Fix Leaflet marker icon issue
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+function LocationMarker({ position, setPosition }: { position: [number, number], setPosition: (pos: [number, number]) => void }) {
+  useMapEvents({
+    click(e) {
+      setPosition([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+
+  return position ? (
+    <Marker position={position}></Marker>
+  ) : null;
+}
+
+function ChangeView({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center);
+  }, [center, map]);
+  return null;
+}
 
 export default function MasterData() {
   const { user } = useAuth();
@@ -33,6 +67,8 @@ export default function MasterData() {
     code: '',
     multiplier: '',
     description: '',
+    latitude: -5.4677, // Center of Bau-Bau
+    longitude: 122.6048,
   });
 
   useEffect(() => {
@@ -176,7 +212,14 @@ export default function MasterData() {
 
   const handleAddZona = () => {
     setEditingZona(null);
-    setZonaForm({ name: '', code: '', multiplier: '', description: '' });
+    setZonaForm({ 
+      name: '', 
+      code: '', 
+      multiplier: '', 
+      description: '',
+      latitude: -5.4677,
+      longitude: 122.6048,
+    });
     setShowZonaModal(true);
   };
 
@@ -187,6 +230,8 @@ export default function MasterData() {
       code: zona.code,
       multiplier: zona.multiplier.toString(),
       description: zona.description,
+      latitude: Number(zona.latitude) || -5.4677,
+      longitude: Number(zona.longitude) || 122.6048,
     });
     setShowZonaModal(true);
   };
@@ -209,6 +254,8 @@ export default function MasterData() {
       code: zonaForm.code,
       multiplier: Number(zonaForm.multiplier),
       description: zonaForm.description,
+      latitude: zonaForm.latitude,
+      longitude: zonaForm.longitude,
     };
 
     try {
@@ -657,6 +704,33 @@ export default function MasterData() {
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   required
                 ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Pilih Lokasi di Map
+                </label>
+                <div className="h-64 w-full rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600 z-0">
+                  <MapContainer 
+                    center={[zonaForm.latitude, zonaForm.longitude]} 
+                    zoom={13} 
+                    style={{ height: '100%', width: '100%' }}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <LocationMarker 
+                      position={[zonaForm.latitude, zonaForm.longitude]} 
+                      setPosition={(pos) => setZonaForm({ ...zonaForm, latitude: pos[0], longitude: pos[1] })} 
+                    />
+                    <ChangeView center={[zonaForm.latitude, zonaForm.longitude]} />
+                  </MapContainer>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div className="text-[10px] text-gray-500">Lat: {zonaForm.latitude.toFixed(6)}</div>
+                  <div className="text-[10px] text-gray-500">Lng: {zonaForm.longitude.toFixed(6)}</div>
+                </div>
               </div>
 
               <div className="flex gap-3 pt-4">

@@ -91,6 +91,8 @@ export interface Zona {
   code: string;
   multiplier: number;
   description: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface SystemLog {
