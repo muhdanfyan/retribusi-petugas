@@ -170,9 +170,7 @@ export default function MasterData() {
       if (editingTarif) {
         // Use POST with _method=PUT for Laravel to handle multipart/form-data updates
         formData.append('_method', 'PUT');
-        const updated = await api.post(`/api/retribution-types/${editingTarif.id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const updated = await api.post(`/api/retribution-types/${editingTarif.id}`, formData);
         const t = updated.data || updated;
         setTarifs(tarifs.map((prev) => prev.id === editingTarif.id ? {
           id: t.id.toString(),
@@ -186,9 +184,7 @@ export default function MasterData() {
           icon: t.icon,
         } : prev));
       } else {
-        const created = await api.post('/api/retribution-types', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const created = await api.post('/api/retribution-types', formData);
         const t = created.data || created;
         const newTarif: Tarif = {
           id: t.id.toString(),

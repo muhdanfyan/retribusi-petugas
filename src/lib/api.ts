@@ -34,26 +34,34 @@ export const api = {
     get: (endpoint: string, options: RequestInit = {}) => apiFetch(endpoint, { method: 'GET', ...options }),
     post: (endpoint: string, body: any, options: RequestInit = {}) => {
         const isFormData = body instanceof FormData;
+        const headers = { ...((options.headers as any) || {}) };
+        if (isFormData) {
+            delete headers['Content-Type'];
+        } else if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+        }
+
         return apiFetch(endpoint, {
             method: 'POST',
             body: isFormData ? body : JSON.stringify(body),
             ...options,
-            headers: {
-                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-                ...((options.headers as any) || {}),
-            }
+            headers
         });
     },
     put: (endpoint: string, body: any, options: RequestInit = {}) => {
         const isFormData = body instanceof FormData;
+        const headers = { ...((options.headers as any) || {}) };
+        if (isFormData) {
+            delete headers['Content-Type'];
+        } else if (!headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+        }
+
         return apiFetch(endpoint, {
             method: 'PUT',
             body: isFormData ? body : JSON.stringify(body),
             ...options,
-            headers: {
-                ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-                ...((options.headers as any) || {}),
-            }
+            headers
         });
     },
     delete: (endpoint: string, options: RequestInit = {}) => apiFetch(endpoint, { method: 'DELETE', ...options }),
