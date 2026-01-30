@@ -14,6 +14,7 @@ import MasterData from './pages/MasterData';
 import OpdManagement from './pages/OpdManagement';
 import SystemAdmin from './pages/SystemAdmin';
 import TaxpayerManagement from './pages/TaxpayerManagement';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -118,6 +119,17 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin']}>
                   <Layout>
                     <OpdManagement />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'kasir', 'viewer']}>
+                  <Layout>
+                    <Profile />
                   </Layout>
                 </ProtectedRoute>
               }

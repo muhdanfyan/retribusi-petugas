@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2, Search, Filter, Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { User, UserRole } from '../types';
 import { api } from '../lib/api';
 
 export default function UserManagement() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
+  const [opds, setOpds] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -18,6 +21,7 @@ export default function UserManagement() {
     password: '',
     role: 'viewer' as UserRole,
     status: 'active' as 'active' | 'inactive',
+    opd_id: '',
   });
 
   useEffect(() => {
@@ -27,8 +31,12 @@ export default function UserManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const data = await api.get('/api/users');
-      setUsers(data);
+      const [usersData, opdsData] = await Promise.all([
+        api.get('/api/users'),
+        currentUser?.role === 'super_admin' ? api.get('/api/opds') : Promise.resolve([]),
+      ]);
+      setUsers(usersData);
+      setOpds(opdsData.data || opdsData);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Gagal mengambil data user');
@@ -39,7 +47,14 @@ export default function UserManagement() {
 
   const handleAdd = () => {
     setEditingUser(null);
-    setFormData({ name: '', email: '', password: '', role: 'viewer', status: 'active' });
+    setFormData({ 
+      name: '', 
+      email: '', 
+      password: '', 
+      role: 'viewer', 
+      status: 'active',
+      opd_id: currentUser?.role === 'opd' ? currentUser.opd_id?.toString() || '' : '',
+    });
     setShowModal(true);
   };
 
@@ -51,6 +66,7 @@ export default function UserManagement() {
       password: '', // Keep password empty when editing
       role: user.role,
       status: user.status,
+      opd_id: user.opd_id?.toString() || '',
     });
     setShowModal(true);
   };
@@ -177,9 +193,14 @@ export default function UserManagement() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Role
-                </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                    Role
+                  </th>
+                  {currentUser?.role === 'super_admin' && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      OPD
+                    </th>
+                  )}
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   Status
                 </th>
@@ -205,6 +226,11 @@ export default function UserManagement() {
                       {roleLabels[user.role]}
                     </span>
                   </td>
+                  {currentUser?.role === 'super_admin' && (
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                      {user.department || 'All'}
+                    </td>
+                  )}
                   <td className="px-6 py-4 text-sm">
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -300,13 +326,40 @@ export default function UserManagement() {
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                 >
-                  {Object.entries(roleLabels).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
+                  {Object.entries(roleLabels)
+                    .filter(([value]) => {
+                      if (currentUser?.role === 'opd') {
+                        return !['super_admin', 'opd'].includes(value);
+                      }
+                      return true;
+                    })
+                    .map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
                 </select>
               </div>
+
+              {currentUser?.role === 'super_admin' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    OPD
+                  </label>
+                  <select
+                    value={formData.opd_id}
+                    onChange={(e) => setFormData({ ...formData, opd_id: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Semua OPD (Super Admin)</option>
+                    {opds.map((opd) => (
+                      <option key={opd.id} value={opd.id}>
+                        {opd.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

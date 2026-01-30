@@ -157,7 +157,10 @@ export default function Layout({ children }: LayoutProps) {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
-            <div className="hidden sm:flex items-center gap-3 ml-2 pl-2 border-l border-gray-200 dark:border-gray-700">
+            <Link 
+              to="/profile"
+              className="hidden sm:flex items-center gap-3 ml-2 pl-2 border-l border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 p-1 rounded-lg transition-colors"
+            >
               <div className="text-right">
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {user?.name}
@@ -166,14 +169,17 @@ export default function Layout({ children }: LayoutProps) {
                   {user?.role.replace('_', ' ')}
                 </p>
               </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                title="Logout"
-              >
-                <LogOut className="w-5 h-5 text-red-600 dark:text-red-400" />
-              </button>
-            </div>
+              <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors ml-1"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5 text-red-600 dark:text-red-400" />
+            </button>
           </div>
         </div>
       </div>

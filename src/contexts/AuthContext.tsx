@@ -6,8 +6,9 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
+  updateUser: (userData: User) => void;
   isAuthenticated: boolean;
-  hasRole: (roles: UserRole[]) => boolean;
+  hasRole: (roles: (UserRole | string)[]) => boolean;
   loading: boolean;
 }
 
@@ -56,6 +57,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateUser = (userData: User) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
   const hasRole = (roles: (UserRole | string)[]): boolean => {
     return user ? roles.includes(user.role) : false;
   };
@@ -66,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         login,
         logout,
+        updateUser,
         isAuthenticated: !!user,
         hasRole,
         loading,

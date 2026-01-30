@@ -9,6 +9,7 @@ export interface User {
   createdAt: string;
   department?: string;
   opd_id?: number;
+  opd?: Opd;
 }
 
 export interface AuthUser extends User {
