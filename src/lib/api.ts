@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://api-dev.sipanda.online';
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.sipanda.online';
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
     const token = localStorage.getItem('token');
