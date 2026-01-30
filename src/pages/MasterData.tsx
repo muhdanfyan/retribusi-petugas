@@ -65,10 +65,13 @@ export default function MasterData() {
   const [zonaForm, setZonaForm] = useState({
     name: '',
     code: '',
-    multiplier: '',
+    multiplier: '1',
+    amount: '',
     description: '',
     latitude: -5.4677, // Center of Bau-Bau
     longitude: 122.6048,
+    opd_id: '',
+    retribution_type_id: '',
   });
 
   useEffect(() => {
@@ -211,10 +214,13 @@ export default function MasterData() {
     setZonaForm({ 
       name: '', 
       code: '', 
-      multiplier: '', 
+      multiplier: '1', 
+      amount: '',
       description: '',
       latitude: -5.4677,
       longitude: 122.6048,
+      opd_id: user?.role === 'opd' ? user.opd_id?.toString() || '' : '',
+      retribution_type_id: '',
     });
     setShowZonaModal(true);
   };
@@ -225,9 +231,12 @@ export default function MasterData() {
       name: zona.name,
       code: zona.code,
       multiplier: zona.multiplier.toString(),
+      amount: zona.amount?.toString() || '',
       description: zona.description,
       latitude: Number(zona.latitude) || -5.4677,
       longitude: Number(zona.longitude) || 122.6048,
+      opd_id: zona.opd_id?.toString() || '',
+      retribution_type_id: zona.retribution_type_id?.toString() || '',
     });
     setShowZonaModal(true);
   };
@@ -249,9 +258,12 @@ export default function MasterData() {
       name: zonaForm.name,
       code: zonaForm.code,
       multiplier: Number(zonaForm.multiplier),
+      amount: Number(zonaForm.amount),
       description: zonaForm.description,
       latitude: zonaForm.latitude,
       longitude: zonaForm.longitude,
+      opd_id: zonaForm.opd_id,
+      retribution_type_id: zonaForm.retribution_type_id,
     };
 
     try {
@@ -452,10 +464,16 @@ export default function MasterData() {
                         Nama Zona
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                        Retribusi & OPD
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Kode
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Multiplier
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                        Tarif
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Deskripsi
@@ -466,16 +484,29 @@ export default function MasterData() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {zonas.map((zona) => (
+                    {zonas
+                      .filter(z => !user || user.role === 'super_admin' || z.opd_id === user.opd_id)
+                      .map((zona) => (
                       <tr key={zona.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                           {zona.name}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {zona.retribution_type?.name || 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {zona.opd?.name || 'N/A'}
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                           {zona.code}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
                           {zona.multiplier}x
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
+                          {formatCurrency(Number(zona.amount || 0))}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                           {zona.description}
@@ -660,30 +691,81 @@ export default function MasterData() {
                 />
               </div>
 
+              {user?.role === 'super_admin' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    OPD atau Dinas Terkait
+                  </label>
+                  <select
+                    value={zonaForm.opd_id}
+                    onChange={(e) => setZonaForm({ ...zonaForm, opd_id: e.target.value, retribution_type_id: '' })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Pilih OPD</option>
+                    {opds.map((opd) => (
+                      <option key={opd.id} value={opd.id}>{opd.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Kode Zona
+                  Jenis Retribusi
                 </label>
-                <input
-                  type="text"
-                  value={zonaForm.code}
-                  onChange={(e) => setZonaForm({ ...zonaForm, code: e.target.value })}
-                  placeholder="Z01, Z02, dll"
+                <select
+                  value={zonaForm.retribution_type_id}
+                  onChange={(e) => setZonaForm({ ...zonaForm, retribution_type_id: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   required
-                />
+                >
+                  <option value="">Pilih Jenis Retribusi</option>
+                  {tarifs
+                    .filter(t => !zonaForm.opd_id || t.opd_id?.toString() === zonaForm.opd_id.toString())
+                    .map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Kode Zona
+                  </label>
+                  <input
+                    type="text"
+                    value={zonaForm.code}
+                    onChange={(e) => setZonaForm({ ...zonaForm, code: e.target.value })}
+                    placeholder="Z01, Z02, dll"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Multiplier
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={zonaForm.multiplier}
+                    onChange={(e) => setZonaForm({ ...zonaForm, multiplier: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Multiplier
+                  Tarif Dasar (Rp)
                 </label>
                 <input
                   type="number"
-                  step="0.1"
-                  value={zonaForm.multiplier}
-                  onChange={(e) => setZonaForm({ ...zonaForm, multiplier: e.target.value })}
-                  placeholder="1.0, 1.5, 2.0, dll"
+                  value={zonaForm.amount}
+                  onChange={(e) => setZonaForm({ ...zonaForm, amount: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   required
                 />

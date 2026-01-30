@@ -122,39 +122,41 @@ export default function Login() {
           </form>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-            Demo Accounts
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-            Klik untuk login cepat dengan role berbeda
-          </p>
-
-          <div className="space-y-3">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.email}
-                onClick={() => quickLogin(account.email, account.password)}
-                disabled={isSubmitting}
-                className={`w-full ${account.color} text-white font-medium py-3 px-4 rounded-lg transition-all hover:shadow-lg text-left disabled:opacity-50`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold">{account.label}</div>
-                    <div className="text-sm opacity-90">{account.email}</div>
-                  </div>
-                  <LogIn className="w-5 h-5" />
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-            <p className="text-xs text-blue-900 dark:text-blue-300">
-              <strong>Catatan:</strong> Sekarang terhubung ke `api.sipanda.online` via Sanctum.
+        {window.location.hostname !== 'admin.sipanda.online' && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Demo Accounts
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              Klik untuk login cepat dengan role berbeda
             </p>
+
+            <div className="space-y-3">
+              {demoAccounts.map((account) => (
+                <button
+                  key={account.email}
+                  onClick={() => quickLogin(account.email, account.password)}
+                  disabled={isSubmitting}
+                  className={`w-full ${account.color} text-white font-medium py-3 px-4 rounded-lg transition-all hover:shadow-lg text-left disabled:opacity-50`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">{account.label}</div>
+                      <div className="text-sm opacity-90">{account.email}</div>
+                    </div>
+                    <LogIn className="w-5 h-5" />
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+              <p className="text-xs text-blue-900 dark:text-blue-300">
+                <strong>Catatan:</strong> Sekarang terhubung ke `api.sipanda.online` via Sanctum.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

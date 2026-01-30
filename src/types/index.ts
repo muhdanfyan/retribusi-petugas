@@ -87,12 +87,17 @@ export interface Tarif {
 
 export interface Zona {
   id: string | number;
+  opd_id: number;
+  retribution_type_id: number;
   name: string;
   code: string;
   multiplier: number;
+  amount: number;
   description: string;
   latitude?: number;
   longitude?: number;
+  opd?: Opd;
+  retribution_type?: RetributionType;
 }
 
 export interface SystemLog {
