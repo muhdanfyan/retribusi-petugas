@@ -42,9 +42,11 @@ export default function Login() {
     { email: 'admin@retribusi.id', password: 'password123', label: 'Super Admin', color: 'bg-indigo-600 hover:bg-indigo-700' },
   ];
 
+  const isProduction = window.location.hostname === 'admin.sipanda.online';
+
   return (
     <div className="min-h-screen bg-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8">
+      <div className={`w-full ${isProduction ? 'max-w-md' : 'max-w-5xl grid md:grid-cols-2'} gap-8 text-center md:text-left`}>
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
           <div className="flex flex-col items-center mb-8">
             <img src="/logo-baubau.png" alt="Logo Kota Baubau" className="w-24 h-24 mb-4" />
@@ -122,7 +124,7 @@ export default function Login() {
           </form>
         </div>
 
-        {window.location.hostname !== 'admin.sipanda.online' && (
+        {!isProduction && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Demo Accounts
