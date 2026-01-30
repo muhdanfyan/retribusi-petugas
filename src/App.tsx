@@ -94,7 +94,7 @@ function App() {
             <Route
               path="/master-data"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'kasir', 'viewer']}>
                   <Layout>
                     <MasterData />
                   </Layout>

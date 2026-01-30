@@ -26,8 +26,11 @@ export default function Verification() {
           amount: Number(v.amount),
           status: v.status as any,
           submittedAt: new Date(v.submitted_at).toLocaleString('id-ID'),
-          sla: 0, // Simplified for now
+          sla: 0,
           verifier: v.verifier?.name || undefined,
+          taxpayer_id: v.taxpayer_id,
+          tax_object_id: v.tax_object_id,
+          tax_object: v.tax_object,
         }));
 
         setVerifications(mapped);
@@ -288,6 +291,31 @@ export default function Verification() {
                   </p>
                 </div>
               </div>
+
+              {selectedVerification.tax_object && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 space-y-3">
+                  <h3 className="text-sm font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Detail Objek Pajak / Unit
+                  </h3>
+                  <div className="grid grid-cols-2 gap-y-2 text-sm">
+                    <div>
+                      <p className="text-gray-500">Nama Unit</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{selectedVerification.tax_object.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Alamat Unit</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{selectedVerification.tax_object.address}</p>
+                    </div>
+                    {selectedVerification.tax_object.metadata && Object.entries(selectedVerification.tax_object.metadata).map(([key, val]: [string, any]) => (
+                      <div key={key}>
+                        <p className="text-gray-500 capitalize">{key.replace('_', ' ')}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{val}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Catatan Verifikasi</p>

@@ -43,6 +43,8 @@ export default function MasterData() {
   const [activeTab, setActiveTab] = useState<'tarif' | 'zona' | 'klasifikasi'>('tarif');
   const [loading, setLoading] = useState(true);
 
+  const isAdmin = user?.role === 'super_admin' || user?.role === 'opd';
+
   const [tarifs, setTarifs] = useState<Tarif[]>([]);
   const [zonas, setZonas] = useState<Zona[]>([]);
   const [opds, setOpds] = useState<Opd[]>([]);
@@ -60,6 +62,8 @@ export default function MasterData() {
     status: 'active' as 'active' | 'inactive',
     opd_id: '',
     icon: null as File | null,
+    form_schema: [] as any[],
+    requirements: [] as any[],
   });
 
   const [zonaForm, setZonaForm] = useState({
@@ -94,6 +98,8 @@ export default function MasterData() {
           department: t.opd?.name || 'Unknown',
           opd_id: t.opd_id,
           icon: t.icon,
+          form_schema: t.form_schema || [],
+          requirements: t.requirements || [],
         })).filter(Boolean);
 
         setTarifs(mappedTarifs);
@@ -110,11 +116,22 @@ export default function MasterData() {
   }, []);
 
   const filteredTarifs = useMemo(() => {
-    if (!user || user.role === 'super_admin') {
+    if (!user) return [];
+    if (user.role === 'super_admin') {
       return tarifs;
     }
     return tarifs.filter((tarif: any) => tarif.opd_id === user.opd_id);
   }, [user, tarifs]);
+
+  const groupedKlasifikasi = useMemo(() => {
+    const categories: Record<string, Tarif[]> = {};
+    filteredTarifs.forEach(t => {
+      const cat = t.category || 'Lainnya';
+      if (!categories[cat]) categories[cat] = [];
+      categories[cat].push(t);
+    });
+    return categories;
+  }, [filteredTarifs]);
 
   const handleAddTarif = () => {
     setEditingTarif(null);
@@ -126,6 +143,8 @@ export default function MasterData() {
       status: 'active',
       opd_id: user?.role === 'opd' ? user.opd_id?.toString() || '' : opds[0]?.id.toString() || '',
       icon: null,
+      form_schema: [],
+      requirements: [],
     });
     setShowTarifModal(true);
   };
@@ -140,6 +159,8 @@ export default function MasterData() {
       status: tarif.status,
       opd_id: (tarif as any).opd_id?.toString() || '',
       icon: null,
+      form_schema: tarif.form_schema || [],
+      requirements: tarif.requirements || [],
     });
     setShowTarifModal(true);
   };
@@ -170,6 +191,13 @@ export default function MasterData() {
     }
 
     try {
+      if (tarifForm.form_schema.length > 0) {
+        formData.append('form_schema', JSON.stringify(tarifForm.form_schema));
+      }
+      if (tarifForm.requirements.length > 0) {
+        formData.append('requirements', JSON.stringify(tarifForm.requirements));
+      }
+
       if (editingTarif) {
         // Use POST with _method=PUT for Laravel to handle multipart/form-data updates
         formData.append('_method', 'PUT');
@@ -348,13 +376,15 @@ export default function MasterData() {
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Daftar Tarif
                 </h2>
-                <button
-                  onClick={handleAddTarif}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Tambah Tarif
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={handleAddTarif}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Tambah Tarif
+                  </button>
+                )}
               </div>
 
               <div className="overflow-x-auto">
@@ -379,9 +409,11 @@ export default function MasterData() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                        Actions
-                      </th>
+                      {isAdmin && (
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                          Actions
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -419,20 +451,22 @@ export default function MasterData() {
                             {tarif.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-right space-x-2">
-                          <button
-                            onClick={() => handleEditTarif(tarif)}
-                            className="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTarif(tarif.id)}
-                            className="inline-flex items-center gap-1 px-3 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </td>
+                        {isAdmin && (
+                          <td className="px-6 py-4 text-sm text-right space-x-2">
+                            <button
+                              onClick={() => handleEditTarif(tarif)}
+                              className="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTarif(tarif.id)}
+                              className="inline-flex items-center gap-1 px-3 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -447,13 +481,15 @@ export default function MasterData() {
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Daftar Zona
                 </h2>
-                <button
-                  onClick={handleAddZona}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Tambah Zona
-                </button>
+                {isAdmin && (
+                  <button
+                    onClick={handleAddZona}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Tambah Zona
+                  </button>
+                )}
               </div>
 
               <div className="overflow-x-auto">
@@ -478,9 +514,11 @@ export default function MasterData() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Deskripsi
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                        Actions
-                      </th>
+                      {isAdmin && (
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                          Actions
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -511,20 +549,22 @@ export default function MasterData() {
                         <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
                           {zona.description}
                         </td>
-                        <td className="px-6 py-4 text-sm text-right space-x-2">
-                          <button
-                            onClick={() => handleEditZona(zona)}
-                            className="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteZona(zona.id)}
-                            className="inline-flex items-center gap-1 px-3 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </td>
+                        {isAdmin && (
+                          <td className="px-6 py-4 text-sm text-right space-x-2">
+                            <button
+                              onClick={() => handleEditZona(zona)}
+                              className="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteZona(zona.id)}
+                              className="inline-flex items-center gap-1 px-3 py-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>
@@ -534,10 +574,44 @@ export default function MasterData() {
           )}
 
           {activeTab === 'klasifikasi' && (
-            <div className="text-center py-12">
-              <p className="text-gray-600 dark:text-gray-400">
-                Klasifikasi management akan ditambahkan di sini
-              </p>
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Potensi Berdasarkan Klasifikasi
+                </h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Object.entries(groupedKlasifikasi).map(([category, items]) => (
+                  <div key={category} className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-5 border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-gray-900 dark:text-white">{category}</h3>
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold rounded-lg">
+                        {items.length} Jenis
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      {items.map(item => (
+                        <div key={item.id} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">{item.name}</span>
+                          <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(item.amount)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                      <span className="text-xs text-gray-500 uppercase font-semibold">Total Potensi Dasar</span>
+                      <span className="font-bold text-blue-600 dark:text-blue-400">
+                        {formatCurrency(items.reduce((sum, i) => sum + i.amount, 0))}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {Object.keys(groupedKlasifikasi).length === 0 && (
+                  <div className="col-span-full text-center py-12 text-gray-500 italic">
+                    Belum ada data klasifikasi tersedia.
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -550,9 +624,10 @@ export default function MasterData() {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {editingTarif ? 'Edit Tarif' : 'Tambah Tarif Baru'}
               </h2>
+              <p className="text-xs text-gray-500 mt-1">Konfigurasi tarif dan skema input data wajib pajak.</p>
             </div>
 
-            <form onSubmit={handleSubmitTarif} className="p-6 space-y-4">
+            <form onSubmit={handleSubmitTarif} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Nama Tarif
@@ -646,6 +721,128 @@ export default function MasterData() {
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
+              </div>
+
+              {/* Form Schema Builder */}
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm font-bold text-gray-900 dark:text-white">
+                    Skema Input Data (Metadata)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setTarifForm({
+                      ...tarifForm,
+                      form_schema: [...tarifForm.form_schema, { key: '', label: '', type: 'text', required: false }]
+                    })}
+                    className="text-xs text-blue-600 font-semibold"
+                  >
+                    + Tambah Field
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {tarifForm.form_schema.map((field, index) => (
+                    <div key={index} className="flex gap-2 items-start bg-gray-50 dark:bg-gray-900/40 p-2 rounded border border-gray-100 dark:border-gray-700">
+                      <div className="flex-1 space-y-1">
+                        <input
+                          placeholder="Key (e.g. sqm)"
+                          className="w-full text-xs p-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          value={field.key}
+                          onChange={(e) => {
+                            const newSchema = [...tarifForm.form_schema];
+                            newSchema[index].key = e.target.value;
+                            setTarifForm({ ...tarifForm, form_schema: newSchema });
+                          }}
+                        />
+                        <input
+                          placeholder="Label (e.g. Luas m2)"
+                          className="w-full text-xs p-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          value={field.label}
+                          onChange={(e) => {
+                            const newSchema = [...tarifForm.form_schema];
+                            newSchema[index].label = e.target.value;
+                            setTarifForm({ ...tarifForm, form_schema: newSchema });
+                          }}
+                        />
+                      </div>
+                      <select
+                        className="text-xs p-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                        value={field.type}
+                        onChange={(e) => {
+                          const newSchema = [...tarifForm.form_schema];
+                          newSchema[index].type = e.target.value;
+                          setTarifForm({ ...tarifForm, form_schema: newSchema });
+                        }}
+                      >
+                        <option value="text">Teks</option>
+                        <option value="number">Angka</option>
+                        <option value="date">Tanggal</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newSchema = tarifForm.form_schema.filter((_, i) => i !== index);
+                          setTarifForm({ ...tarifForm, form_schema: newSchema });
+                        }}
+                        className="text-red-500 p-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {tarifForm.form_schema.length === 0 && (
+                    <p className="text-[10px] text-gray-500 italic text-center">Belum ada field khusus.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Requirements Builder */}
+              <div className="pt-2">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm font-bold text-gray-900 dark:text-white">
+                    Persyaratan Dokumen
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setTarifForm({
+                      ...tarifForm,
+                      requirements: [...tarifForm.requirements, { key: '', label: '', required: true }]
+                    })}
+                    className="text-xs text-blue-600 font-semibold"
+                  >
+                    + Tambah Dokumen
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {tarifForm.requirements.map((req, index) => (
+                    <div key={index} className="flex gap-2 items-center bg-gray-50 dark:bg-gray-900/40 p-2 rounded border border-gray-100 dark:border-gray-700">
+                      <input
+                        placeholder="Nama Dokumen (e.g. Foto Lokasi)"
+                        className="flex-1 text-xs p-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                        value={req.label}
+                        onChange={(e) => {
+                          const newReqs = [...tarifForm.requirements];
+                          newReqs[index].label = e.target.value;
+                          newReqs[index].key = e.target.value.toLowerCase().replace(/\s+/g, '_');
+                          setTarifForm({ ...tarifForm, requirements: newReqs });
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newReqs = tarifForm.requirements.filter((_, i) => i !== index);
+                          setTarifForm({ ...tarifForm, requirements: newReqs });
+                        }}
+                        className="text-red-500 p-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {tarifForm.requirements.length === 0 && (
+                    <p className="text-[10px] text-gray-500 italic text-center">Belum ada syarat dokumen.</p>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-3 pt-4">

@@ -31,6 +31,8 @@ export interface RetributionType {
   is_active: boolean;
   icon?: string;
   opd?: Opd;
+  form_schema?: any[];
+  requirements?: any[];
 }
 
 export interface Taxpayer {
@@ -48,6 +50,7 @@ export interface Taxpayer {
   updated_at: string;
   opd?: Opd;
   retribution_types?: RetributionType[];
+  tax_objects?: TaxObject[];
 }
 
 export interface Billing {
@@ -60,6 +63,8 @@ export interface Billing {
   dueDate: string;
   status: 'lunas' | 'pending' | 'overdue';
   createdAt: string;
+  tax_object_id?: number | string;
+  tax_object?: TaxObject;
 }
 
 export interface Verification {
@@ -72,6 +77,9 @@ export interface Verification {
   submittedAt: string;
   sla: number;
   verifier?: string;
+  taxpayer_id?: number | string;
+  tax_object_id?: number | string;
+  tax_object?: TaxObject;
 }
 
 export interface Tarif {
@@ -84,6 +92,8 @@ export interface Tarif {
   department?: string;
   opd_id?: number;
   icon?: string;
+  form_schema?: any[];
+  requirements?: any[];
 }
 
 export interface Zona {
@@ -99,6 +109,21 @@ export interface Zona {
   longitude?: number;
   opd?: Opd;
   retribution_type?: RetributionType;
+}
+
+export interface TaxObject {
+  id: number | string;
+  taxpayer_id: number | string;
+  retribution_type_id: number | string;
+  opd_id: number | string;
+  zone_id?: number | string;
+  name: string;
+  address: string | null;
+  latitude?: number;
+  longitude?: number;
+  metadata?: any;
+  status: 'pending' | 'active' | 'inactive' | 'rejected';
+  approved_at?: string;
 }
 
 export interface SystemLog {
