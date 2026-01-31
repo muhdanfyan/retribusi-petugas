@@ -4,12 +4,15 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import KasirLogin from './pages/KasirLogin';
 import Dashboard from './pages/Dashboard';
 import Billing from './pages/Billing';
 import Reporting from './pages/Reporting';
 import MasterData from './pages/MasterData';
 import TaxpayerManagement from './pages/TaxpayerManagement';
 import Profile from './pages/Profile';
+import FieldScanner from './pages/FieldScanner';
+import PaymentConfirmation from './pages/PaymentConfirmation';
 
 function App() {
   return (
@@ -18,6 +21,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/kasir/login" element={<KasirLogin />} />
 
             <Route
               path="/dashboard"
@@ -25,6 +29,28 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'kasir', 'viewer']}>
                   <Layout>
                     <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/scanner"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'kasir']}>
+                  <Layout>
+                    <FieldScanner />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/payment-confirmation"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'kasir']}>
+                  <Layout>
+                    <PaymentConfirmation />
                   </Layout>
                 </ProtectedRoute>
               }
@@ -95,3 +121,4 @@ function App() {
 }
 
 export default App;
+
