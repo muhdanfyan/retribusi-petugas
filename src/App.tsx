@@ -3,7 +3,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
-import Login from './pages/Login';
 import KasirLogin from './pages/KasirLogin';
 import Dashboard from './pages/Dashboard';
 import Billing from './pages/Billing';
@@ -20,8 +19,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/kasir/login" element={<KasirLogin />} />
+            <Route path="/login" element={<KasirLogin />} />
 
             <Route
               path="/dashboard"
