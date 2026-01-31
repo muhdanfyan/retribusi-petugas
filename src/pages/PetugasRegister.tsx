@@ -1,47 +1,40 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, Loader2, Facebook, Twitter, Chrome, Apple } from 'lucide-react';
 
-export default function PetugasLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function PetugasRegister() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
-
-    const result = await login(email, password);
-    const { error: loginError, user } = result as { error: string | null, user?: any };
     
-    if (!loginError) {
-      if (user?.role === 'kasir' || user?.role === 'super_admin') {
-        navigate('/billing');
-      } else {
-        setError('Hanya akun Petugas yang dapat login melalui jalur ini.');
-      }
-    } else {
-      setError(loginError || 'Email atau password salah');
-    }
-    setIsSubmitting(false);
+    // Mock registration for petugas (usually handled by admin)
+    setTimeout(() => {
+      setError('Registration is restricted to authorized personnel only. Please contact your administrator.');
+      setIsSubmitting(false);
+    }, 1500);
   };
 
   return (
     <div className="min-h-screen bg-[#2d5cd5] flex flex-col relative overflow-hidden font-sans">
       {/* Dynamic Background Elements */}
       <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[50%] bg-white/20 rounded-full blur-[100px] transform rotate-12"></div>
-      <div className="absolute top-[10%] left-[5%] w-24 h-24 bg-white/20 rounded-full blur-md"></div>
-      <div className="absolute top-[25%] right-[20%] w-32 h-32 bg-white/10 rounded-full backdrop-blur-sm"></div>
+      <div className="absolute top-[15%] right-[15%] w-24 h-24 bg-white/20 rounded-full blur-md"></div>
+      <div className="absolute top-[5%] left-[10%] w-32 h-32 bg-white/10 rounded-full backdrop-blur-sm"></div>
 
       {/* Header / Back Button */}
       <div className="relative z-20 px-6 pt-12 flex items-center justify-between">
         <button 
-          onClick={() => navigate('/')}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-white/80 hover:text-white transition-all font-bold text-sm"
         >
           <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
@@ -55,47 +48,59 @@ export default function PetugasLogin() {
         <div className="bg-white rounded-t-[3.5rem] px-8 pt-12 pb-16 shadow-[0_-20px_50px_rgba(0,0,0,0.2)]">
           <div className="max-w-md mx-auto">
             <div className="text-center mb-10">
-              <h1 className="text-4xl font-black text-[#2d5cd5] tracking-tight mb-2">Welcome back</h1>
-              <p className="text-slate-400 font-medium">Please sign in to your officer account</p>
+              <h1 className="text-4xl font-black text-[#2d5cd5] tracking-tight mb-2">Get Started</h1>
+              <p className="text-slate-400 font-medium">Create your officer profile</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-500 ml-1">Email address</label>
+                <label className="block text-xs font-bold text-slate-500 ml-1">Full Name</label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-blue-500/10 focus:border-[#2d5cd5] transition-all outline-none font-semibold"
-                  placeholder="Enter your email"
+                  placeholder="Enter Full Name"
                   required
                   disabled={isSubmitting}
                 />
               </div>
 
               <div className="space-y-2">
-                <div className="flex justify-between items-center px-1">
-                  <label className="block text-xs font-bold text-slate-500">Password</label>
-                  <button type="button" className="text-xs font-bold text-[#2d5cd5] hover:underline">Forgot password?</button>
-                </div>
+                <label className="block text-xs font-bold text-slate-500 ml-1">Email</label>
                 <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-blue-500/10 focus:border-[#2d5cd5] transition-all outline-none font-semibold"
-                  placeholder="••••••••••••"
+                  placeholder="Enter Email"
                   required
                   disabled={isSubmitting}
                 />
               </div>
 
-              <div className="flex items-center gap-2 px-1">
-                <input type="checkbox" id="remember" className="w-5 h-5 rounded-lg border-slate-200 text-[#2d5cd5] focus:ring-[#2d5cd5]" />
-                <label htmlFor="remember" className="text-sm font-bold text-slate-500">Remember me</label>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-500 ml-1">Password</label>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-blue-500/10 focus:border-[#2d5cd5] transition-all outline-none font-semibold"
+                  placeholder="Enter Password"
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="flex items-start gap-3 px-1">
+                <input type="checkbox" id="terms" className="mt-1 w-5 h-5 rounded-lg border-slate-200 text-[#2d5cd5] focus:ring-[#2d5cd5]" required />
+                <label htmlFor="terms" className="text-xs font-bold text-slate-500 leading-tight">
+                  I agree to the processing of <span className="text-[#2d5cd5] cursor-pointer hover:underline">Personal data</span>
+                </label>
               </div>
 
               {error && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-xs font-black text-center animate-shake uppercase tracking-wider">
+                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-[10px] font-black text-center animate-shake uppercase tracking-wider leading-relaxed">
                   {error}
                 </div>
               )}
@@ -108,10 +113,10 @@ export default function PetugasLogin() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Signing in...</span>
+                    <span>Signing up...</span>
                   </>
                 ) : (
-                  <span>Sign in</span>
+                  <span>Sign up</span>
                 )}
               </button>
             </form>
@@ -119,7 +124,7 @@ export default function PetugasLogin() {
             <div className="mt-12">
               <div className="relative flex items-center justify-center mb-8">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>
-                <span className="relative bg-white px-4 text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Sign in with</span>
+                <span className="relative bg-white px-4 text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Sign up with</span>
               </div>
 
               <div className="flex justify-center gap-5">
@@ -131,8 +136,8 @@ export default function PetugasLogin() {
               </div>
 
               <p className="text-center mt-10 text-sm font-bold text-slate-400">
-                Don't have an account?{' '}
-                <Link to="/register" className="text-[#2d5cd5] hover:underline">Sign up</Link>
+                Already have an account?{' '}
+                <Link to="/login" className="text-[#2d5cd5] hover:underline">Sign in</Link>
               </p>
             </div>
           </div>

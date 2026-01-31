@@ -4,6 +4,8 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import PetugasLogin from './pages/PetugasLogin';
+import PetugasWelcome from './pages/PetugasWelcome';
+import PetugasRegister from './pages/PetugasRegister';
 import Dashboard from './pages/Dashboard';
 import Billing from './pages/Billing';
 import Reporting from './pages/Reporting';
@@ -20,6 +22,8 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<PetugasLogin />} />
+            <Route path="/register" element={<PetugasRegister />} />
+            <Route path="/welcome" element={<PetugasWelcome />} />
 
             <Route
               path="/dashboard"
