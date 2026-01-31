@@ -20,8 +20,8 @@ export default function PetugasLogin() {
     const { error: loginError, user } = result as { error: string | null, user?: any };
     
     if (!loginError) {
-      if (user?.role === 'kasir' || user?.role === 'super_admin') {
-        navigate('/billing');
+      if (user?.role === 'kasir' || user?.role === 'super_admin' || user?.role === 'opd') {
+        navigate('/dashboard');
       } else {
         setError('Hanya akun Petugas yang dapat login melalui jalur ini.');
       }
