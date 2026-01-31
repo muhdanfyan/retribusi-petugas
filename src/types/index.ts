@@ -75,6 +75,7 @@ export interface Taxpayer {
   object_name: string | null;
   object_address: string | null;
   is_active: boolean;
+  metadata?: any;
   created_at: string;
   updated_at: string;
   opd?: Opd;

@@ -1,5 +1,9 @@
+import { 
+  Plus, Edit, Trash2, Search, Loader2, Filter, X, 
+  User, CreditCard, MapPin, Phone, Briefcase, 
+  FileCheck, Camera, HardDrive, Info, CheckCircle2 
+} from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Edit, Trash2, Search, Loader2, Filter, X } from 'lucide-react';
 import { api } from '../lib/api';
 import { Taxpayer, Opd, RetributionType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,6 +23,7 @@ export default function TaxpayerManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingTaxpayer, setEditingTaxpayer] = useState<Taxpayer | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
 
   const [form, setForm] = useState({
     nik: '',
@@ -31,6 +36,12 @@ export default function TaxpayerManagement() {
     is_active: true,
     opd_id: '',
     retribution_type_ids: [] as number[],
+    metadata: {} as Record<string, any>,
+  });
+
+  const [files, setFiles] = useState({
+    foto_lokasi_open_kamera: null as File | null,
+    formulir_data_dukung: null as File | null,
   });
 
   const fetchData = async () => {
@@ -80,7 +91,13 @@ export default function TaxpayerManagement() {
       is_active: true,
       opd_id: user?.opd_id?.toString() || '',
       retribution_type_ids: [],
+      metadata: {},
     });
+    setFiles({
+      foto_lokasi_open_kamera: null,
+      formulir_data_dukung: null,
+    });
+    setCurrentStep(1);
     setShowModal(true);
   };
 
@@ -97,7 +114,13 @@ export default function TaxpayerManagement() {
       is_active: taxpayer.is_active,
       opd_id: taxpayer.opd_id.toString(),
       retribution_type_ids: taxpayer.retribution_types?.map(t => t.id) || [],
+      metadata: taxpayer.metadata || {},
     });
+    setFiles({
+      foto_lokasi_open_kamera: null,
+      formulir_data_dukung: null,
+    });
+    setCurrentStep(1);
     setShowModal(true);
   };
 
@@ -116,10 +139,37 @@ export default function TaxpayerManagement() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const formData = new FormData();
+      
+      // Append basic fields
+      Object.keys(form).forEach(key => {
+        if (key === 'retribution_type_ids') {
+          form.retribution_type_ids.forEach(id => formData.append('retribution_type_ids[]', id.toString()));
+        } else if (key === 'metadata') {
+          formData.append('metadata', JSON.stringify(form.metadata));
+        } else {
+          formData.append(key, (form as any)[key]);
+        }
+      });
+
+      // Append files
+      if (files.foto_lokasi_open_kamera) {
+        formData.append('foto_lokasi_open_kamera', files.foto_lokasi_open_kamera);
+      }
+      if (files.formulir_data_dukung) {
+        formData.append('formulir_data_dukung', files.formulir_data_dukung);
+      }
+
       if (editingTaxpayer) {
-        await api.put(`/api/taxpayers/${editingTaxpayer.id}`, form);
+        // Use POST with _method=PUT for multipart/form-data update
+        formData.append('_method', 'PUT');
+        await api.post(`/api/taxpayers/${editingTaxpayer.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       } else {
-        await api.post('/api/taxpayers', form);
+        await api.post('/api/taxpayers', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       }
       setShowModal(false);
       fetchData();
@@ -288,189 +338,359 @@ export default function TaxpayerManagement() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/50">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {editingTaxpayer ? 'Edit Wajib Pajak' : 'Tambah Wajib Pajak Baru'}
-              </h2>
-              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors">
-                <X className="w-6 h-6 text-gray-500" />
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-500">
+          <div className="bg-white dark:bg-gray-900 rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] max-w-5xl w-full max-h-[92vh] flex overflow-hidden animate-in fade-in zoom-in duration-300">
+            
+            {/* Left Sidebar: Stepper */}
+            <div className="w-80 bg-slate-50 dark:bg-gray-800/50 border-r border-gray-100 dark:border-gray-800 p-10 flex flex-col">
+              <div className="mb-10">
+                <div className="flex items-center gap-3 text-blue-600 mb-2">
+                  <div className="p-2 bg-blue-600 rounded-lg">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="font-black text-xl tracking-tighter">RETRIBUSI</span>
+                </div>
+                <h2 className="text-2xl font-black text-gray-900 dark:text-white leading-tight">
+                  {editingTaxpayer ? 'Perbarui Data' : 'Pendaftaran Baru'}
+                </h2>
+              </div>
+
+              <div className="flex-1 space-y-2 relative">
+                {/* Stepper Line */}
+                <div className="absolute left-[23px] top-6 bottom-6 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
+
+                {[
+                  { id: 1, title: 'Personal Details', icon: User },
+                  { id: 2, title: 'Account Details', icon: Briefcase },
+                  { id: 3, title: 'Tax Details', icon: CreditCard },
+                  { id: 4, title: 'Additional Info', icon: Info },
+                  { id: 5, title: 'Review & Receipt', icon: CheckCircle2 },
+                ].map((step) => (
+                  <div key={step.id} className="relative z-10 flex items-center gap-4 group">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
+                      currentStep === step.id 
+                        ? 'bg-blue-600 border-blue-100 dark:border-blue-900 text-white shadow-lg' 
+                        : currentStep > step.id
+                        ? 'bg-emerald-500 border-emerald-100 dark:border-emerald-900 text-white'
+                        : 'bg-white dark:bg-gray-700 border-gray-50 dark:border-gray-800 text-gray-400'
+                    }`}>
+                      {currentStep > step.id ? <CheckCircle2 className="w-5 h-5" /> : <step.icon className="w-5 h-5" />}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className={`text-[10px] font-black uppercase tracking-widest ${currentStep === step.id ? 'text-blue-600' : 'text-gray-400'}`}>Step 0{step.id}</span>
+                      <span className={`text-sm font-bold ${currentStep === step.id ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>{step.title}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button 
+                onClick={() => setShowModal(false)}
+                className="mt-10 py-4 px-6 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
+              >
+                Batalkan
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Informasi Pribadi</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">NIK (16 Digit)</label>
-                    <input
-                      type="text"
-                      maxLength={16}
-                      value={form.nik}
-                      onChange={(e) => setForm({ ...form, nik: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Lengkap</label>
-                    <input
-                      type="text"
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat</label>
-                    <textarea
-                      rows={2}
-                      value={form.address}
-                      onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
+            {/* Right Pane: Form Content */}
+            <div className="flex-1 flex flex-col min-w-0">
+              <div className="flex-1 overflow-y-auto p-12 custom-scrollbar">
+                {currentStep === 1 && (
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">No. Telepon</label>
-                      <input
-                        type="text"
-                        value={form.phone}
-                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                      />
+                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Your Personal Details</h3>
+                      <p className="text-gray-500 text-sm font-medium">Informasi identitas dasar wajib pajak</p>
                     </div>
+
+                    <div className="grid grid-cols-1 gap-6">
+                      <div className="group relative">
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">NIK (Nomor Induk Kependudukan)</label>
+                        <input
+                          type="text"
+                          maxLength={16}
+                          placeholder="01010102302..."
+                          value={form.nik}
+                          onChange={(e) => setForm({ ...form, nik: e.target.value })}
+                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:border-blue-500/50 transition-all font-bold placeholder:text-gray-300"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
+                          <input
+                            type="text"
+                            placeholder="Sesuai KTP"
+                            value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:border-blue-500 transition-all font-bold"
+                          />
+                        </div>
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">No. WhatsApp</label>
+                          <input
+                            type="text"
+                            placeholder="0812..."
+                            value={form.phone}
+                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:border-blue-500 transition-all font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="group">
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Domisili</label>
+                        <textarea
+                          rows={3}
+                          placeholder="Alamat lengkap..."
+                          value={form.address}
+                          onChange={(e) => setForm({ ...form, address: e.target.value })}
+                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:border-blue-500 transition-all font-bold resize-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 2 && (
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">NPWPD</label>
-                      <input
-                        type="text"
-                        value={form.npwpd}
-                        onChange={(e) => setForm({ ...form, npwpd: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                      />
+                      <h3 className="text-xs font-black text-orange-600 uppercase tracking-[0.2em] mb-2">Account & Object Details</h3>
+                      <p className="text-gray-500 text-sm font-medium">Informasi instansi dan lokasi objek retribusi</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6">
+                      {user?.role === 'super_admin' ? (
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Dinas/OPD Terkait</label>
+                          <select
+                            value={form.opd_id}
+                            onChange={(e) => setForm({ ...form, opd_id: e.target.value, retribution_type_ids: [] })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold appearance-none cursor-pointer"
+                          >
+                            <option value="">Pilih Dinas Pengelola</option>
+                            {opds.map(opd => <option key={opd.id} value={opd.id}>{opd.name}</option>)}
+                          </select>
+                        </div>
+                      ) : (
+                        <div className="p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                          <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Authenticated Agency</label>
+                          <div className="text-blue-900 dark:text-blue-200 font-bold">{user?.department || 'OPD Terkait'}</div>
+                        </div>
+                      )}
+
+                      <div className="group">
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nama Objek Retribusi</label>
+                        <input
+                          type="text"
+                          placeholder="Merek/Toko/Lahan..."
+                          value={form.object_name}
+                          onChange={(e) => setForm({ ...form, object_name: e.target.value })}
+                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                        />
+                      </div>
+
+                      <div className="group">
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Lokasi Objek</label>
+                        <input
+                          type="text"
+                          placeholder="Lokasi detail..."
+                          value={form.object_address}
+                          onChange={(e) => setForm({ ...form, object_address: e.target.value })}
+                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                        />
+                      </div>
+
+                      <div className="group">
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">NPWPD (Opsional)</label>
+                        <input
+                          type="text"
+                          placeholder="Nomor Pokok Wajib Pajak Daerah"
+                          value={form.npwpd}
+                          onChange={(e) => setForm({ ...form, npwpd: e.target.value })}
+                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Objek & OPD</h3>
-                  
-                  {user?.role === 'super_admin' ? (
+                {currentStep === 3 && (
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Dinas/OPD Terkait</label>
-                      <select
-                        value={form.opd_id}
-                        onChange={(e) => setForm({ ...form, opd_id: e.target.value, retribution_type_ids: [] })}
-                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                        required
-                      >
-                        <option value="">Pilih OPD</option>
-                        {opds.map(opd => <option key={opd.id} value={opd.id}>{opd.name}</option>)}
-                      </select>
+                      <h3 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Tax & Retribution Details</h3>
+                      <p className="text-gray-500 text-sm font-medium">Pilih kategori retribusi yang berlaku</p>
                     </div>
-                  ) : (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Dinas/OPD</label>
-                      <input
-                        type="text"
-                        value={user?.department || 'OPD Terkait'}
-                        disabled
-                        className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-500 cursor-not-allowed"
-                      />
-                    </div>
-                  )}
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Objek (Contoh: Kios Pasar A1)</label>
-                    <input
-                      type="text"
-                      value={form.object_name}
-                      onChange={(e) => setForm({ ...form, object_name: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Alamat Objek</label>
-                    <textarea
-                      rows={2}
-                      value={form.object_address}
-                      onChange={(e) => setForm({ ...form, object_address: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <input
-                      type="checkbox"
-                      id="is_active"
-                      checked={form.is_active}
-                      onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                      className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="is_active" className="text-sm font-medium text-gray-700 dark:text-gray-300">Status Aktif</label>
-                  </div>
-                </div>
-
-                <div className="md:col-span-2 space-y-4">
-                  <h3 className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Pilih Jenis Retribusi</h3>
-                  {form.opd_id ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      {filteredRetributionTypes.length > 0 ? (
-                        filteredRetributionTypes.map(type => (
+                    {!form.opd_id ? (
+                      <div className="py-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-[3rem] border-2 border-dashed border-gray-100">
+                        <Filter className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Pilih Dinas pada langkah sebelumnya</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-4">
+                        {filteredRetributionTypes.map(type => (
                           <div
                             key={type.id}
                             onClick={() => toggleRetributionType(type.id)}
-                            className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                            className={`p-6 rounded-[2rem] border-2 cursor-pointer transition-all duration-300 ${
                               form.retribution_type_ids.includes(type.id)
-                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                                ? 'border-blue-600 bg-blue-600/5'
+                                : 'border-gray-100 dark:border-gray-800 hover:border-blue-200'
                             }`}
                           >
-                            <div className="text-sm font-bold text-gray-900 dark:text-white">{type.name}</div>
-                            <div className="text-xs text-gray-500">Rp {type.base_amount.toLocaleString()} / {type.unit}</div>
+                            <div className="flex items-center gap-4">
+                              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                                form.retribution_type_ids.includes(type.id) ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                              }`}>
+                                <CreditCard className="w-6 h-6" />
+                              </div>
+                              <div>
+                                <div className="text-sm font-black text-gray-900 dark:text-white leading-tight">{type.name}</div>
+                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Rp {type.base_amount?.toLocaleString()} / {type.unit}</div>
+                              </div>
+                            </div>
                           </div>
-                        ))
-                      ) : (
-                        <div className="col-span-full py-4 text-center text-sm text-gray-500 bg-gray-50 dark:bg-gray-900/30 rounded-xl border border-dashed border-gray-300">
-                          {user?.role === 'super_admin' ? 'Silakan pilih OPD terlebih dahulu' : 'Tidak ada jenis retribusi untuk OPD ini'}
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {currentStep === 4 && (
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
+                    <div>
+                      <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Additional Specifications</h3>
+                      <p className="text-gray-500 text-sm font-medium">Informasi tambahan sesuai kategori retribusi</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      {retributionTypes
+                        .filter(t => form.retribution_type_ids.includes(t.id) && t.form_schema)
+                        .reduce((acc, current) => {
+                          current.form_schema?.forEach(field => {
+                            if (!acc.find(f => f.key === field.key)) acc.push(field);
+                          });
+                          return acc;
+                        }, [] as any[])
+                        .map((field) => (
+                          <div key={field.key} className="group">
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">{field.label}</label>
+                            {field.type === 'select' ? (
+                              <select
+                                value={form.metadata[field.key] || ''}
+                                onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
+                                className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                              >
+                                <option value="">Pilih {field.label}</option>
+                                {field.options?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+                              </select>
+                            ) : (
+                              <input
+                                type={field.type}
+                                value={form.metadata[field.key] || ''}
+                                onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
+                                className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                                placeholder={field.label}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      {form.retribution_type_ids.length === 0 && (
+                        <div className="col-span-2 py-20 text-center text-gray-400 font-black uppercase text-[10px] tracking-widest border-2 border-dashed border-gray-100 rounded-[2rem]">
+                          Tidak ada field tambahan untuk kategori terpilih
                         </div>
                       )}
                     </div>
-                  ) : (
-                    <div className="p-8 text-center bg-gray-50 dark:bg-gray-900/30 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
-                      <Filter className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Pilih OPD untuk melihat jenis retribusi yang tersedia</p>
+                  </div>
+                )}
+
+                {currentStep === 5 && (
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
+                    <div>
+                      <h3 className="text-xs font-black text-rose-600 uppercase tracking-[0.2em] mb-2">Review & Documentation</h3>
+                      <p className="text-gray-500 text-sm font-medium">Unggah dokumen pendukung dan tinjau data</p>
                     </div>
-                  )}
-                </div>
+
+                    <div className="grid grid-cols-2 gap-8">
+                       <label className="block group cursor-pointer">
+                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Foto Lokasi (Open Kamera)</div>
+                         <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
+                           files.foto_lokasi_open_kamera ? 'bg-emerald-50 border-emerald-500/50' : 'bg-gray-50 border-gray-100 hover:border-blue-500'
+                         }`}>
+                           <input type="file" accept="image/*" onChange={e => setFiles({...files, foto_lokasi_open_kamera: e.target.files?.[0] || null})} className="hidden" />
+                           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files.foto_lokasi_open_kamera ? 'bg-emerald-500 text-white' : 'bg-white text-gray-300'}`}>
+                             <Camera className="w-7 h-7" />
+                           </div>
+                           <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
+                             {files.foto_lokasi_open_kamera ? files.foto_lokasi_open_kamera.name : 'Klik untuk Upload'}
+                           </span>
+                         </div>
+                       </label>
+
+                       <label className="block group cursor-pointer">
+                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Formulir Data Dukung</div>
+                         <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
+                           files.formulir_data_dukung ? 'bg-indigo-50 border-indigo-500/50' : 'bg-gray-50 border-gray-100 hover:border-blue-500'
+                         }`}>
+                           <input type="file" onChange={e => setFiles({...files, formulir_data_dukung: e.target.files?.[0] || null})} className="hidden" />
+                           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files.formulir_data_dukung ? 'bg-indigo-500 text-white' : 'bg-white text-gray-300'}`}>
+                             <FileCheck className="w-7 h-7" />
+                           </div>
+                           <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
+                             {files.formulir_data_dukung ? files.formulir_data_dukung.name : 'Klik untuk Upload'}
+                           </span>
+                         </div>
+                       </label>
+                    </div>
+
+                    <div className="p-8 bg-blue-600 rounded-[2.5rem] text-white">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 bg-white/20 rounded-2xl">
+                          <CheckCircle2 className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-black text-lg">Konfirmasi Pendaftaran</h4>
+                      </div>
+                      <p className="text-blue-100 text-sm font-medium leading-relaxed">
+                        Pastikan seluruh data yang dimasukkan telah sesuai dengan persyaratan. 
+                        Data yang didaftarkan akan melalui proses verifikasi oleh tim dinas terkait.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="mt-8 flex gap-4">
+              {/* Action Bar */}
+              <div className="p-10 border-t border-gray-100 dark:border-gray-800 flex justify-between bg-white dark:bg-gray-900 rounded-b-[2rem]">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                  onClick={() => currentStep > 1 && setCurrentStep(currentStep - 1)}
+                  disabled={currentStep === 1}
+                  className="px-10 py-4 border-2 border-gray-100 dark:border-gray-800 text-xs font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 disabled:opacity-0 transition-all"
                 >
-                  Batal
+                  Previous
                 </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-[2] px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-                >
-                  {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
-                  {editingTaxpayer ? 'Simpan Perubahan' : 'Tambah Wajib Pajak'}
-                </button>
+                
+                {currentStep < 5 ? (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(currentStep + 1)}
+                    className="px-12 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95"
+                  >
+                    Next Step
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    className="px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] transition-all active:scale-95"
+                  >
+                    {submitting ? 'Processing...' : (editingTaxpayer ? 'Simpan Perubahan' : 'Submit Registration')}
+                  </button>
+                )}
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
