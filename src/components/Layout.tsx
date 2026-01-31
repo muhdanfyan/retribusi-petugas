@@ -6,17 +6,14 @@ import {
   LayoutDashboard,
   Users,
   FileText,
-  CheckSquare,
   BarChart3,
   Database,
-  Settings,
   LogOut,
   Sun,
   Moon,
   Bell,
   Menu,
   X,
-  Building2,
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -39,16 +36,10 @@ const menuItems: MenuItem[] = [
     roles: ['super_admin', 'opd', 'verifikator', 'kasir', 'viewer'],
   },
   {
-    label: 'User Management',
-    path: '/users',
-    icon: <Users className="w-5 h-5" />,
-    roles: ['super_admin', 'opd'],
-  },
-  {
     label: 'Wajib Pajak',
     path: '/taxpayers',
     icon: <Users className="w-5 h-5" />,
-    roles: ['super_admin', 'opd'],
+    roles: ['super_admin', 'opd', 'kasir'],
   },
   {
     label: 'Billing & Tagihan',
@@ -57,34 +48,16 @@ const menuItems: MenuItem[] = [
     roles: ['super_admin', 'opd', 'kasir'],
   },
   {
-    label: 'Verifikasi',
-    path: '/verification',
-    icon: <CheckSquare className="w-5 h-5" />,
-    roles: ['super_admin', 'opd', 'verifikator'],
-  },
-  {
     label: 'Reporting',
     path: '/reporting',
     icon: <BarChart3 className="w-5 h-5" />,
-    roles: ['super_admin', 'opd', 'viewer'],
+    roles: ['super_admin', 'opd', 'viewer', 'kasir'],
   },
   {
     label: 'Master Data',
     path: '/master-data',
     icon: <Database className="w-5 h-5" />,
-    roles: ['super_admin', 'opd'],
-  },
-  {
-    label: 'Kelola OPD',
-    path: '/opds',
-    icon: <Building2 className="w-5 h-5" />,
-    roles: ['super_admin'],
-  },
-  {
-    label: 'System Admin',
-    path: '/system',
-    icon: <Settings className="w-5 h-5" />,
-    roles: ['super_admin'],
+    roles: ['super_admin', 'opd', 'kasir'],
   },
 ];
 
@@ -124,7 +97,7 @@ export default function Layout({ children }: LayoutProps) {
               <img src="/logo-baubau.png" alt="Logo Kota Baubau" className="w-10 h-10" />
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-gray-900 dark:text-white">
-                  Admin Retribusi & Pajak
+                  SIPANDA Petugas
                 </h1>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Kota Baubau</p>
               </div>

@@ -4,15 +4,10 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
-import OpdRegistration from './pages/OpdRegistration';
 import Dashboard from './pages/Dashboard';
-import UserManagement from './pages/UserManagement';
 import Billing from './pages/Billing';
-import Verification from './pages/Verification';
 import Reporting from './pages/Reporting';
 import MasterData from './pages/MasterData';
-import OpdManagement from './pages/OpdManagement';
-import SystemAdmin from './pages/SystemAdmin';
 import TaxpayerManagement from './pages/TaxpayerManagement';
 import Profile from './pages/Profile';
 
@@ -23,7 +18,6 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/register/opd" element={<OpdRegistration />} />
 
             <Route
               path="/dashboard"
@@ -37,20 +31,9 @@ function App() {
             />
 
             <Route
-              path="/users"
-              element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd']}>
-                  <Layout>
-                    <UserManagement />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
               path="/taxpayers"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'kasir']}>
                   <Layout>
                     <TaxpayerManagement />
                   </Layout>
@@ -70,20 +53,9 @@ function App() {
             />
 
             <Route
-              path="/verification"
-              element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator']}>
-                  <Layout>
-                    <Verification />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
               path="/reporting"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'viewer']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'viewer', 'kasir']}>
                   <Layout>
                     <Reporting />
                   </Layout>
@@ -97,28 +69,6 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'kasir', 'viewer']}>
                   <Layout>
                     <MasterData />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/system"
-              element={
-                <ProtectedRoute allowedRoles={['super_admin']}>
-                  <Layout>
-                    <SystemAdmin />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/opds"
-              element={
-                <ProtectedRoute allowedRoles={['super_admin']}>
-                  <Layout>
-                    <OpdManagement />
                   </Layout>
                 </ProtectedRoute>
               }
