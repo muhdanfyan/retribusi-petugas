@@ -4,7 +4,7 @@ import { api } from '../lib/api';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<{ error: string | null }>;
+  login: (email: string, password: string) => Promise<{ error: string | null, user?: User | null }>;
   logout: () => Promise<void>;
   updateUser: (userData: User) => void;
   isAuthenticated: boolean;
@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<{ error: string | null }> => {
+  const login = async (email: string, password: string): Promise<{ error: string | null, user?: User | null }> => {
     try {
       const response = await api.post('/api/login', { email, password });
       
@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
         setUser(response.user);
-        return { error: null };
+        return { error: null, user: response.user };
       }
       
       return { error: 'Terjadi kesalahan saat login' };
