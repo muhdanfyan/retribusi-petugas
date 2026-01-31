@@ -17,7 +17,11 @@ import {
   ChevronLeft,
   Settings,
   Search,
-  QrCode
+  QrCode,
+  Home,
+  CreditCard,
+  MessageSquare,
+  User
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -82,36 +86,27 @@ export default function Layout({ children }: LayoutProps) {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-[#2d5cd5]/10 selection:text-[#2d5cd5]">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-[#2d5cd5]/10 selection:text-[#2d5cd5] pb-24 lg:pb-0">
       
-      {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 z-[40] px-4 lg:px-8">
+      {/* Top Navigation Bar (Desktop Only) */}
+      <header className="hidden lg:block fixed top-0 left-0 right-0 h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 z-[40] px-8">
         <div className="h-full max-w-[1600px] mx-auto flex items-center justify-between gap-8">
           
-          {/* Left: Brand & Toggle */}
-          <div className="flex items-center gap-4 lg:gap-8">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all active:scale-95"
-            >
-              {sidebarOpen ? <X size={22} className="text-slate-600" /> : <Menu size={22} className="text-slate-600" />}
-            </button>
+          {/* Left: Brand */}
+          <Link to="/dashboard" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-[#2d5cd5] rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:rotate-6 transition-transform">
+              <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" alt="Logo" className="w-7 h-7 object-contain" />
+            </div>
+            <div>
+              <h1 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none mb-0.5">
+                SIPANDA <span className="text-[#2d5cd5]">PETUGAS</span>
+              </h1>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Kota Baubau</p>
+            </div>
+          </Link>
 
-            <Link to="/dashboard" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-[#2d5cd5] rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:rotate-6 transition-transform">
-                <img src="/logo-baubau.png" alt="Logo" className="w-7 h-7 object-contain brightness-0 invert" />
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none mb-0.5">
-                  SIPANDA <span className="text-[#2d5cd5]">PETUGAS</span>
-                </h1>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Kota Baubau</p>
-              </div>
-            </Link>
-          </div>
-
-          {/* Center: Search (Desktop Only) */}
-          <div className="hidden md:flex flex-1 max-w-md relative group">
+          {/* Center: Search */}
+          <div className="flex-1 max-w-md relative group">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#2d5cd5] transition-colors">
               <Search size={18} />
             </div>
@@ -123,12 +118,11 @@ export default function Layout({ children }: LayoutProps) {
           </div>
 
           {/* Right: User Actions */}
-          <div className="flex items-center gap-2 lg:gap-4">
+          <div className="flex items-center gap-4">
             <div className="flex items-center bg-slate-50 dark:bg-slate-800 p-1 rounded-2xl border border-slate-100 dark:border-slate-800/50">
               <button
                 onClick={toggleTheme}
                 className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all group"
-                title="Toggle Theme"
               >
                 {theme === 'light' ? (
                   <Sun size={20} className="text-amber-500 group-hover:rotate-12 transition-transform" />
@@ -142,17 +136,17 @@ export default function Layout({ children }: LayoutProps) {
               </button>
             </div>
 
-            <div className="h-8 w-px bg-slate-100 mx-2 hidden lg:block"></div>
+            <div className="h-8 w-px bg-slate-100 mx-2"></div>
 
             <button 
               onClick={() => navigate('/profile')}
               className="flex items-center gap-3 p-1.5 pr-4 pl-1.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md hover:border-[#2d5cd5]/20 transition-all group"
             >
               <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-[#2d5cd5]/10 group-hover:text-[#2d5cd5] transition-colors font-black overflow-hidden relative">
-                {user?.name?.charAt(0) || <Users size={20} />}
+                {user?.name?.charAt(0) || <User size={20} />}
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#2d5cd5]/10 to-transparent"></div>
               </div>
-              <div className="hidden lg:block text-left">
+              <div className="text-left">
                 <p className="text-xs font-black text-slate-900 dark:text-white leading-none mb-1 line-clamp-1">{user?.name}</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{user?.role.replace('_', ' ')}</p>
               </div>
@@ -160,7 +154,7 @@ export default function Layout({ children }: LayoutProps) {
 
             <button
               onClick={handleLogout}
-              className="hidden lg:flex p-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-2xl transition-all active:scale-95"
+              className="p-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-2xl transition-all active:scale-95"
               title="Logout"
             >
               <LogOut size={20} />
@@ -169,14 +163,60 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      {/* Sidebar Navigation */}
+      {/* Mobile Top Header (Mockup Style) - Updated: Toggle Sidebar, Removed Search */}
+      <div className="lg:hidden px-6 pt-10 pb-4 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setSidebarOpen(true)}
+              className="w-12 h-12 bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none rounded-2xl flex items-center justify-center border border-slate-100 dark:border-slate-800 active:scale-90 transition-all"
+            >
+              <Menu size={22} className="text-slate-600 dark:text-slate-400" />
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#2d5cd5] rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" alt="Logo" className="w-7 h-7 object-contain" />
+              </div>
+              <div>
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Hello,</p>
+                <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none">{user?.name}!</h2>
+              </div>
+            </div>
+          </div>
+          <button 
+            onClick={() => navigate('/profile')}
+            className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none p-1 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-800 group active:scale-95 transition-all"
+          >
+            <div className="w-full h-full rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-black">
+              {user?.name?.charAt(0) || <User size={20} />}
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Sidebar Navigation (Desktop & Mobile) */}
       <aside
-        className={`fixed left-0 top-20 bottom-0 w-72 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 z-[35] transform transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0 shadow-2xl shadow-slate-900/10' : '-translate-x-full shadow-none'
+        className={`fixed left-0 top-0 lg:top-20 bottom-0 w-72 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-r border-slate-100 dark:border-slate-800 z-[100] transform transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] lg:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="h-full flex flex-col p-6 overflow-y-auto">
-          
+          {/* Mobile Header in Sidebar */}
+          <div className="lg:hidden flex items-center justify-between mb-8">
+            <Link to="/dashboard" className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-[#2d5cd5] rounded-lg flex items-center justify-center">
+                <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" alt="Logo" className="w-5 h-5 object-contain" />
+              </div>
+              <h1 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">SIPANDA</h1>
+            </Link>
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+            >
+              <X size={20} className="text-slate-400" />
+            </button>
+          </div>
+
           <div className="flex-1 space-y-2">
             <p className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Main Navigation</p>
             {filteredMenu.map((item) => {
@@ -219,11 +259,6 @@ export default function Layout({ children }: LayoutProps) {
               </div>
               <ChevronLeft size={16} className="text-slate-300 transform rotate-180 group-hover:translate-x-1 transition-transform" />
             </button>
-            <div className="flex items-center justify-center gap-6 mt-6 px-4">
-              <button className="text-slate-300 hover:text-slate-900 transition-colors"><Settings size={18} /></button>
-              <button className="text-slate-300 hover:text-slate-900 transition-colors"><Bell size={18} /></button>
-              <button className="text-slate-300 hover:text-slate-900 transition-colors"><Users size={18} /></button>
-            </div>
           </div>
         </div>
       </aside>
@@ -231,28 +266,55 @@ export default function Layout({ children }: LayoutProps) {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[30] lg:hidden transition-opacity duration-500"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] lg:hidden transition-opacity duration-500"
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}
 
       {/* Main Content Area */}
-      <main 
-        className={`pt-20 lg:pl-72 min-h-screen transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]`}
-      >
-        <div className="p-6 lg:p-10 max-w-[1600px] mx-auto min-h-[calc(100vh-5rem)]">
+      <main className="lg:pt-20 lg:pl-72 min-h-screen">
+        <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
           {children}
         </div>
       </main>
 
-      {/* Floating Action Button (Mobile Only) */}
-      <div className="fixed bottom-8 right-6 lg:hidden z-50">
-        <button 
-          onClick={() => navigate('/scanner')}
-          className="w-16 h-16 bg-[#2d5cd5] text-white rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all border-4 border-white dark:border-slate-900"
-        >
-          <QrCode size={28} />
-        </button>
+      {/* Bottom Navigation (Mobile Only - Mockup Style) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 z-[50] px-6 py-4 flex items-center justify-between">
+        {[
+          { icon: Home, path: '/dashboard', label: 'Home' },
+          { icon: CreditCard, path: '/billing', label: 'Billing' },
+          { icon: QrCode, path: '/scanner', label: 'Scan', primary: true },
+          { icon: MessageSquare, path: '/notifications', label: 'Activity', badge: 12 },
+          { icon: Settings, path: '/settings', label: 'Settings' }
+        ].map((item, i) => {
+          const isActive = location.pathname === item.path;
+          if (item.primary) {
+            return (
+              <button 
+                key={i}
+                onClick={() => navigate(item.path)}
+                className="w-14 h-14 bg-[#2d5cd5] text-white rounded-2xl shadow-xl shadow-blue-500/40 flex items-center justify-center -translate-y-4 active:scale-90 transition-all border-4 border-slate-50 dark:border-slate-950"
+              >
+                <item.icon size={24} />
+              </button>
+            );
+          }
+          return (
+            <button 
+              key={i}
+              onClick={() => navigate(item.path)}
+              className={`relative flex flex-col items-center gap-1 transition-all active:scale-95 ${isActive ? 'text-[#2d5cd5]' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              <item.icon size={22} className={isActive ? 'animate-bounce' : ''} />
+              {item.badge && (
+                <span className="absolute -top-1 -right-1.5 w-4 h-4 bg-[#2d5cd5] text-white text-[9px] font-black rounded-full flex items-center justify-center border border-white">
+                  {item.badge}
+                </span>
+              )}
+              {isActive && <div className="w-1 h-1 bg-[#2d5cd5] rounded-full mt-0.5"></div>}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

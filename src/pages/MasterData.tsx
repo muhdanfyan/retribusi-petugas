@@ -103,7 +103,7 @@ export default function MasterData() {
         })).filter(Boolean);
 
         setTarifs(mappedTarifs);
-        setZonas(zonesRes.map((z: any) => ({ ...z, id: z.id.toString() })));
+        setZonas((zonesRes.data || zonesRes).map((z: any) => ({ ...z, id: z.id.toString() })));
         setOpds(opdsRes.data || opdsRes);
       } catch (error) {
         console.error('Error fetching master data:', error);
