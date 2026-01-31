@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { CreditCard, LogIn, Loader2 } from 'lucide-react';
 
-export default function KasirLogin() {
+export default function PetugasLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,7 +23,7 @@ export default function KasirLogin() {
       if (user?.role === 'kasir' || user?.role === 'super_admin') {
         navigate('/billing');
       } else {
-        setError('Hanya akun Kasir yang dapat login melalui jalur ini.');
+        setError('Hanya akun Petugas yang dapat login melalui jalur ini.');
       }
     } else {
       setError(loginError || 'Email atau password salah');
@@ -46,7 +46,7 @@ export default function KasirLogin() {
               </div>
               <div className="text-center">
                 <h1 className="text-3xl font-black text-white uppercase tracking-tighter leading-none mb-2">
-                  KASIR <span className="text-blue-400">BAPENDA</span>
+                  PETUGAS <span className="text-blue-400">BAPENDA</span>
                 </h1>
                 <p className="text-xs text-blue-200/60 font-black uppercase tracking-[0.2em]">
                   FIELD OFFICER PORTAL

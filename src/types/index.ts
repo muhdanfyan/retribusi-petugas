@@ -35,6 +35,35 @@ export interface RetributionType {
   requirements?: any[];
 }
 
+export interface RetributionClassification {
+  id: number;
+  opd_id: number;
+  retribution_type_id: number;
+  name: string;
+  code?: string;
+  description?: string;
+  opd?: Opd;
+  retribution_type?: RetributionType;
+  zones?: Zona[];
+  rates?: RetributionRate[];
+}
+
+export interface RetributionRate {
+  id: number;
+  opd_id: number;
+  retribution_type_id: number;
+  retribution_classification_id?: number;
+  zone_id?: number;
+  name?: string;
+  amount: number;
+  unit?: string;
+  is_active: boolean;
+  opd?: Opd;
+  retribution_type?: RetributionType;
+  classification?: RetributionClassification;
+  zone?: Zona;
+}
+
 export interface Taxpayer {
   id: number;
   opd_id: number;
@@ -109,6 +138,9 @@ export interface Zona {
   longitude?: number;
   opd?: Opd;
   retribution_type?: RetributionType;
+  retribution_classification_id?: number;
+  classification?: RetributionClassification;
+  rates?: RetributionRate[];
 }
 
 export interface TaxObject {

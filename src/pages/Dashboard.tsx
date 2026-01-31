@@ -10,7 +10,6 @@ import {
   QrCode, 
   Search as SearchIcon, 
   CreditCard, 
-  ArrowRight,
   BarChart3
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -132,7 +131,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">Selamat Bertugas</p>
-              <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{currentUser.name || 'Kasir'}</h2>
+              <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{currentUser.name || 'Petugas'}</h2>
             </div>
           </div>
           <button 

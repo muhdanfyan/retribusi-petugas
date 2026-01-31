@@ -39,7 +39,7 @@ export default function TaxpayerManagement() {
       const queryParams = new URLSearchParams({
         page: page.toString(),
         search: search,
-        ...(opdFilter ? { opd_id: opdFilter } : {}),
+        ...(opdFilter ? { opd_id: opdFilter } : user?.role !== 'super_admin' ? { opd_id: user?.opd_id?.toString() || '' } : {}),
       });
 
       const [taxpayersRes, opdsRes, typesRes] = await Promise.all([
