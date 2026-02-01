@@ -8,6 +8,17 @@ import { api } from '../lib/api';
 import { Taxpayer, Opd, RetributionType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
+const BAUBAU_DATA = {
+  "Batupoaro": ["Bone-bone", "Tarafu", "Wameo", "Kaobula", "Lanto", "Ngananaumala"],
+  "Betoambari": ["Sulaa", "Waborobo", "Labalawa", "Lipu", "Katobengke"],
+  "Bungi": ["Bugi", "Gonda Baru", "Kaisabu Baru", "Karya Baru", "Ngkari-Ngkari"],
+  "Kokalukuna": ["Kadolomoko", "Waruruma", "Lakologou", "Kadolo", "Liwuto", "Sukanaeyo"],
+  "Lea-lea": ["Palabusa", "Kalia-Lia", "Kantalai", "Kolese", "Lowu-Lowu"],
+  "Murhum": ["Baadia", "Melai", "Wajo", "Lamangga", "Tanganapada"],
+  "Sorawolio": ["Gonda Baru", "Karya Baru", "Bugis", "Gonda"],
+  "Wolio": ["Bataraguru", "Tomba", "Wangkanapi", "Wale", "Batulo", "Bukit Wolio Indah", "Kadolokatapi"]
+};
+
 export default function TaxpayerManagement() {
   const { user } = useAuth();
   const [taxpayers, setTaxpayers] = useState<Taxpayer[]>([]);
@@ -36,6 +47,8 @@ export default function TaxpayerManagement() {
     npwpd: '',
     object_name: '',
     object_address: '',
+    district: '',
+    sub_district: '',
     is_active: true,
     opd_id: '',
     retribution_type_ids: [] as number[],
@@ -94,6 +107,8 @@ export default function TaxpayerManagement() {
       npwpd: '',
       object_name: '',
       object_address: '',
+      district: '',
+      sub_district: '',
       is_active: true,
       opd_id: user?.opd_id?.toString() || '',
       retribution_type_ids: [],
@@ -118,6 +133,8 @@ export default function TaxpayerManagement() {
       npwpd: taxpayer.npwpd || '',
       object_name: taxpayer.object_name || '',
       object_address: taxpayer.object_address || '',
+      district: (taxpayer as any).district || '',
+      sub_district: (taxpayer as any).sub_district || '',
       is_active: taxpayer.is_active,
       opd_id: taxpayer.opd_id.toString(),
       retribution_type_ids: taxpayer.retribution_types?.map(t => t.id) || [],
@@ -417,11 +434,11 @@ export default function TaxpayerManagement() {
                 <div className="absolute left-[23px] top-6 bottom-6 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
 
                 {[
-                  { id: 1, title: 'Personal Details', icon: User },
-                  { id: 2, title: 'Account Details', icon: Briefcase },
-                  { id: 3, title: 'Tax Details', icon: CreditCard },
-                  { id: 4, title: 'Additional Info', icon: Info },
-                  { id: 5, title: 'Review & Receipt', icon: CheckCircle2 },
+                  { id: 1, title: 'Data Penanggung Jawab', icon: User },
+                  { id: 2, title: 'Data Objek', icon: Briefcase },
+                  { id: 3, title: 'Kategori', icon: CreditCard },
+                  { id: 4, title: 'Lainnya', icon: Info },
+                  { id: 5, title: 'Selesai', icon: CheckCircle2 },
                 ].map((step) => (
                   <div key={step.id} className="relative z-10 flex items-center gap-4 group">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
@@ -455,7 +472,7 @@ export default function TaxpayerManagement() {
                 {currentStep === 1 && (
                   <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                     <div>
-                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Your Personal Details</h3>
+                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Data Penanggung Jawab</h3>
                       <p className="text-gray-500 text-sm font-medium">Informasi identitas dasar wajib pajak</p>
                     </div>
 
@@ -547,11 +564,37 @@ export default function TaxpayerManagement() {
                         />
                       </div>
 
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Kecamatan</label>
+                          <select
+                            value={form.district}
+                            onChange={(e) => setForm({ ...form, district: e.target.value, sub_district: '' })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold appearance-none cursor-pointer"
+                          >
+                            <option value="">Pilih Kecamatan</option>
+                            {Object.keys(BAUBAU_DATA).map(kec => <option key={kec} value={kec}>{kec}</option>)}
+                          </select>
+                        </div>
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Kelurahan</label>
+                          <select
+                            value={form.sub_district}
+                            onChange={(e) => setForm({ ...form, sub_district: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold appearance-none cursor-pointer"
+                            disabled={!form.district}
+                          >
+                            <option value="">Pilih Kelurahan</option>
+                            {form.district && (BAUBAU_DATA as any)[form.district].map((kel: string) => <option key={kel} value={kel}>{kel}</option>)}
+                          </select>
+                        </div>
+                      </div>
+
                       <div className="group">
-                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Lokasi Objek</label>
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Lokasi Objek (Detail)</label>
                         <input
                           type="text"
-                          placeholder="Lokasi detail..."
+                          placeholder="Jl. Gajah Mada No..."
                           value={form.object_address}
                           onChange={(e) => setForm({ ...form, object_address: e.target.value })}
                           className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
