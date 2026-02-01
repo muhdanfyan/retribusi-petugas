@@ -7,6 +7,22 @@ import { useState, useEffect, useMemo } from 'react';
 import { api } from '../lib/api';
 import { Taxpayer, Opd, RetributionType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { MapContainer, TileLayer, Marker, useMapEvents, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default marker icon in Leaflet
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const BAUBAU_DATA = {
   "Batupoaro": ["Bone-bone", "Tarafu", "Wameo", "Kaobula", "Lanto", "Ngananaumala"],
@@ -49,6 +65,8 @@ export default function TaxpayerManagement() {
     object_address: '',
     district: '',
     sub_district: '',
+    latitude: -5.4632,
+    longitude: 122.6075,
     is_active: true,
     opd_id: '',
     retribution_type_ids: [] as number[],
@@ -109,6 +127,8 @@ export default function TaxpayerManagement() {
       object_address: '',
       district: '',
       sub_district: '',
+      latitude: -5.4632,
+      longitude: 122.6075,
       is_active: true,
       opd_id: user?.opd_id?.toString() || '',
       retribution_type_ids: [],
@@ -136,6 +156,8 @@ export default function TaxpayerManagement() {
       district: (taxpayer as any).district || '',
       sub_district: (taxpayer as any).sub_district || '',
       is_active: taxpayer.is_active,
+      latitude: parseFloat((taxpayer as any).latitude) || -5.4632,
+      longitude: parseFloat((taxpayer as any).longitude) || 122.6075,
       opd_id: taxpayer.opd_id.toString(),
       retribution_type_ids: taxpayer.retribution_types?.map(t => t.id) || [],
       retribution_classification_ids: (taxpayer as any).retribution_classifications?.map((c: any) => c.id) || [],
@@ -182,6 +204,8 @@ export default function TaxpayerManagement() {
           form.retribution_type_ids.forEach(id => formData.append('retribution_type_ids[]', id.toString()));
         } else if (key === 'retribution_classification_ids') {
           form.retribution_classification_ids.forEach(id => formData.append('retribution_classification_ids[]', id.toString()));
+        } else if (key === 'latitude' || key === 'longitude') {
+          formData.append(key, form[key].toString());
         } else if (key === 'metadata') {
           formData.append('metadata', JSON.stringify(form.metadata));
         } else {
@@ -262,6 +286,15 @@ export default function TaxpayerManagement() {
       };
     });
   };
+
+  function MapEvents() {
+    useMapEvents({
+      click(e) {
+        setForm(prev => ({ ...prev, latitude: e.latlng.lat, longitude: e.latlng.lng }));
+      },
+    });
+    return null;
+  }
 
   const filteredRetributionTypes = useMemo(() => {
     const selectedOpdId = parseInt(form.opd_id);
@@ -437,8 +470,9 @@ export default function TaxpayerManagement() {
                   { id: 1, title: 'Data Penanggung Jawab', icon: User },
                   { id: 2, title: 'Data Objek', icon: Briefcase },
                   { id: 3, title: 'Kategori', icon: CreditCard },
-                  { id: 4, title: 'Lainnya', icon: Info },
-                  { id: 5, title: 'Selesai', icon: CheckCircle2 },
+                  { id: 4, title: 'Lokasi', icon: MapPin },
+                  { id: 5, title: 'Lainnya', icon: Info },
+                  { id: 6, title: 'Selesai', icon: CheckCircle2 },
                 ].map((step) => (
                   <div key={step.id} className="relative z-10 flex items-center gap-4 group">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
@@ -693,6 +727,58 @@ export default function TaxpayerManagement() {
                 )}
 
                 {currentStep === 4 && (
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 flex flex-col h-full">
+                    <div>
+                      <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Lokasi Objek</h3>
+                      <p className="text-gray-500 text-sm font-medium">Klik pada peta untuk menentuakan lokasi objek retribusi</p>
+                    </div>
+
+                    <div className="flex-1 min-h-[400px] rounded-[2.5rem] overflow-hidden border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                      <MapContainer 
+                        center={[form.latitude, form.longitude]} 
+                        zoom={15} 
+                        style={{ height: '100%', width: '100%' }}
+                        scrollWheelZoom={true}
+                      >
+                        <TileLayer
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <MapEvents />
+                        <Marker position={[form.latitude, form.longitude]}>
+                          <Popup>
+                            Lokasi Objek: <br /> {form.latitude.toFixed(6)}, {form.longitude.toFixed(6)}
+                          </Popup>
+                        </Marker>
+                      </MapContainer>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-gray-800/50 p-6 rounded-[2rem] border-2 border-gray-100 dark:border-gray-800">
+                      <div className="group">
+                        <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 ml-1">Latitude</label>
+                        <input
+                          type="number"
+                          step="any"
+                          value={form.latitude}
+                          onChange={(e) => setForm({ ...form, latitude: parseFloat(e.target.value) })}
+                          className="w-full px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                        />
+                      </div>
+                      <div className="group">
+                        <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 ml-1">Longitude</label>
+                        <input
+                          type="number"
+                          step="any"
+                          value={form.longitude}
+                          onChange={(e) => setForm({ ...form, longitude: parseFloat(e.target.value) })}
+                          className="w-full px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 5 && (
                   <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                     <div>
                       <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Additional Specifications</h3>
@@ -740,7 +826,7 @@ export default function TaxpayerManagement() {
                   </div>
                 )}
 
-                {currentStep === 5 && (
+                {currentStep === 6 && (
                   <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                     <div>
                       <h3 className="text-xs font-black text-rose-600 uppercase tracking-[0.2em] mb-2">Review & Documentation</h3>
@@ -806,7 +892,7 @@ export default function TaxpayerManagement() {
                   Previous
                 </button>
                 
-                {currentStep < 5 ? (
+                {currentStep < 6 ? (
                   <button
                     type="button"
                     onClick={() => setCurrentStep(currentStep + 1)}
