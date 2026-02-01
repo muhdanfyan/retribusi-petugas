@@ -258,7 +258,7 @@ export default function Billing() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-right">
-                      {billing.status === 'pending' && ['super_admin', 'opd', 'petugas'].includes(currentUser?.role || '') && (
+                      {billing.status === 'pending' && ['super_admin', 'opd'].includes(currentUser?.role || '') && (
                         <button
                           onClick={() => {
                             setSelectedBill(billing);
@@ -312,7 +312,7 @@ export default function Billing() {
                     <p className="text-[10px] text-gray-500 font-bold uppercase">Total Tagihan</p>
                     <p className="text-lg font-black text-blue-600 dark:text-blue-400">{formatCurrency(billing.amount)}</p>
                   </div>
-                  {billing.status === 'pending' && ['super_admin', 'opd', 'petugas'].includes(currentUser?.role || '') && (
+                  {billing.status === 'pending' && ['super_admin', 'opd'].includes(currentUser?.role || '') && (
                     <button
                       onClick={() => {
                         setSelectedBill(billing);
