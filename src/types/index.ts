@@ -29,7 +29,6 @@ export interface RetributionType {
   base_amount: number;
   unit: string;
   is_active: boolean;
-  icon?: string;
   opd?: Opd;
   form_schema?: any[];
   requirements?: any[];
@@ -42,6 +41,7 @@ export interface RetributionClassification {
   name: string;
   code?: string;
   description?: string;
+  icon?: string;
   opd?: Opd;
   retribution_type?: RetributionType;
   zones?: Zona[];
@@ -121,7 +121,6 @@ export interface Tarif {
   status: 'active' | 'inactive';
   department?: string;
   opd_id?: number;
-  icon?: string;
   form_schema?: any[];
   requirements?: any[];
 }
