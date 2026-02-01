@@ -394,9 +394,6 @@ export default function MasterData() {
                   <thead className="bg-gray-50 dark:bg-gray-700/50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                        Icon
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                         Nama Tarif
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
@@ -421,15 +418,6 @@ export default function MasterData() {
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {filteredTarifs.map((tarif) => (
                       <tr key={tarif.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <td className="px-6 py-4">
-                          {(tarif as any).icon ? (
-                            <img src={(tarif as any).icon} alt="" className="w-8 h-8 object-contain" />
-                          ) : (
-                            <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center text-gray-400">
-                              -
-                            </div>
-                          )}
-                        </td>
                         <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                           {tarif.name}
                         </td>
