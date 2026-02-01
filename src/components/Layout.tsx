@@ -164,7 +164,7 @@ export default function Layout({ children }: LayoutProps) {
       </header>
 
       {/* Mobile Top Header (Mockup Style) - Updated: Toggle Sidebar, Removed Search */}
-      <div className="lg:hidden px-6 pt-10 pb-4 space-y-6">
+      <div className="lg:hidden px-4 pt-10 pb-4 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
@@ -278,43 +278,38 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </main>
 
-      {/* Bottom Navigation (Mobile Only - Mockup Style) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800 z-[50] px-6 py-4 flex items-center justify-between">
-        {[
-          { icon: Home, path: '/dashboard', label: 'Home' },
-          { icon: CreditCard, path: '/billing', label: 'Billing' },
-          { icon: QrCode, path: '/scanner', label: 'Scan', primary: true },
-          { icon: MessageSquare, path: '/notifications', label: 'Activity', badge: 12 },
-          { icon: Settings, path: '/settings', label: 'Settings' }
-        ].map((item, i) => {
-          const isActive = location.pathname === item.path;
-          if (item.primary) {
+      {/* Bottom Navigation (Mobile Only - Clean White Style) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[50]">
+        <div className="mx-4 mb-4 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl shadow-slate-200/60 dark:shadow-none border border-slate-100 dark:border-slate-800 px-4 py-3 flex items-center justify-around">
+          {[
+            { icon: Home, path: '/dashboard', label: 'Home' },
+            { icon: Search, path: '/billing', label: 'Search' },
+            { icon: QrCode, path: '/scanner', label: 'Scan' },
+            { icon: Bell, path: '/notifications', label: 'Notif' },
+            { icon: User, path: '/profile', label: 'Profile' }
+          ].map((item, i) => {
+            const isActive = location.pathname === item.path;
             return (
               <button 
                 key={i}
                 onClick={() => navigate(item.path)}
-                className="w-14 h-14 bg-[#2d5cd5] text-white rounded-2xl shadow-xl shadow-blue-500/40 flex items-center justify-center -translate-y-4 active:scale-90 transition-all border-4 border-slate-50 dark:border-slate-950"
+                className={`relative flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all active:scale-95 ${
+                  isActive 
+                    ? 'bg-[#2d5cd5]/10 text-[#2d5cd5]' 
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
               >
-                <item.icon size={24} />
+                <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                <span className={`text-[10px] font-bold ${isActive ? 'text-[#2d5cd5]' : 'text-slate-400'}`}>
+                  {item.label}
+                </span>
+                {isActive && (
+                  <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#2d5cd5] rounded-full"></span>
+                )}
               </button>
             );
-          }
-          return (
-            <button 
-              key={i}
-              onClick={() => navigate(item.path)}
-              className={`relative flex flex-col items-center gap-1 transition-all active:scale-95 ${isActive ? 'text-[#2d5cd5]' : 'text-slate-400 hover:text-slate-600'}`}
-            >
-              <item.icon size={22} className={isActive ? 'animate-bounce' : ''} />
-              {item.badge && (
-                <span className="absolute -top-1 -right-1.5 w-4 h-4 bg-[#2d5cd5] text-white text-[9px] font-black rounded-full flex items-center justify-center border border-white">
-                  {item.badge}
-                </span>
-              )}
-              {isActive && <div className="w-1 h-1 bg-[#2d5cd5] rounded-full mt-0.5"></div>}
-            </button>
-          );
-        })}
+          })}
+        </div>
       </div>
     </div>
   );

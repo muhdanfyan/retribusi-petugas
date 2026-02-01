@@ -1,11 +1,28 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
-import { User, Key, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { 
+  User, 
+  Key, 
+  Save, 
+  AlertCircle, 
+  CheckCircle2, 
+  ChevronRight,
+  Globe,
+  Palette,
+  Shield,
+  Smartphone,
+  ArrowLeft,
+  Pencil,
+  X
+} from 'lucide-react';
 
 export default function Profile() {
+  const navigate = useNavigate();
   const { user, updateUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [profileForm, setProfileForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -36,6 +53,7 @@ export default function Profile() {
       const response = await api.put('/api/user/profile', profileForm);
       updateUser(response.user);
       setMessage({ type: 'success', text: response.message || 'Profil berhasil diperbarui' });
+      setTimeout(() => setShowEditModal(false), 1500);
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Gagal memperbarui profil' });
     } finally {
@@ -61,6 +79,7 @@ export default function Profile() {
         new_password: '',
         new_password_confirmation: '',
       });
+      setTimeout(() => setShowPasswordModal(false), 1500);
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Gagal mengubah password' });
     } finally {
@@ -68,166 +87,248 @@ export default function Profile() {
     }
   };
 
-  return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Pengaturan Profil</h1>
-        <p className="text-gray-600 dark:text-gray-400">Kelola informasi profil dan keamanan akun Anda</p>
-      </div>
+  const menuItems = [
+    { icon: Globe, label: 'Bahasa', value: 'Indonesia', onClick: () => {} },
+    { icon: Palette, label: 'Tampilan', value: 'Light', onClick: () => {} },
+    { icon: Shield, label: 'Keamanan Aplikasi', onClick: () => {} },
+    { icon: Smartphone, label: 'Kelola Perangkat', onClick: () => {} },
+    { icon: Key, label: 'Ganti Password', onClick: () => setShowPasswordModal(true) },
+  ];
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="flex border-b border-gray-100 dark:border-gray-700">
-          <button
-            onClick={() => { setActiveTab('profile'); setMessage(null); }}
-            className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
-              activeTab === 'profile'
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/10'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      {/* Gradient Header */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-100 via-orange-50 to-white dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 h-64 rounded-b-[3rem]"></div>
+        
+        {/* Back Button */}
+        <div className="relative z-10 px-4 pt-12 pb-4">
+          <button 
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl flex items-center justify-center shadow-sm"
           >
-            <User className="w-4 h-4" />
-            Informasi Profil
-          </button>
-          <button
-            onClick={() => { setActiveTab('password'); setMessage(null); }}
-            className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-colors ${
-              activeTab === 'password'
-                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/10'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-          >
-            <Key className="w-4 h-4" />
-            Ganti Password
+            <ArrowLeft size={20} className="text-slate-600 dark:text-slate-400" />
           </button>
         </div>
 
-        <div className="p-6 md:p-8">
-          {message && (
-            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-              message.type === 'success' 
-                ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800' 
-                : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
-            }`}>
-              {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 flex-shrink-0" />}
-              <p className="text-sm font-medium">{message.text}</p>
-            </div>
-          )}
+        {/* Title */}
+        <div className="relative z-10 px-6 pb-8">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white">Profile</h1>
+        </div>
+      </div>
 
-          {activeTab === 'profile' ? (
-            <form onSubmit={handleUpdateProfile} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nama Lengkap
-                  </label>
-                  <input
-                    type="text"
-                    value={profileForm.name}
-                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    placeholder="Masukkan nama lengkap"
-                    required
-                  />
+      {/* Profile Card */}
+      <div className="relative z-10 -mt-4 mx-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-6 text-center">
+          {/* Avatar */}
+          <div className="w-20 h-20 mx-auto bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-full flex items-center justify-center text-2xl font-black text-slate-500 dark:text-slate-400 shadow-lg">
+            {user?.name?.charAt(0) || <User size={32} />}
+          </div>
+          
+          {/* User Info */}
+          <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">{user?.name}</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center justify-center gap-1">
+            <span className="capitalize">{user?.role?.replace('_', ' ')}</span>
+            {user?.opd && (
+              <>
+                <span className="mx-1">•</span>
+                <span>{user.opd.name}</span>
+              </>
+            )}
+          </p>
+
+          {/* Edit Profile Button */}
+          <button 
+            onClick={() => setShowEditModal(true)}
+            className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-full shadow-lg shadow-orange-500/30 transition-all active:scale-95"
+          >
+            <Pencil size={16} />
+            Edit Profile
+          </button>
+        </div>
+      </div>
+
+      {/* Settings Menu */}
+      <div className="mt-6 mx-4 space-y-3">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+          {menuItems.slice(0, 2).map((item, i) => (
+            <button
+              key={i}
+              onClick={item.onClick}
+              className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-b-0"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center">
+                  <item.icon size={20} className="text-slate-500 dark:text-slate-400" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Alamat Email
-                  </label>
-                  <input
-                    type="email"
-                    value={profileForm.email}
-                    onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    placeholder="nama@email.com"
-                    required
-                  />
-                </div>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{item.label}</span>
               </div>
+              <div className="flex items-center gap-2">
+                {item.value && <span className="text-sm text-slate-400">{item.value}</span>}
+                <ChevronRight size={18} className="text-slate-300" />
+              </div>
+            </button>
+          ))}
+        </div>
 
-              {user?.role === 'opd' && user.opd && (
-                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-700">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">OPD / Instansi</p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{user.opd.name}</p>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+          {menuItems.slice(2).map((item, i) => (
+            <button
+              key={i}
+              onClick={item.onClick}
+              className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-b-0"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center">
+                  <item.icon size={20} className="text-slate-500 dark:text-slate-400" />
+                </div>
+                <span className="font-medium text-slate-700 dark:text-slate-300">{item.label}</span>
+              </div>
+              <ChevronRight size={18} className="text-slate-300" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Edit Profile</h3>
+              <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">
+                <X size={20} className="text-slate-400" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateProfile} className="p-6 space-y-4">
+              {message && (
+                <div className={`p-3 rounded-xl flex items-center gap-2 text-sm ${
+                  message.type === 'success' 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
+                    : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                }`}>
+                  {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                  {message.text}
                 </div>
               )}
 
-              <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700 mt-8">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm disabled:opacity-50"
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : (
-                    <Save className="w-4 h-4" />
-                  )}
-                  Simpan Perubahan
-                </button>
-              </div>
-            </form>
-          ) : (
-            <form onSubmit={handleChangePassword} className="space-y-6">
-              <div className="space-y-4 max-w-md">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Password Saat Ini
-                  </label>
-                  <input
-                    type="password"
-                    value={passwordForm.current_password}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-                <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Password Baru
-                  </label>
-                  <input
-                    type="password"
-                    value={passwordForm.new_password}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    placeholder="Minimal 8 karakter"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Konfirmasi Password Baru
-                  </label>
-                  <input
-                    type="password"
-                    value={passwordForm.new_password_confirmation}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, new_password_confirmation: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                    placeholder="Masukkan ulang password baru"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nama Lengkap</label>
+                <input
+                  type="text"
+                  value={profileForm.name}
+                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  required
+                />
               </div>
 
-              <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700 mt-8">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm disabled:opacity-50"
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : (
-                    <Key className="w-4 h-4" />
-                  )}
-                  Ganti Password
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={profileForm.email}
+                  onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  required
+                />
               </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <Save size={18} />
+                    Simpan Perubahan
+                  </>
+                )}
+              </button>
             </form>
-          )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Ganti Password</h3>
+              <button onClick={() => setShowPasswordModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">
+                <X size={20} className="text-slate-400" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleChangePassword} className="p-6 space-y-4">
+              {message && (
+                <div className={`p-3 rounded-xl flex items-center gap-2 text-sm ${
+                  message.type === 'success' 
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
+                    : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                }`}>
+                  {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                  {message.text}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Password Saat Ini</label>
+                <input
+                  type="password"
+                  value={passwordForm.current_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Password Baru</label>
+                <input
+                  type="password"
+                  value={passwordForm.new_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Konfirmasi Password Baru</label>
+                <input
+                  type="password"
+                  value={passwordForm.new_password_confirmation}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, new_password_confirmation: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <Key size={18} />
+                    Ganti Password
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
