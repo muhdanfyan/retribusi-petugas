@@ -127,6 +127,7 @@ export default function TaxpayerManagement() {
   };
 
   const handleDelete = (id: number) => {
+    console.log('Triggering delete for taxpayer:', id);
     setTaxpayerToDelete(id);
     setShowDeleteModal(true);
   };
@@ -709,7 +710,7 @@ export default function TaxpayerManagement() {
         </div>
       )}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[250] p-4">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4 animate-in fade-in duration-300">
           <div className="bg-white dark:bg-gray-900 rounded-[2rem] shadow-2xl max-w-md w-full p-8 animate-in fade-in zoom-in duration-300">
             <div className="text-center">
               <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
