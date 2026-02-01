@@ -6,7 +6,7 @@ import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Billing() {
-  useAuth(); // Ensure user is authenticated
+  const { user: currentUser } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [billings, setBillings] = useState<BillingType[]>([]);
@@ -193,24 +193,28 @@ export default function Billing() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Billing & Tagihan</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Generate dan kelola tagihan operasional petugas
+            {currentUser?.role === 'petugas' ? 'Monitor dan catat pembayaran tagihan' : 'Generate dan kelola tagihan operasional petugas'}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setShowBulkModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95 shadow-emerald-500/10"
-          >
-            <FileText size={18} />
-            Bulk Gen
-          </button>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95 shadow-blue-500/10"
-          >
-            <Plus size={18} />
-            Generate
-          </button>
+          {currentUser?.role !== 'petugas' && (
+            <>
+              <button
+                onClick={() => setShowBulkModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95 shadow-emerald-500/10"
+              >
+                <FileText size={18} />
+                Bulk Gen
+              </button>
+              <button
+                onClick={() => setShowModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95 shadow-blue-500/10"
+              >
+                <Plus size={18} />
+                Generate
+              </button>
+            </>
+          )}
           <button
             onClick={() => navigate('/scanner')}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all active:scale-95"
