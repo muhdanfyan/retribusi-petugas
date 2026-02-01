@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Download, Search, FileText, Loader2, QrCode, Plus } from 'lucide-react';
+import SearchableSelect from '../components/SearchableSelect';
 import { Billing as BillingType } from '../types';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -343,20 +344,18 @@ export default function Billing() {
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">×</button>
             </div>
             <form onSubmit={handleGenerate} className="p-8 space-y-5">
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Objek Pajak / NOP</label>
-                <select
-                  value={formData.tax_object_id}
-                  onChange={(e) => setFormData({ ...formData, tax_object_id: e.target.value })}
-                  className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 font-bold text-sm"
-                  required
-                >
-                  <option value="">Pilih Objek</option>
-                  {taxObjects.map((obj) => (
-                    <option key={obj.id} value={obj.id}>{obj.name} - {obj.taxpayer?.name} ({obj.nop})</option>
-                  ))}
-                </select>
-              </div>
+              <SearchableSelect
+                label="Objek Pajak Target"
+                options={taxObjects.map(obj => ({
+                  id: obj.id,
+                  label: `${obj.nop} - ${obj.taxpayer?.name || 'N/A'}`,
+                  subLabel: obj.name
+                }))}
+                value={formData.tax_object_id}
+                onSelect={(val) => setFormData({ ...formData, tax_object_id: val.toString() })}
+                placeholder="Pilih Objek"
+                searchPlaceholder="Cari NOP atau Nama WP..."
+              />
               <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                 <p className="text-[10px] text-blue-900 dark:text-blue-300 font-medium">
                   Jumlah tagihan akan dihitung otomatis berdasarkan tarif yang berlaku untuk objek pajak ini.
@@ -400,20 +399,17 @@ export default function Billing() {
               <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Bulk Generate</h2>
             </div>
             <form onSubmit={handleBulkGenerate} className="p-8 space-y-5">
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Kategori Retribusi</label>
-                <select
-                  value={bulkFormData.retribution_type_id}
-                  onChange={(e) => setBulkFormData({ ...bulkFormData, retribution_type_id: e.target.value })}
-                  className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 font-bold text-sm"
-                  required
-                >
-                  <option value="">Pilih Kategori</option>
-                  {retributionTypes.map((rt) => (
-                    <option key={rt.id} value={rt.id}>{rt.name}</option>
-                  ))}
-                </select>
-              </div>
+              <SearchableSelect
+                label="Kategori Retribusi"
+                options={retributionTypes.map(rt => ({
+                  id: rt.id,
+                  label: rt.name
+                }))}
+                value={bulkFormData.retribution_type_id}
+                onSelect={(val) => setBulkFormData({ ...bulkFormData, retribution_type_id: val.toString() })}
+                placeholder="Pilih Kategori"
+                searchPlaceholder="Cari kategori..."
+              />
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Periode</label>

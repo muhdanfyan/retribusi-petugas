@@ -35,6 +35,11 @@ interface Stats {
   collection_rate: number;
   pending_bills: number;
   active_taxpayers: number;
+  petugas_achievement?: {
+    collections_count: number;
+    total_amount: number;
+    taxpayers_registered: number;
+  } | null;
   trends: {
     revenue: string;
     collection_rate: string;
@@ -395,6 +400,40 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Petugas Personal Achievement Section */}
+      {stats?.petugas_achievement && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 scale-95 origin-left lg:scale-100">
+          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden group">
+             <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-emerald-500/10 transition-all duration-700"></div>
+             <div className="relative z-10 flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                   <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                      <TrendingUp size={28} />
+                   </div>
+                   <div>
+                      <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Pencapaian Saya</h4>
+                      <p className="text-2xl font-black text-slate-900 dark:text-white">{formatCurrency(stats.petugas_achievement.total_amount)}</p>
+                   </div>
+                </div>
+                <div className="text-right">
+                   <p className="text-3xl font-black text-emerald-500">{stats.petugas_achievement.collections_count}</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Koleksi</p>
+                </div>
+             </div>
+             <div className="mt-8 pt-8 border-t border-slate-100/10 grid grid-cols-2 gap-8 relative z-10">
+                <div>
+                   <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-1">WP Terdaftar</p>
+                   <p className="text-xl font-black text-white">{stats.petugas_achievement.taxpayers_registered}</p>
+                </div>
+                <div>
+                   <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-1">Rasio Berhasil</p>
+                   <p className="text-xl font-black text-white">{Math.round((stats.petugas_achievement.collections_count / (stats.petugas_achievement.collections_count + (stats.pending_bills / 10))) * 100) || 100}%</p>
+                </div>
+             </div>
+          </div>
+        </div>
+      )}
 
       {/* Buttons (Mobile) */}
       <div className="lg:hidden grid grid-cols-2 gap-4">
