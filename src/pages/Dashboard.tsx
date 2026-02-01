@@ -141,21 +141,21 @@ export default function Dashboard() {
       className: 'custom-div-icon',
       html: `
         <div style="
-          width: 42px; 
-          height: 42px; 
+          width: 32px; 
+          height: 32px; 
           background: white; 
           border-radius: 50%; 
           display: flex; 
           align-items: center; 
           justify-content: center; 
-          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
           overflow: hidden;
         ">
-          <img src="${finalIconUrl}" style="width: 28px; height: 28px; object-fit: contain;" />
+          <img src="${finalIconUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px;" />
         </div>
       `,
-      iconSize: [42, 42],
-      iconAnchor: [21, 42],
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
     });
   };
 
