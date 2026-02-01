@@ -24,6 +24,8 @@ export default function TaxpayerManagement() {
   const [editingTaxpayer, setEditingTaxpayer] = useState<Taxpayer | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taxpayerToDelete, setTaxpayerToDelete] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     nik: '',
@@ -124,14 +126,23 @@ export default function TaxpayerManagement() {
     setShowModal(true);
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Apakah Anda yakin ingin menghapus wajib pajak ini?')) {
-      try {
-        await api.delete(`/api/taxpayers/${id}`);
-        fetchData();
-      } catch (error) {
-        alert('Gagal menghapus wajib pajak');
-      }
+  const handleDelete = (id: number) => {
+    setTaxpayerToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!taxpayerToDelete) return;
+    setLoading(true);
+    try {
+      await api.delete(`/api/taxpayers/${taxpayerToDelete}`);
+      setShowDeleteModal(false);
+      setTaxpayerToDelete(null);
+      fetchData();
+    } catch (error) {
+      alert('Gagal menghapus wajib pajak');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -174,7 +185,10 @@ export default function TaxpayerManagement() {
       setShowModal(false);
       fetchData();
     } catch (error: any) {
-      alert(error.message || 'Gagal menyimpan data');
+      console.error('Update/Store Error:', error);
+      const message = error.response?.data?.message || error.message || 'Gagal menyimpan data';
+      const detail = error.response?.data?.errors ? '\n\n' + Object.values(error.response.data.errors).flat().join('\n') : '';
+      alert(message + detail);
     } finally {
       setSubmitting(false);
     }
@@ -689,6 +703,35 @@ export default function TaxpayerManagement() {
                     {submitting ? 'Processing...' : (editingTaxpayer ? 'Simpan Perubahan' : 'Submit Registration')}
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[250] p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-[2rem] shadow-2xl max-w-md w-full p-8 animate-in fade-in zoom-in duration-300">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <Trash2 className="w-10 h-10 text-red-600" />
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Hapus Wajib Pajak?</h3>
+              <p className="text-gray-500 dark:text-gray-400 font-medium mb-8">
+                Tindakan ini tidak dapat dibatalkan. Seluruh data penagihan terkait juga mungkin akan terdampak.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 py-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 text-gray-900 dark:text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-all"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-red-600/30 transition-all"
+                >
+                  Ya, Hapus
+                </button>
               </div>
             </div>
           </div>
