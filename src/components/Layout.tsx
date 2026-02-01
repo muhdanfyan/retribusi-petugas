@@ -41,31 +41,31 @@ const menuItems: MenuItem[] = [
     label: 'Dashboard',
     path: '/dashboard',
     icon: <LayoutDashboard className="w-5 h-5" />,
-    roles: ['super_admin', 'opd', 'verifikator', 'kasir', 'viewer'],
+    roles: ['super_admin', 'opd', 'verifikator', 'petugas', 'viewer'],
   },
   {
     label: 'Wajib Pajak',
     path: '/taxpayers',
     icon: <Users className="w-5 h-5" />,
-    roles: ['super_admin', 'opd', 'kasir'],
+    roles: ['super_admin', 'opd', 'petugas'],
   },
   {
     label: 'Billing & Tagihan',
     path: '/billing',
     icon: <FileText className="w-5 h-5" />,
-    roles: ['super_admin', 'opd', 'kasir'],
+    roles: ['super_admin', 'opd', 'petugas'],
   },
   {
     label: 'Reporting',
     path: '/reporting',
     icon: <BarChart3 className="w-5 h-5" />,
-    roles: ['super_admin', 'opd', 'viewer', 'kasir'],
+    roles: ['super_admin', 'opd', 'viewer', 'petugas'],
   },
   {
     label: 'Master Data',
     path: '/master-data',
     icon: <Database className="w-5 h-5" />,
-    roles: ['super_admin', 'opd', 'kasir'],
+    roles: ['super_admin', 'opd', 'petugas'],
   },
 ];
 

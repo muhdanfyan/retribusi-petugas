@@ -28,7 +28,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'kasir', 'viewer']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'petugas', 'viewer']}>
                   <Layout>
                     <Dashboard />
                   </Layout>
@@ -39,7 +39,7 @@ function App() {
             <Route
               path="/scanner"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'kasir']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
                   <Layout>
                     <FieldScanner />
                   </Layout>
@@ -50,7 +50,7 @@ function App() {
             <Route
               path="/payment-confirmation"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'kasir']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
                   <Layout>
                     <PaymentConfirmation />
                   </Layout>
@@ -61,7 +61,7 @@ function App() {
             <Route
               path="/taxpayers"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'kasir']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
                   <Layout>
                     <TaxpayerManagement />
                   </Layout>
@@ -72,7 +72,7 @@ function App() {
             <Route
               path="/billing"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'kasir']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
                   <Layout>
                     <Billing />
                   </Layout>
@@ -83,7 +83,7 @@ function App() {
             <Route
               path="/reporting"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'viewer', 'kasir']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'viewer', 'petugas']}>
                   <Layout>
                     <Reporting />
                   </Layout>
@@ -94,7 +94,7 @@ function App() {
             <Route
               path="/master-data"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'kasir', 'viewer']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'petugas', 'viewer']}>
                   <Layout>
                     <MasterData />
                   </Layout>
@@ -105,7 +105,7 @@ function App() {
             <Route
               path="/profile"
               element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'kasir', 'viewer']}>
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'petugas', 'viewer']}>
                   <Layout>
                     <Profile />
                   </Layout>
