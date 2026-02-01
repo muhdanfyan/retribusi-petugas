@@ -61,7 +61,6 @@ export default function MasterData() {
     unit: '',
     status: 'active' as 'active' | 'inactive',
     opd_id: '',
-    icon: null as File | null,
     form_schema: [] as any[],
     requirements: [] as any[],
   });
@@ -99,7 +98,6 @@ export default function MasterData() {
             status: t.is_active ? 'active' : 'inactive',
             department: t.opd?.name || 'Unknown',
             opd_id: t.opd_id,
-            icon: t.icon,
             form_schema: t.form_schema || [],
             requirements: t.requirements || [],
           }));
@@ -160,7 +158,6 @@ export default function MasterData() {
       unit: tarif.unit,
       status: tarif.status,
       opd_id: (tarif as any).opd_id?.toString() || '',
-      icon: null,
       form_schema: tarif.form_schema || [],
       requirements: tarif.requirements || [],
     });
@@ -214,7 +211,6 @@ export default function MasterData() {
           status: t.is_active ? 'active' : 'inactive',
           department: opds.find(o => o.id === t.opd_id)?.name || 'Unknown',
           opd_id: t.opd_id,
-          icon: t.icon,
         } : prev));
       } else {
         const created = await api.post('/api/retribution-types', formData);
@@ -228,7 +224,6 @@ export default function MasterData() {
           status: t.is_active ? 'active' : 'inactive',
           department: opds.find(o => o.id === t.opd_id)?.name || 'Unknown',
           opd_id: t.opd_id,
-          icon: t.icon,
         } as any;
         setTarifs([...tarifs, newTarif]);
       }
