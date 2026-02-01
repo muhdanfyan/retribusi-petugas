@@ -338,7 +338,7 @@ export default function TaxpayerManagement() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-500">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[200] p-4 transition-all duration-500">
           <div className="bg-white dark:bg-gray-900 rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] max-w-5xl w-full max-h-[92vh] flex overflow-hidden animate-in fade-in zoom-in duration-300">
             
             {/* Left Sidebar: Stepper */}
