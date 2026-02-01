@@ -278,12 +278,12 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </main>
 
-      {/* Bottom Navigation (Mobile Only - Clean White Style) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[50]">
-        <div className="mx-4 mb-4 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl shadow-slate-200/60 dark:shadow-none border border-slate-100 dark:border-slate-800 px-4 py-3 flex items-center justify-around">
+      {/* Bottom Navigation (Mobile Only - Fixed Style) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[50] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.05)] w-full">
+        <div className="flex items-center justify-between px-1 py-1.5">
           {[
             { icon: Home, path: '/dashboard', label: 'Home' },
-            { icon: Search, path: '/billing', label: 'Search' },
+            { icon: Search, path: '/billing', label: 'Billing' },
             { icon: QrCode, path: '/scanner', label: 'Scan' },
             { icon: Bell, path: '/notifications', label: 'Notif' },
             { icon: User, path: '/profile', label: 'Profile' }
@@ -293,24 +293,25 @@ export default function Layout({ children }: LayoutProps) {
               <button 
                 key={i}
                 onClick={() => navigate(item.path)}
-                className={`relative flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all active:scale-95 ${
+                className={`flex-1 flex flex-col items-center gap-1 py-1 px-0.5 rounded-2xl transition-all duration-300 active:scale-95 ${
                   isActive 
-                    ? 'bg-[#2d5cd5]/10 text-[#2d5cd5]' 
-                    : 'text-slate-400 hover:text-slate-600'
+                    ? 'text-[#074764]' 
+                    : 'text-slate-400'
                 }`}
               >
-                <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-                <span className={`text-[10px] font-bold ${isActive ? 'text-[#2d5cd5]' : 'text-slate-400'}`}>
+                <div className={`w-full max-w-[50px] py-1.5 rounded-xl flex items-center justify-center transition-all ${
+                  isActive ? 'bg-[#074764]/10' : 'bg-transparent'
+                }`}>
+                  <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+                </div>
+                <span className={`text-[10px] font-bold uppercase tracking-wider text-center ${isActive ? 'text-[#074764]' : 'text-slate-400'}`}>
                   {item.label}
                 </span>
-                {isActive && (
-                  <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#2d5cd5] rounded-full"></span>
-                )}
               </button>
             );
           })}
         </div>
-      </div>
+      </nav>
     </div>
   );
 }
