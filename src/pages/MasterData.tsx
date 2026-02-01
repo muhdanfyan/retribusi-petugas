@@ -674,26 +674,7 @@ export default function MasterData() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Icon (Gambar)
-                </label>
-                <div className="flex items-center gap-4">
-                  {((tarifForm as any).icon || (editingTarif as any)?.icon) && (
-                    <img 
-                      src={tarifForm.icon ? URL.createObjectURL(tarifForm.icon) : (editingTarif as any).icon} 
-                      alt="Preview" 
-                      className="w-12 h-12 object-contain border rounded p-1"
-                    />
-                  )}
-                  <input
-                    type="file"
-                    onChange={(e) => setTarifForm({ ...tarifForm, icon: e.target.files?.[0] || null })}
-                    className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                    accept="image/*"
-                  />
-                </div>
-              </div>
+
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
