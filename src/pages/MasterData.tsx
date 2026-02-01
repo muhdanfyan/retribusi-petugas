@@ -88,19 +88,21 @@ export default function MasterData() {
         ]);
 
         // Map RetributionType to Tarif
-        const mappedTarifs: Tarif[] = (typesRes.data || typesRes).map((t: RetributionType) => ({
-          id: t.id.toString(),
-          name: t.name,
-          category: 'Retribusi',
-          amount: Number(t.base_amount),
-          unit: t.unit,
-          status: t.is_active ? 'active' : 'inactive',
-          department: t.opd?.name || 'Unknown',
-          opd_id: t.opd_id,
-          icon: t.icon,
-          form_schema: t.form_schema || [],
-          requirements: t.requirements || [],
-        })).filter(Boolean);
+        const mappedTarifs: Tarif[] = (typesRes.data || typesRes)
+          .filter((t: RetributionType) => t.is_active)
+          .map((t: RetributionType) => ({
+            id: t.id.toString(),
+            name: t.name,
+            category: 'Retribusi',
+            amount: Number(t.base_amount),
+            unit: t.unit,
+            status: t.is_active ? 'active' : 'inactive',
+            department: t.opd?.name || 'Unknown',
+            opd_id: t.opd_id,
+            icon: t.icon,
+            form_schema: t.form_schema || [],
+            requirements: t.requirements || [],
+          }));
 
         setTarifs(mappedTarifs);
         setZonas((zonesRes.data || zonesRes).map((z: any) => ({ ...z, id: z.id.toString() })));

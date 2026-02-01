@@ -13,6 +13,7 @@ export default function TaxpayerManagement() {
   const [taxpayers, setTaxpayers] = useState<Taxpayer[]>([]);
   const [opds, setOpds] = useState<Opd[]>([]);
   const [retributionTypes, setRetributionTypes] = useState<RetributionType[]>([]);
+  const [classifications, setClassifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [opdFilter, setOpdFilter] = useState('');
@@ -38,6 +39,7 @@ export default function TaxpayerManagement() {
     is_active: true,
     opd_id: '',
     retribution_type_ids: [] as number[],
+    retribution_classification_ids: [] as number[],
     metadata: {} as Record<string, any>,
   });
 
@@ -55,10 +57,11 @@ export default function TaxpayerManagement() {
         ...(opdFilter ? { opd_id: opdFilter } : user?.role !== 'super_admin' ? { opd_id: user?.opd_id?.toString() || '' } : {}),
       });
 
-      const [taxpayersRes, opdsRes, typesRes] = await Promise.all([
+      const [taxpayersRes, opdsRes, typesRes, classificationsRes] = await Promise.all([
         api.get(`/api/taxpayers?${queryParams}`),
         user?.role === 'super_admin' ? api.get('/api/opds') : Promise.resolve({ data: [] }),
         api.get('/api/retribution-types'),
+        api.get('/api/retribution-classifications'),
       ]);
 
       setTaxpayers(taxpayersRes.data);
@@ -68,7 +71,8 @@ export default function TaxpayerManagement() {
         setOpds(opdsRes.data || opdsRes);
       }
       
-      setRetributionTypes(typesRes.data || typesRes);
+      setRetributionTypes((typesRes.data || typesRes).filter((t: any) => t.is_active));
+      setClassifications(classificationsRes.data || classificationsRes);
     } catch (error) {
       console.error('Error fetching taxpayers:', error);
     } finally {
@@ -93,6 +97,7 @@ export default function TaxpayerManagement() {
       is_active: true,
       opd_id: user?.opd_id?.toString() || '',
       retribution_type_ids: [],
+      retribution_classification_ids: [],
       metadata: {},
     });
     setFiles({
@@ -116,6 +121,7 @@ export default function TaxpayerManagement() {
       is_active: taxpayer.is_active,
       opd_id: taxpayer.opd_id.toString(),
       retribution_type_ids: taxpayer.retribution_types?.map(t => t.id) || [],
+      retribution_classification_ids: (taxpayer as any).retribution_classifications?.map((c: any) => c.id) || [],
       metadata: taxpayer.metadata || {},
     });
     setFiles({
@@ -157,6 +163,8 @@ export default function TaxpayerManagement() {
       Object.keys(form).forEach(key => {
         if (key === 'retribution_type_ids') {
           form.retribution_type_ids.forEach(id => formData.append('retribution_type_ids[]', id.toString()));
+        } else if (key === 'retribution_classification_ids') {
+          form.retribution_classification_ids.forEach(id => formData.append('retribution_classification_ids[]', id.toString()));
         } else if (key === 'metadata') {
           formData.append('metadata', JSON.stringify(form.metadata));
         } else {
@@ -196,12 +204,46 @@ export default function TaxpayerManagement() {
   };
 
   const toggleRetributionType = (id: number) => {
-    setForm(prev => ({
-      ...prev,
-      retribution_type_ids: prev.retribution_type_ids.includes(id)
+    setForm(prev => {
+      const isSelected = prev.retribution_type_ids.includes(id);
+      const newTypeIds = isSelected
         ? prev.retribution_type_ids.filter(tid => tid !== id)
-        : [...prev.retribution_type_ids, id]
-    }));
+        : [...prev.retribution_type_ids, id];
+      
+      // If de-selecting a type, also de-select all its classifications
+      const newClassificationIds = isSelected
+        ? prev.retribution_classification_ids.filter(cid => {
+            const cls = classifications.find(c => c.id === cid);
+            return cls?.retribution_type_id !== id;
+          })
+        : prev.retribution_classification_ids;
+
+      return {
+        ...prev,
+        retribution_type_ids: newTypeIds,
+        retribution_classification_ids: newClassificationIds
+      };
+    });
+  };
+
+  const toggleClassification = (id: number, typeId: number) => {
+    setForm(prev => {
+      const isSelected = prev.retribution_classification_ids.includes(id);
+      const newClassificationIds = isSelected
+        ? prev.retribution_classification_ids.filter(cid => cid !== id)
+        : [...prev.retribution_classification_ids, id];
+
+      // Automatically select the type if any classification is selected
+      const newTypeIds = !isSelected && !prev.retribution_type_ids.includes(typeId)
+        ? [...prev.retribution_type_ids, typeId]
+        : prev.retribution_type_ids;
+
+      return {
+        ...prev,
+        retribution_type_ids: newTypeIds,
+        retribution_classification_ids: newClassificationIds
+      };
+    });
   };
 
   const filteredRetributionTypes = useMemo(() => {
@@ -543,27 +585,62 @@ export default function TaxpayerManagement() {
                         <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Pilih Dinas pada langkah sebelumnya</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-6">
                         {filteredRetributionTypes.map(type => (
                           <div
                             key={type.id}
-                            onClick={() => toggleRetributionType(type.id)}
-                            className={`p-6 rounded-[2rem] border-2 cursor-pointer transition-all duration-300 ${
+                            className={`p-6 rounded-[2.5rem] border-2 transition-all duration-300 ${
                               form.retribution_type_ids.includes(type.id)
-                                ? 'border-blue-600 bg-blue-600/5'
-                                : 'border-gray-100 dark:border-gray-800 hover:border-blue-200'
+                                ? 'border-blue-600 bg-blue-600/5 shadow-xl shadow-blue-500/5'
+                                : 'border-gray-100 dark:border-gray-800'
                             }`}
                           >
-                            <div className="flex items-center gap-4">
+                            <div 
+                              onClick={() => toggleRetributionType(type.id)}
+                              className="flex items-center gap-4 cursor-pointer mb-6"
+                            >
                               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
                                 form.retribution_type_ids.includes(type.id) ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                               }`}>
                                 <CreditCard className="w-6 h-6" />
                               </div>
-                              <div>
-                                <div className="text-sm font-black text-gray-900 dark:text-white leading-tight">{type.name}</div>
-                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Rp {type.base_amount?.toLocaleString()} / {type.unit}</div>
+                              <div className="flex-1">
+                                <div className="text-sm font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tighter">{type.name}</div>
+                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Pilih Klasifikasi di bawah ini</div>
                               </div>
+                              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                                form.retribution_type_ids.includes(type.id) ? 'border-blue-600 bg-blue-600' : 'border-gray-200'
+                              }`}>
+                                {form.retribution_type_ids.includes(type.id) && <Plus className="w-3 h-3 text-white rotate-45" />}
+                              </div>
+                            </div>
+
+                            {/* Classifications Grid */}
+                            <div className="grid grid-cols-2 gap-3 pl-4">
+                              {classifications
+                                .filter(c => c.retribution_type_id === type.id)
+                                .map(cls => (
+                                  <div
+                                    key={cls.id}
+                                    onClick={() => toggleClassification(cls.id, type.id)}
+                                    className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
+                                      form.retribution_classification_ids.includes(cls.id)
+                                        ? 'border-emerald-500 bg-white dark:bg-gray-800 shadow-md'
+                                        : 'border-gray-50 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-800/30'
+                                    }`}
+                                  >
+                                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                                      form.retribution_classification_ids.includes(cls.id) ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300'
+                                    }`}>
+                                      {form.retribution_classification_ids.includes(cls.id) && <Plus className="w-3 h-3 text-white" />}
+                                    </div>
+                                    <span className={`text-[11px] font-bold uppercase tracking-tight ${
+                                      form.retribution_classification_ids.includes(cls.id) ? 'text-gray-900 dark:text-white' : 'text-gray-400'
+                                    }`}>
+                                      {cls.name}
+                                    </span>
+                                  </div>
+                                ))}
                             </div>
                           </div>
                         ))}
