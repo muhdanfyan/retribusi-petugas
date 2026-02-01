@@ -144,7 +144,6 @@ export default function Dashboard() {
           width: 42px; 
           height: 42px; 
           background: white; 
-          border: 3px solid #2d5cd5; 
           border-radius: 50%; 
           display: flex; 
           align-items: center; 
@@ -152,7 +151,7 @@ export default function Dashboard() {
           box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
           overflow: hidden;
         ">
-          <img src="${finalIconUrl}" style="width: 24px; height: 24px; object-fit: contain;" />
+          <img src="${finalIconUrl}" style="width: 28px; height: 28px; object-fit: contain;" />
         </div>
       `,
       iconSize: [42, 42],
