@@ -51,6 +51,8 @@ interface Potential {
   agency: string;
   address?: string;
   status: string;
+  icon?: string | null;
+  retribution_type_id?: number | string;
 }
 
 export default function Dashboard() {
@@ -129,6 +131,34 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  const createCustomIcon = (iconUrl: string | null, seed: any) => {
+    const finalIconUrl = iconUrl?.startsWith('http') 
+      ? iconUrl 
+      : (iconUrl ? `${import.meta.env.VITE_API_URL}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}` : `https://api.dicebear.com/7.x/shapes/svg?seed=${seed}&backgroundColor=2d5cd5&shape1Color=white`);
+
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html: `
+        <div style="
+          width: 42px; 
+          height: 42px; 
+          background: white; 
+          border: 3px solid #2d5cd5; 
+          border-radius: 50%; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+          overflow: hidden;
+        ">
+          <img src="${finalIconUrl}" style="width: 24px; height: 24px; object-fit: contain;" />
+        </div>
+      `,
+      iconSize: [42, 42],
+      iconAnchor: [21, 42],
+    });
+  };
 
   return (
     <div className="max-w-[1600px] mx-auto space-y-6 lg:space-y-8 pb-12 animate-in fade-in duration-700">
@@ -415,7 +445,11 @@ export default function Dashboard() {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
                   {potentials.map((potential, index) => (
-                    <Marker key={index} position={potential.position}>
+                    <Marker 
+                      key={index} 
+                      position={potential.position}
+                      icon={createCustomIcon(potential.icon || null, potential.retribution_type_id || index)}
+                    >
                       <Popup>
                         <div className="p-3 min-w-[200px] font-sans">
                           <h3 className="font-black text-slate-900 text-sm mb-1">{potential.name}</h3>
