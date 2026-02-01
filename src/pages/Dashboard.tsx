@@ -72,7 +72,7 @@ export default function Dashboard() {
           api.get('/api/dashboard/stats'),
           api.get('/api/dashboard/revenue-trend'),
           api.get('/api/dashboard/map-potentials'),
-          api.get('/api/retribution-types'),
+          api.get('/api/retribution-types?is_active=1'),
         ]);
 
         setStats(statsRes);
@@ -135,7 +135,7 @@ export default function Dashboard() {
   const createCustomIcon = (iconUrl: string | null, seed: any) => {
     const finalIconUrl = iconUrl?.startsWith('http') 
       ? iconUrl 
-      : (iconUrl ? `${import.meta.env.VITE_API_URL}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}` : `https://api.dicebear.com/7.x/shapes/svg?seed=${seed}&backgroundColor=2d5cd5&shape1Color=white`);
+      : (iconUrl ? `${import.meta.env.VITE_API_URL}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}` : `https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png`);
 
     return L.divIcon({
       className: 'custom-div-icon',
@@ -298,11 +298,11 @@ export default function Dashboard() {
             >
               <div className="w-16 h-16 mx-auto mb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
                 <img 
-                  src={type.icon?.startsWith('http') ? type.icon : (type.icon ? `${import.meta.env.VITE_API_URL}${type.icon.startsWith('/') ? '' : '/'}${type.icon}` : `https://api.dicebear.com/7.x/shapes/svg?seed=${type.id || i}&backgroundColor=2d5cd5&shape1Color=white`)} 
+                  src={type.icon?.startsWith('http') ? type.icon : (type.icon ? `${import.meta.env.VITE_API_URL}${type.icon.startsWith('/') ? '' : '/'}${type.icon}` : `https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png`)} 
                   alt={type.name} 
                   className="w-10 h-10 object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/shapes/svg?seed=${type.id || i}&backgroundColor=2d5cd5&shape1Color=white`;
+                    (e.target as HTMLImageElement).src = `https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png`;
                   }}
                 />
               </div>
