@@ -1,7 +1,21 @@
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.sipanda.online';
 
-export async function apiFetch(endpoint: string, options: RequestInit = {}) {
+export async function apiFetch(endpoint: string, options: RequestInit & { params?: Record<string, any> } = {}) {
     const token = localStorage.getItem('token');
+
+    let url = `${API_URL}${endpoint}`;
+    if (options.params) {
+        const searchParams = new URLSearchParams();
+        Object.entries(options.params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                searchParams.append(key, String(value));
+            }
+        });
+        const queryString = searchParams.toString();
+        if (queryString) {
+            url += (url.includes('?') ? '&' : '?') + queryString;
+        }
+    }
 
     const headers = {
         'Accept': 'application/json',
@@ -9,7 +23,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
         ...((options.headers as any) || {}),
     };
 
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const response = await fetch(url, {
         ...options,
         headers,
     });
@@ -31,8 +45,8 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
 }
 
 export const api = {
-    get: (endpoint: string, options: RequestInit = {}) => apiFetch(endpoint, { method: 'GET', ...options }),
-    post: (endpoint: string, body: any, options: RequestInit = {}) => {
+    get: (endpoint: string, options: RequestInit & { params?: Record<string, any> } = {}) => apiFetch(endpoint, { method: 'GET', ...options }),
+    post: (endpoint: string, body: any, options: RequestInit & { params?: Record<string, any> } = {}) => {
         const isFormData = body instanceof FormData;
         const headers = { ...((options.headers as any) || {}) };
         if (isFormData) {
@@ -48,7 +62,7 @@ export const api = {
             headers
         });
     },
-    put: (endpoint: string, body: any, options: RequestInit = {}) => {
+    put: (endpoint: string, body: any, options: RequestInit & { params?: Record<string, any> } = {}) => {
         const isFormData = body instanceof FormData;
         const headers = { ...((options.headers as any) || {}) };
         if (isFormData) {
@@ -64,5 +78,5 @@ export const api = {
             headers
         });
     },
-    delete: (endpoint: string, options: RequestInit = {}) => apiFetch(endpoint, { method: 'DELETE', ...options }),
+    delete: (endpoint: string, options: RequestInit & { params?: Record<string, any> } = {}) => apiFetch(endpoint, { method: 'DELETE', ...options }),
 };

@@ -1,28 +1,87 @@
-import { useState } from 'react';
-import { Download, Calendar, TrendingUp, DollarSign } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { 
+  Download, 
+  Calendar as CalendarIcon,
+  PieChart,
+  FileText,
+  TrendingUp,
+  Loader2,
+  DollarSign,
+  Table as TableIcon
+} from 'lucide-react';
+import { api } from '../lib/api';
+
+interface RevenueByType {
+  type: string;
+  amount: number;
+  percentage: number;
+  target: number;
+}
+
+interface RecentReport {
+  id: number;
+  taxpayer_name: string;
+  type: string;
+  amount: number;
+  date: string;
+  method: string;
+  status: string;
+}
+
+interface ReportSummary {
+  total_revenue: number;
+  revenue_by_type: RevenueByType[];
+  stats: {
+    total_transactions: number;
+    avg_transaction: number;
+  };
+}
 
 export default function Reporting() {
-  const [periodStart, setPeriodStart] = useState('2025-10-01');
-  const [periodEnd, setPeriodEnd] = useState('2025-10-31');
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<ReportSummary | null>(null);
+  const [recentReports, setRecentReports] = useState<RecentReport[]>([]);
+  
+  const [periodStart, setPeriodStart] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
+  const [periodEnd, setPeriodEnd] = useState(new Date().toISOString().split('T')[0]);
+  const [filterType, setFilterType] = useState<'day' | 'week' | 'month'>('month');
 
-  const revenueByType = [
-    { type: 'Retribusi Pasar', amount: 12500000, percentage: 28, target: 15000000 },
-    { type: 'Pajak Reklame', amount: 9800000, percentage: 22, target: 10000000 },
-    { type: 'Retribusi Parkir', amount: 8200000, percentage: 18, target: 8000000 },
-    { type: 'Pajak Hotel', amount: 7600000, percentage: 17, target: 8000000 },
-    { type: 'Pajak Restoran', amount: 6700000, percentage: 15, target: 7000000 },
-  ];
+  const handleFilterChange = (type: 'day' | 'week' | 'month') => {
+    setFilterType(type);
+    const end = new Date();
+    const start = new Date();
 
-  const recentReports = [
-    { id: '1', name: 'Laporan Pendapatan Oktober 2025', type: 'Monthly Revenue', date: '2025-10-31', format: 'PDF' },
-    { id: '2', name: 'Rekapitulasi Tagihan Q3 2025', type: 'Quarterly Billing', date: '2025-09-30', format: 'Excel' },
-    { id: '3', name: 'Collection Rate September 2025', type: 'Collection', date: '2025-09-30', format: 'PDF' },
-    { id: '4', name: 'Laporan Verifikasi Agustus 2025', type: 'Verification', date: '2025-08-31', format: 'PDF' },
-  ];
+    if (type === 'day') {
+      // Today already set
+    } else if (type === 'week') {
+      start.setDate(end.getDate() - 7);
+    } else if (type === 'month') {
+      start.setMonth(end.getMonth() - 1);
+    }
 
-  const totalRevenue = revenueByType.reduce((sum, item) => sum + item.amount, 0);
-  const totalTarget = revenueByType.reduce((sum, item) => sum + item.target, 0);
-  const achievementRate = ((totalRevenue / totalTarget) * 100).toFixed(1);
+    setPeriodStart(start.toISOString().split('T')[0]);
+    setPeriodEnd(end.toISOString().split('T')[0]);
+  };
+
+  const fetchReportingData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [summaryRes, recentRes] = await Promise.all([
+        api.get('/api/reports/summary', { params: { start_date: periodStart, end_date: periodEnd } }),
+        api.get('/api/reports/recent')
+      ]);
+      setSummary(summaryRes);
+      setRecentReports(recentRes);
+    } catch (error) {
+      console.error('Error fetching reporting data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [periodStart, periodEnd]);
+
+  useEffect(() => {
+    fetchReportingData();
+  }, [fetchReportingData]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -32,213 +91,204 @@ export default function Reporting() {
     }).format(amount);
   };
 
+  const handleExport = () => {
+    if (!summary) return;
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Kategori,Jumlah,Persentase,Target\n";
+    summary.revenue_by_type.forEach(row => {
+      csvContent += `${row.type},${row.amount},${row.percentage}%,${row.target}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Laporan_Petugas_${periodStart}_ke_${periodEnd}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Reporting & Analytics</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Custom report builder dan analytics dashboard
-        </p>
-      </div>
-
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Generate Custom Report
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Periode Mulai
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="date"
-                value={periodStart}
-                onChange={(e) => setPeriodStart(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Periode Akhir
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="date"
-                value={periodEnd}
-                onChange={(e) => setPeriodEnd(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Jenis Report
-            </label>
-            <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
-              <option>Revenue Report</option>
-              <option>Collection Report</option>
-              <option>Billing Report</option>
-              <option>Verification Report</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Format
-            </label>
-            <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
-              <option>PDF</option>
-              <option>Excel</option>
-              <option>CSV</option>
-            </select>
-          </div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Laporan Petugas</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">
+            Rekapitulasi dan analisis data operasional lapangan
+          </p>
         </div>
-        <div className="mt-4 flex gap-2">
-          <button className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-            <Download className="w-5 h-5" />
-            Generate Report
-          </button>
-          <button className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            Preview
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm text-sm">
+            <CalendarIcon className="w-4 h-4 text-blue-600" />
+            <input 
+              type="date" 
+              value={periodStart}
+              onChange={(e) => setPeriodStart(e.target.value)}
+              className="bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white p-0"
+            />
+            <span className="text-slate-400">sampai</span>
+            <input 
+              type="date" 
+              value={periodEnd}
+              onChange={(e) => setPeriodEnd(e.target.value)}
+              className="bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white p-0"
+            />
+          </div>
+          <button 
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium shadow-sm active:scale-95"
+          >
+            <Download className="w-4 h-4" />
+            Ekspor CSV
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm md:col-span-1">
+          <button 
+            onClick={() => handleFilterChange('day')}
+            className={`flex-1 py-1.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'day' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Harian
+          </button>
+          <button 
+            onClick={() => handleFilterChange('week')}
+            className={`flex-1 py-1.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'week' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Pekanan
+          </button>
+          <button 
+            onClick={() => handleFilterChange('month')}
+            className={`flex-1 py-1.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'month' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Bulanan
+          </button>
+        </div>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm md:col-span-1">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Pendapatan</p>
-            <DollarSign className="w-5 h-5 text-green-600" />
+            <p className="text-sm text-slate-600 dark:text-slate-400">Pendapatan Terinput</p>
+            <DollarSign className="w-5 h-5 text-emerald-600" />
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {formatCurrency(totalRevenue)}
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+            {formatCurrency(summary?.total_revenue || 0)}
           </p>
-          <p className="text-sm text-green-600 mt-1">Oktober 2025</p>
+          <p className="text-sm text-emerald-600 mt-1">Periode Terpilih</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Target Pendapatan</p>
-            <TrendingUp className="w-5 h-5 text-blue-600" />
+            <p className="text-sm text-slate-600 dark:text-slate-400">Jumlah Transaksi</p>
+            <FileText className="w-5 h-5 text-blue-600" />
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {formatCurrency(totalTarget)}
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+            {summary?.stats.total_transactions || 0}
           </p>
-          <p className="text-sm text-blue-600 mt-1">Oktober 2025</p>
+          <p className="text-sm text-blue-600 mt-1">Total Entri</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Achievement Rate</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">Rata-rata Setoran</p>
             <TrendingUp className="w-5 h-5 text-purple-600" />
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {achievementRate}%
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">
+            {formatCurrency(summary?.stats.avg_transaction || 0)}
           </p>
-          <p className="text-sm text-purple-600 mt-1">Target vs Realisasi</p>
+          <p className="text-sm text-purple-600 mt-1">Per Transaksi</p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Revenue Breakdown by Type
-          </h2>
-        </div>
-        <div className="p-6">
-          <div className="space-y-6">
-            {revenueByType.map((item, index) => {
-              const achievement = ((item.amount / item.target) * 100).toFixed(1);
-              return (
-                <div key={index}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {item.type}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {formatCurrency(item.amount)} / {formatCurrency(item.target)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {item.percentage}%
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {achievement}% achieved
-                      </p>
-                    </div>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                    <div
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all"
-                      style={{ width: `${(item.amount / item.target) * 100}%` }}
-                    ></div>
-                  </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Revenue Breakdown */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <PieChart className="w-5 h-5 text-blue-600" />
+              Kontribusi per Objek
+            </h3>
+          </div>
+          <div className="p-6">
+            <div className="space-y-6">
+              {loading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                 </div>
-              );
-            })}
+              ) : (
+                summary?.revenue_by_type.map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium text-slate-700 dark:text-slate-300">{item.type}</span>
+                      <div className="text-right">
+                        <p className="font-bold text-slate-900 dark:text-white">{formatCurrency(item.amount)}</p>
+                        <p className="text-xs text-slate-500">{item.percentage}% dari total</p>
+                      </div>
+                    </div>
+                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-600 rounded-full"
+                        style={{ width: `${item.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Recent Reports
-          </h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Report Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Format
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {recentReports.map((report) => (
-                <tr key={report.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                    {report.name}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                    {report.type}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                    {report.date}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                      {report.format}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-right">
-                    <button className="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
-                      <Download className="w-4 h-4" />
-                      Download
-                    </button>
-                  </td>
+        {/* Recent Transactions */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <TableIcon className="w-5 h-5 text-blue-600" />
+              Entri Terakhir
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 dark:bg-slate-750 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <tr>
+                  <th className="px-6 py-4">Wajib Retribusi</th>
+                  <th className="px-6 py-4 text-right">Setoran</th>
+                  <th className="px-6 py-4">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {loading ? (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-8 text-center text-slate-500">
+                      Memuat data...
+                    </td>
+                  </tr>
+                ) : recentReports.length > 0 ? (
+                  recentReports.map((report) => (
+                    <tr key={report.id} className="hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors">
+                      <td className="px-6 py-4">
+                        <p className="font-medium text-slate-900 dark:text-white">{report.taxpayer_name}</p>
+                        <p className="text-xs text-slate-500">{report.type}</p>
+                      </td>
+                      <td className="px-6 py-4 text-right font-semibold text-blue-600">
+                        {formatCurrency(report.amount)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-700 rounded-md">
+                          {report.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-8 text-center text-slate-500">
+                      Belum ada data setoran.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

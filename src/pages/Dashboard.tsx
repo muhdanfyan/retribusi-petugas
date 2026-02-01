@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
@@ -11,7 +11,10 @@ import {
   Map as MapIcon,
   Activity,
   Plus,
-  MoreHorizontal
+  MoreHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  Calendar
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -63,31 +66,107 @@ export default function Dashboard() {
   const [potentials, setPotentials] = useState<Potential[]>([]);
   const [retributionTypes, setRetributionTypes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDay, setSelectedDay] = useState('W');
+  
+  // Date Filtering State
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [filterType, setFilterType] = useState<'day' | 'week' | 'month'>('month');
+
+  const getDayDates = (date: Date) => {
+    const start = new Date(date);
+    start.setHours(0,0,0,0);
+    const end = new Date(date);
+    end.setHours(23,59,59,999);
+    return { start, end };
+  };
+
+  const getWeekDates = (date: Date) => {
+    const start = new Date(date);
+    const day = start.getDay();
+    const diff = start.getDate() - day + (day === 0 ? -6 : 1);
+    start.setDate(diff);
+    start.setHours(0,0,0,0);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    end.setHours(23,59,59,999);
+
+    return { start, end };
+  };
+
+  const getMonthDates = (date: Date) => {
+    const start = new Date(date.getFullYear(), date.getMonth(), 1);
+    const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    return { start, end };
+  };
+
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
+    try {
+      let range;
+      if (filterType === 'day') range = getDayDates(currentDate);
+      else if (filterType === 'week') range = getWeekDates(currentDate);
+      else range = getMonthDates(currentDate);
+
+      const params = {
+        start_date: range.start.toISOString().split('T')[0],
+        end_date: range.end.toISOString().split('T')[0]
+      };
+
+      const [statsRes, trendRes, mapRes, typesRes] = await Promise.all([
+        api.get('/api/dashboard/stats', { params }),
+        api.get('/api/dashboard/revenue-trend', { params }),
+        api.get('/api/dashboard/map-potentials'),
+        api.get('/api/retribution-types?is_active=1'),
+      ]);
+
+      setStats(statsRes);
+      setRevenueData(trendRes);
+      setPotentials(mapRes);
+      setRetributionTypes(typesRes.data || typesRes);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentDate, filterType]);
 
   useEffect(() => {
-    async function fetchDashboardData() {
-      try {
-        const [statsRes, trendRes, mapRes, typesRes] = await Promise.all([
-          api.get('/api/dashboard/stats'),
-          api.get('/api/dashboard/revenue-trend'),
-          api.get('/api/dashboard/map-potentials'),
-          api.get('/api/retribution-types?is_active=1'),
-        ]);
-
-        setStats(statsRes);
-        setRevenueData(trendRes);
-        setPotentials(mapRes);
-        setRetributionTypes(typesRes.data || typesRes);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
+
+  const handlePrev = () => {
+    const newDate = new Date(currentDate);
+    if (filterType === 'day') newDate.setDate(newDate.getDate() - 1);
+    else if (filterType === 'week') newDate.setDate(newDate.getDate() - 7);
+    else newDate.setMonth(newDate.getMonth() - 1);
+    setCurrentDate(newDate);
+  };
+
+  const handleNext = () => {
+    const newDate = new Date(currentDate);
+    if (filterType === 'day') newDate.setDate(newDate.getDate() + 1);
+    else if (filterType === 'week') newDate.setDate(newDate.getDate() + 7);
+    else newDate.setMonth(newDate.getMonth() + 1);
+    setCurrentDate(newDate);
+  };
+
+  const getDisplayDate = (short = false) => {
+    if (filterType === 'day') {
+      return currentDate.toLocaleDateString('id-ID', { 
+        day: 'numeric', 
+        month: short ? 'short' : 'long', 
+        year: 'numeric' 
+      });
+    }
+    if (filterType === 'month') {
+      return currentDate.toLocaleString('id-ID', { 
+        month: short ? 'short' : 'long', 
+        year: 'numeric' 
+      });
+    }
+    const { start, end } = getWeekDates(currentDate);
+    return `${start.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -121,7 +200,7 @@ export default function Dashboard() {
     return d;
   }, [revenueData]);
 
-  if (loading) {
+  if (loading && !stats) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -135,7 +214,7 @@ export default function Dashboard() {
   const createCustomIcon = (iconUrl: string | null, seed: any) => {
     const finalIconUrl = iconUrl?.startsWith('http') 
       ? iconUrl 
-      : (iconUrl ? `${import.meta.env.VITE_API_URL}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}` : `https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png`);
+      : (iconUrl ? `${import.meta.env.VITE_API_URL}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}` : `https://api.dicebear.com/7.x/shapes/svg?seed=${seed}&backgroundColor=2563eb&shape1Color=white`);
 
     return L.divIcon({
       className: 'custom-div-icon',
@@ -162,7 +241,7 @@ export default function Dashboard() {
   return (
     <div className="max-w-[1600px] mx-auto space-y-6 lg:space-y-8 pb-12 animate-in fade-in duration-700">
       
-      {/* Desktop Top Section (Hidden on Mobile) */}
+      {/* Desktop Top Section */}
       <div className="hidden lg:flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <div className="w-14 h-14 bg-[#2d5cd5] rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/20">
@@ -170,50 +249,90 @@ export default function Dashboard() {
           </div>
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              Command Center
+              Pusat Kendali
               <span className="text-[10px] font-black bg-[#2d5cd5] text-white px-3 py-1 rounded-full uppercase tracking-widest align-middle">Beta</span>
             </h1>
-            <p className="text-slate-500 font-medium mt-1">Hello, {user?.name}. Here's what's happening today.</p>
+            <p className="text-slate-500 font-medium mt-1">Halo, {user?.name}. Berikut ringkasan aktivitas hari ini.</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          {/* Quick Filters */}
+          <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <button 
+              onClick={() => { setFilterType('day'); setCurrentDate(new Date()); }}
+              className={`px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'day' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              Harian
+            </button>
+            <button 
+              onClick={() => { setFilterType('week'); setCurrentDate(new Date()); }}
+              className={`px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'week' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              Pekanan
+            </button>
+            <button 
+              onClick={() => { setFilterType('month'); setCurrentDate(new Date()); }}
+              className={`px-4 py-1.5 text-xs font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'month' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              Bulanan
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <button onClick={handlePrev} className="p-1 hover:bg-slate-50 rounded-full"><ChevronLeft size={16} /></button>
+            <div className="flex items-center gap-2 min-w-[140px] justify-center text-[#2d5cd5]">
+              <Calendar size={14} />
+              <span className="text-xs font-black uppercase tracking-widest">{getDisplayDate()}</span>
+            </div>
+            <button onClick={handleNext} className="p-1 hover:bg-slate-50 rounded-full"><ChevronRight size={16} /></button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Title & Navigator */}
+      <div className="lg:hidden flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">Pendapatan</h2>
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm scale-90">
+            <button onClick={handlePrev} className="p-1"><ChevronLeft size={14} /></button>
+            <span className="text-[10px] font-black uppercase tracking-widest">{getDisplayDate(true)}</span>
+            <button onClick={handleNext} className="p-1"><ChevronRight size={14} /></button>
+          </div>
+        </div>
+        
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm w-full">
           <button 
-            onClick={() => navigate('/scanner')}
-            className="flex items-center justify-center gap-2 bg-[#2d5cd5] text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-[0_15px_30px_-10px_rgba(45,92,213,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(45,92,213,0.6)] hover:-translate-y-0.5 transition-all"
+            onClick={() => { setFilterType('day'); setCurrentDate(new Date()); }}
+            className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'day' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <QrCode size={18} />
-            Scan QR Code
+            Harian
           </button>
           <button 
-            onClick={() => navigate('/billing')}
-            className="flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-100 px-6 py-3 rounded-2xl font-bold text-sm shadow-sm hover:bg-slate-50 hover:-translate-y-0.5 transition-all"
+            onClick={() => { setFilterType('week'); setCurrentDate(new Date()); }}
+            className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'week' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <SearchIcon size={18} />
-            Search Taxpayer
+            Pekanan
+          </button>
+          <button 
+            onClick={() => { setFilterType('month'); setCurrentDate(new Date()); }}
+            className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'month' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Bulanan
           </button>
         </div>
       </div>
 
-      {/* Mobile Title (Hidden on Desktop) */}
-      <div className="lg:hidden">
-        <h2 className="text-xl font-black text-slate-900 dark:text-white">Earnings</h2>
-      </div>
-
-      {/* Main KPI / Earnings Card */}
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
-        
-        {/* Mockup Style Primary Earnings Card */}
         <div className="col-span-12 lg:col-span-4">
           <div className="relative overflow-hidden bg-gradient-to-br from-[#2d5cd5] to-blue-500 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-blue-500/30 group">
-            {/* Background Ornaments */}
             <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
             <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-400/20 rounded-full blur-3xl group-hover:bg-blue-400/30 transition-all duration-700"></div>
             
             <div className="relative z-10 flex flex-col h-full justify-between gap-8">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-blue-100 text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Total earnings</p>
+                  <p className="text-blue-100 text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Total Pendapatan</p>
                   <h3 className="text-3xl font-black tracking-tight">{formatLargeCurrency(stats?.total_revenue || 0)}</h3>
                 </div>
                 <button 
@@ -229,18 +348,17 @@ export default function Dashboard() {
                   <TrendingUp size={14} className="text-emerald-300" />
                   {stats?.trends.revenue || '+0%'}
                 </div>
-                <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest opacity-60">Since last month</p>
+                <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest opacity-60">vs periode lalu</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Secondary KPI Cards (Grid on Desktop, Horizontal Scroll or Stack on Mobile) */}
         <div className="col-span-12 lg:col-span-8">
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 h-full">
             {[
               { 
-                label: 'Collection Rate', 
+                label: 'Tingkat Penagihan', 
                 value: `${stats?.collection_rate || 0}%`, 
                 trend: 'up',
                 icon: TrendingUp, 
@@ -248,7 +366,7 @@ export default function Dashboard() {
                 text: 'text-emerald-600',
               },
               { 
-                label: 'Pending Bills', 
+                label: 'Tagihan Pending', 
                 value: stats?.pending_bills.toLocaleString() || '0', 
                 trend: 'down',
                 icon: FileText, 
@@ -256,7 +374,7 @@ export default function Dashboard() {
                 text: 'text-amber-600',
               },
               { 
-                label: 'Active Taxpayers', 
+                label: 'Wajib Retribusi Aktif', 
                 value: stats?.active_taxpayers.toLocaleString() || '0', 
                 trend: 'up',
                 icon: Users, 
@@ -277,15 +395,33 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      {/* Quick Categories Section */}
+
+      {/* Buttons (Mobile) */}
+      <div className="lg:hidden grid grid-cols-2 gap-4">
+        <button 
+          onClick={() => navigate('/scanner')}
+          className="flex flex-col items-center justify-center gap-3 bg-[#2d5cd5] text-white p-6 rounded-[2rem] font-bold text-xs shadow-xl shadow-blue-500/20"
+        >
+          <QrCode size={24} />
+          Scan QR
+        </button>
+        <button 
+          onClick={() => navigate('/billing')}
+          className="flex flex-col items-center justify-center gap-3 bg-white text-slate-700 border border-slate-100 p-6 rounded-[2rem] font-bold text-xs shadow-sm"
+        >
+          <SearchIcon size={24} />
+          Cari WP
+        </button>
+      </div>
+
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-black text-slate-900 dark:text-white">Categories</h2>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">Kategori</h2>
           <button 
             onClick={() => navigate('/master-data')}
             className="text-[10px] font-black text-slate-400 hover:text-[#2d5cd5] uppercase tracking-[0.2em] transition-colors"
           >
-            All Types
+            Lihat Semua
           </button>
         </div>
         
@@ -312,25 +448,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Activity Section (Day Selector + Chart) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-black text-slate-900 dark:text-white">Activity</h2>
-          <div className="flex bg-white dark:bg-slate-900 p-1 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day) => (
-            <button
-              key={day}
-              onClick={() => setSelectedDay(day.charAt(0))}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black transition-all ${
-                selectedDay === day.charAt(0) 
-                  ? 'bg-[#2d5cd5] text-white shadow-lg shadow-blue-500/30 scale-110 z-10' 
-                  : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-              }`}
-            >
-              {day.charAt(0)}
-            </button>
-          ))}
-          </div>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">Aktivitas</h2>
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-sm overflow-hidden relative group">
@@ -338,22 +458,17 @@ export default function Dashboard() {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-[#2d5cd5] rounded-full"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Income</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pendapatan</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Target</span>
               </div>
             </div>
-            <div className="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl text-[10px] font-black text-[#2d5cd5] uppercase tracking-widest">
-              Income <span className="text-slate-900 dark:text-white ml-1">$1000</span>
-            </div>
           </div>
           
-          {/* Wave Style Chart (SVG) */}
           <div className="h-48 relative w-full overflow-hidden mt-4">
             <svg viewBox="0 0 400 150" className="w-full h-full preserve-3d">
-              {/* Grid Lines */}
               {[30, 60, 90, 120].map((y) => (
                 <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="currentColor" className="text-slate-50 dark:text-slate-800/50" strokeWidth="1" />
               ))}
@@ -365,11 +480,10 @@ export default function Dashboard() {
                   stroke="#2d5cd5" 
                   strokeWidth="4" 
                   strokeLinecap="round"
-                  className="drop-shadow-[0_8px_15px_rgba(45,92,213,0.3)] animate-dash transition-all duration-1000"
+                  className="drop-shadow-[0_8px_15px_rgba(45,92,213,0.3)]"
                 />
               )}
               
-              {/* Path 2: Target (Emerald) */}
               <path 
                 d="M 0 120 Q 50 90 100 110 T 200 100 T 300 70 T 400 90" 
                 fill="none" 
@@ -379,13 +493,8 @@ export default function Dashboard() {
                 strokeLinecap="round"
                 className="opacity-40"
               />
-
-              {/* Interaction Point */}
-              <circle cx="300" cy="90" r="6" fill="#2d5cd5" className="animate-pulse shadow-xl" />
-              <circle cx="300" cy="90" r="10" stroke="#2d5cd5" strokeWidth="2" fill="white" fillOpacity="0.8" />
             </svg>
             
-            {/* Axis Labels */}
             <div className="absolute left-0 bottom-0 top-0 flex flex-col justify-between text-[9px] font-black text-slate-300 uppercase py-2">
               <span>{formatLargeCurrency(Math.max(...revenueData.map(d => Number(d.amount))) || 0)}</span>
               <span>0</span>
@@ -394,21 +503,18 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* History / Recent Activity List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-black text-slate-900 dark:text-white">Income History</h2>
-          <button className="text-[10px] font-black text-slate-400 hover:text-[#2d5cd5] uppercase tracking-[0.2em] transition-colors">Show all</button>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">Riwayat Transaksi</h2>
+          <button className="text-[10px] font-black text-slate-400 hover:text-[#2d5cd5] uppercase tracking-[0.2em] transition-colors">Lihat Semua</button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* List of Recent Items */}
           <div className="col-span-12 lg:col-span-7 space-y-4">
             {[
-              { id: 1, title: 'PT Berkah Sejahtera', category: 'Pajak Restoran', amount: 'Rp 1.800.000', date: '2 Days ago', status: 'Verified', icon: FileText, color: 'text-[#2d5cd5]', bg: 'bg-blue-50' },
-              { id: 2, title: 'Hotel Grand Baubau', category: 'Pajak Hotel', amount: 'Rp 4.250.000', date: '1 Week ago', status: 'Pending', icon: CreditCard, color: 'text-amber-500', bg: 'bg-amber-50' },
-              { id: 3, title: 'CV Maju Jaya', category: 'Retribusi Parkir', amount: 'Rp 750.000', date: '15 Min ago', status: 'New', icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+              { id: 1, title: 'PT Berkah Sejahtera', category: 'Pajak Restoran', amount: 'Rp 1.800.000', date: '2 Hari lalu', status: 'Verified', icon: FileText, color: 'text-[#2d5cd5]', bg: 'bg-blue-50' },
+              { id: 2, title: 'Hotel Grand Baubau', category: 'Pajak Hotel', amount: 'Rp 4.250.000', date: '1 Minggu lalu', status: 'Pending', icon: CreditCard, color: 'text-amber-500', bg: 'bg-amber-50' },
+              { id: 3, title: 'CV Maju Jaya', category: 'Retribusi Parkir', amount: 'Rp 750.000', date: '15 Menit lalu', status: 'Baru', icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-50' },
             ].map((item) => (
               <div key={item.id} className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -428,13 +534,12 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Map Section stylization */}
           <div className="col-span-12 lg:col-span-5 h-full min-h-[400px]">
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-2 shadow-sm h-full overflow-hidden group">
               <div className="p-6 flex items-center justify-between">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
                   <MapIcon size={16} className="text-[#2d5cd5]" />
-                  Live Potentials
+                  Potensi Langsung
                 </h3>
                 <MoreHorizontal size={18} className="text-slate-300 cursor-pointer" />
               </div>
@@ -454,7 +559,7 @@ export default function Dashboard() {
                           <h3 className="font-black text-slate-900 text-sm mb-1">{potential.name}</h3>
                           <p className="text-[10px] text-[#2d5cd5] font-black uppercase mb-2 tracking-wider">{potential.agency}</p>
                           <span className="inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] bg-emerald-50 text-emerald-600">
-                            {potential.status}
+                            Aktif
                           </span>
                         </div>
                       </Popup>
