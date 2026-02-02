@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Loader2, Facebook, Twitter, Chrome, Apple } from 'lucide-react';
+import { ArrowLeft, Loader2, Facebook, Twitter, Chrome, Apple, Eye, EyeOff } from 'lucide-react';
 
 export default function PetugasLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
@@ -78,15 +79,25 @@ export default function PetugasLogin() {
                   <label className="block text-xs font-bold text-slate-500">Password</label>
                   <button type="button" className="text-xs font-bold text-[#2d5cd5] hover:underline">Forgot password?</button>
                 </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-blue-500/10 focus:border-[#2d5cd5] transition-all outline-none font-semibold"
-                  placeholder="••••••••••••"
-                  required
-                  disabled={isSubmitting}
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-blue-500/10 focus:border-[#2d5cd5] transition-all outline-none font-semibold pr-14"
+                    placeholder="••••••••••••"
+                    required
+                    disabled={isSubmitting}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center gap-2 px-1">
