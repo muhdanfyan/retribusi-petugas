@@ -22,7 +22,7 @@ import {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -98,10 +98,22 @@ export default function Profile() {
     { icon: Shield, label: 'Keamanan Aplikasi', onClick: () => {} },
     { icon: Smartphone, label: 'Kelola Perangkat', onClick: () => {} },
     { icon: Key, label: 'Ganti Password', onClick: () => setShowPasswordModal(true) },
+    { 
+      icon: LogOut, 
+      label: 'Keluar dari Akun', 
+      className: 'text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20',
+      iconClassName: 'bg-rose-50 dark:bg-rose-900/20 text-rose-500', 
+      onClick: () => { logout(); navigate('/login'); } 
+    },
   ];
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-32">
       {/* Gradient Header */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-100 via-orange-50 to-white dark:from-slate-800 dark:via-slate-900 dark:to-slate-950 h-64 rounded-b-[3rem]"></div>
@@ -178,17 +190,17 @@ export default function Profile() {
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
-          {menuItems.slice(2).map((item, i) => (
+          {menuItems.slice(2).map((item: any, i) => (
             <button
               key={i}
               onClick={item.onClick}
-              className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-b-0"
+              className={`w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-b-0 ${item.className || ''}`}
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center">
-                  <item.icon size={20} className="text-slate-500 dark:text-slate-400" />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.iconClassName || 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+                  <item.icon size={20} />
                 </div>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{item.label}</span>
+                <span className="font-medium">{item.label}</span>
               </div>
               <ChevronRight size={18} className="text-slate-300" />
             </button>

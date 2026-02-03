@@ -457,11 +457,11 @@ export default function TaxpayerManagement() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[200] p-4 transition-all duration-500">
-          <div className="bg-white dark:bg-gray-900 rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] max-w-5xl w-full max-h-[92vh] flex overflow-hidden animate-in fade-in zoom-in duration-300">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[200] p-0 sm:p-4 transition-all duration-500 overflow-y-auto sm:overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 sm:rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] max-w-5xl w-full min-h-screen sm:min-h-0 sm:max-h-[92vh] flex flex-col md:flex-row overflow-hidden animate-in fade-in zoom-in duration-300 relative">
             
             {/* Left Sidebar: Stepper */}
-            <div className="w-80 bg-slate-50 dark:bg-gray-800/50 border-r border-gray-100 dark:border-gray-800 p-10 flex flex-col">
+            <div className="hidden md:flex w-80 bg-slate-50 dark:bg-gray-800/50 border-r border-gray-100 dark:border-gray-800 p-10 flex-col shrink-0">
               <div className="mb-10">
                 <div className="flex items-center gap-3 text-blue-600 mb-2">
                   <div className="p-2 bg-blue-600 rounded-lg">
@@ -475,12 +475,10 @@ export default function TaxpayerManagement() {
               </div>
 
               <div className="flex-1 space-y-2 relative">
-                {/* Stepper Line */}
                 <div className="absolute left-[23px] top-6 bottom-6 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
-
                 {[
-                  { id: 1, title: 'Data Identitas & Objek', icon: User },
-                  { id: 2, title: 'Kategori & Skema', icon: CreditCard },
+                  { id: 1, title: 'Data Identitas', icon: User },
+                  { id: 2, title: 'Kategori', icon: CreditCard },
                   { id: 3, title: 'Persyaratan', icon: FileCheck },
                   { id: 4, title: 'Lokasi', icon: MapPin },
                   { id: 5, title: 'Selesai', icon: CheckCircle2 },
@@ -511,14 +509,48 @@ export default function TaxpayerManagement() {
               </button>
             </div>
 
+            {/* Mobile Floating Stepper */}
+            <div className="md:hidden sticky top-0 z-[210] px-4 py-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                  <User size={18} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight">Step 0{currentStep}</h2>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    {[
+                      'Data Identitas',
+                      'Kategori',
+                      'Persyaratan',
+                      'Lokasi',
+                      'Selesai'
+                    ][currentStep - 1]}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <div 
+                    key={s} 
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                      currentStep === s ? 'w-6 bg-blue-600' : currentStep > s ? 'w-1.5 bg-emerald-500' : 'w-1.5 bg-gray-200 dark:bg-gray-800'
+                    }`}
+                  />
+                ))}
+              </div>
+              <button onClick={() => setShowModal(false)} className="p-2 text-gray-400 hover:text-gray-600">
+                <XCircle size={20} />
+              </button>
+            </div>
+
             {/* Right Pane: Form Content */}
-            <div className="flex-1 flex flex-col min-w-0">
-              <div className="flex-1 overflow-y-auto p-12 custom-scrollbar">
+            <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900">
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 md:p-12 custom-scrollbar">
                 {currentStep === 1 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 pb-10">
-                    <div>
-                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Data Identitas & Objek</h3>
-                      <p className="text-gray-500 text-sm font-medium">Informasi dasar wajib pajak dan unit retribusi</p>
+                  <div className="space-y-8 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 pb-10">
+                    <div className="md:block">
+                      <h3 className="text-[10px] md:text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-1 md:mb-2 text-center md:text-left">Identitas & Objek</h3>
+                      <p className="text-gray-400 md:text-gray-500 text-xs md:text-sm font-medium text-center md:text-left">Lengkapi informasi dasar wajib pajak</p>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
@@ -528,20 +560,20 @@ export default function TaxpayerManagement() {
                           <select
                             value={form.opd_id}
                             onChange={(e) => setForm({ ...form, opd_id: e.target.value, retribution_type_ids: [], retribution_classification_ids: [] })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold appearance-none cursor-pointer"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold appearance-none cursor-pointer text-sm md:text-base"
                           >
                             <option value="">Pilih Dinas Pengelola</option>
                             {opds.map(opd => <option key={opd.id} value={opd.id}>{opd.name}</option>)}
                           </select>
                         </div>
                       ) : (
-                        <div className="p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                        <div className="p-4 md:p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
                           <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Authenticated Agency</label>
-                          <div className="text-blue-900 dark:text-blue-200 font-bold">{user?.department || 'OPD Terkait'}</div>
+                          <div className="text-blue-900 dark:text-blue-200 font-bold text-sm md:text-base">{user?.department || 'OPD Terkait'}</div>
                         </div>
                       )}
 
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className="group relative">
                           <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">NIK (Wajib Pajak)</label>
                           <input
@@ -550,7 +582,7 @@ export default function TaxpayerManagement() {
                             placeholder="01010102302..."
                             value={form.nik}
                             onChange={(e) => setForm({ ...form, nik: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
                           />
                         </div>
                         <div className="group">
@@ -560,12 +592,12 @@ export default function TaxpayerManagement() {
                             placeholder="Sesuai KTP"
                             value={form.name}
                             onChange={(e) => setForm({ ...form, name: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className="group">
                           <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">No. WhatsApp</label>
                           <input
@@ -573,7 +605,7 @@ export default function TaxpayerManagement() {
                             placeholder="0812..."
                             value={form.phone}
                             onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
                           />
                         </div>
                         <div className="group">
@@ -583,18 +615,18 @@ export default function TaxpayerManagement() {
                             placeholder="Merek/Toko/Lahan..."
                             value={form.object_name}
                             onChange={(e) => setForm({ ...form, object_name: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className="group">
                           <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Kecamatan</label>
                           <select
                             value={form.district}
                             onChange={(e) => setForm({ ...form, district: e.target.value, sub_district: '' })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold cursor-pointer"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold cursor-pointer text-sm md:text-base"
                           >
                             <option value="">Pilih Kecamatan</option>
                             {Object.keys(BAUBAU_DATA).map(kec => <option key={kec} value={kec}>{kec}</option>)}
@@ -605,7 +637,7 @@ export default function TaxpayerManagement() {
                           <select
                             value={form.sub_district}
                             onChange={(e) => setForm({ ...form, sub_district: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold cursor-pointer"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold cursor-pointer text-sm md:text-base"
                             disabled={!form.district}
                           >
                             <option value="">Pilih Kelurahan</option>
@@ -614,7 +646,7 @@ export default function TaxpayerManagement() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className="group">
                           <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Domisili</label>
                           <textarea
@@ -622,7 +654,7 @@ export default function TaxpayerManagement() {
                             placeholder="Alamat penanggung jawab..."
                             value={form.address}
                             onChange={(e) => setForm({ ...form, address: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold resize-none"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold resize-none text-sm md:text-base"
                           />
                         </div>
                         <div className="group">
@@ -632,7 +664,7 @@ export default function TaxpayerManagement() {
                             placeholder="Alamat unit retribusi..."
                             value={form.object_address}
                             onChange={(e) => setForm({ ...form, object_address: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold resize-none"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold resize-none text-sm md:text-base"
                           />
                         </div>
                       </div>
@@ -644,7 +676,7 @@ export default function TaxpayerManagement() {
                           placeholder="Nomor Pokok Wajib Pajak Daerah"
                           value={form.npwpd}
                           onChange={(e) => setForm({ ...form, npwpd: e.target.value })}
-                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                          className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
                         />
                       </div>
                     </div>
@@ -652,23 +684,23 @@ export default function TaxpayerManagement() {
                 )}
 
                 {currentStep === 2 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-                    <div>
-                      <h3 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Kategori & Skema</h3>
-                      <p className="text-gray-500 text-sm font-medium">Pilih kategori retribusi yang berlaku</p>
+                  <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 pb-10">
+                    <div className="md:block">
+                      <h3 className="text-[10px] md:text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-1 md:mb-2 text-center md:text-left">Kategori & Skema</h3>
+                      <p className="text-gray-400 md:text-gray-500 text-xs md:text-sm font-medium text-center md:text-left">Pilih kategori retribusi yang berlaku</p>
                     </div>
 
                     {!form.opd_id ? (
-                      <div className="py-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-[3rem] border-2 border-dashed border-gray-100">
-                        <Filter className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Pilih Dinas pada langkah sebelumnya</p>
+                      <div className="py-12 sm:py-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] sm:rounded-[3rem] border-2 border-dashed border-gray-100 dark:border-gray-800">
+                        <Filter className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-400 font-bold uppercase text-[9px] sm:text-[10px] tracking-widest px-6">Pilih Dinas pada langkah sebelumnya</p>
                       </div>
                     ) : (
-                      <div className="space-y-6">
+                      <div className="space-y-4 sm:space-y-6">
                         {filteredRetributionTypes.map(type => (
                           <div
                             key={type.id}
-                            className={`p-6 rounded-[2.5rem] border-2 transition-all duration-300 ${
+                            className={`p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border-2 transition-all duration-300 ${
                               form.retribution_type_ids.includes(type.id)
                                 ? 'border-blue-600 bg-blue-600/5 shadow-xl shadow-blue-500/5'
                                 : 'border-gray-100 dark:border-gray-800'
@@ -676,18 +708,18 @@ export default function TaxpayerManagement() {
                           >
                             <div 
                               onClick={() => toggleRetributionType(type.id)}
-                              className="flex items-center gap-4 cursor-pointer mb-6"
+                              className="flex items-center gap-3 sm:gap-4 cursor-pointer mb-4 sm:mb-6"
                             >
-                              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center ${
                                 form.retribution_type_ids.includes(type.id) ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
                               }`}>
-                                <CreditCard className="w-6 h-6" />
+                                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
                               </div>
                               <div className="flex-1">
-                                <div className="text-sm font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tighter">{type.name}</div>
-                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Pilih Klasifikasi di bawah ini</div>
+                                <div className="text-[11px] sm:text-sm font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tighter">{type.name}</div>
+                                <div className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest">Pilih Klasifikasi</div>
                               </div>
-                              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                              <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                                 form.retribution_type_ids.includes(type.id) ? 'border-blue-600 bg-blue-600' : 'border-gray-200'
                               }`}>
                                 {form.retribution_type_ids.includes(type.id) && <Plus className="w-3 h-3 text-white rotate-45" />}
@@ -695,25 +727,25 @@ export default function TaxpayerManagement() {
                             </div>
 
                             {/* Classifications Grid */}
-                            <div className="grid grid-cols-2 gap-3 pl-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                               {classifications
                                 .filter(c => c.retribution_type_id === type.id)
                                 .map(cls => (
                                   <div
                                     key={cls.id}
                                     onClick={() => toggleClassification(cls.id, type.id)}
-                                    className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
+                                    className={`p-3 md:p-4 rounded-xl md:rounded-2xl border-2 cursor-pointer transition-all flex items-center gap-3 ${
                                       form.retribution_classification_ids.includes(cls.id)
                                         ? 'border-emerald-500 bg-white dark:bg-gray-800 shadow-md'
                                         : 'border-gray-50 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-800/30'
                                     }`}
                                   >
-                                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
                                       form.retribution_classification_ids.includes(cls.id) ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300'
                                     }`}>
                                       {form.retribution_classification_ids.includes(cls.id) && <Plus className="w-3 h-3 text-white" />}
                                     </div>
-                                    <span className={`text-[11px] font-bold uppercase tracking-tight ${
+                                    <span className={`text-[10px] md:text-[11px] font-bold uppercase tracking-tight ${
                                       form.retribution_classification_ids.includes(cls.id) ? 'text-gray-900 dark:text-white' : 'text-gray-400'
                                     }`}>
                                       {cls.name}
@@ -729,17 +761,17 @@ export default function TaxpayerManagement() {
                 )}
 
                 {currentStep === 3 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-                    <div>
-                      <h3 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Persyaratan & Skema Detail</h3>
-                      <p className="text-gray-500 text-sm font-medium">Lengkapi data teknis dan unggah dokumen pendukung</p>
+                  <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 pb-10">
+                    <div className="md:block">
+                      <h3 className="text-[10px] md:text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-1 md:mb-2 text-center md:text-left">Persyaratan</h3>
+                      <p className="text-gray-400 md:text-gray-500 text-xs md:text-sm font-medium text-center md:text-left">Lengkapi data teknis dan dokumen</p>
                     </div>
 
                     {/* Meta Data / Form Schema Section */}
-                    <div className="grid grid-cols-2 gap-6 p-8 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2.5rem] border border-blue-100 dark:border-blue-900/30">
-                      <div className="col-span-2 mb-2">
-                        <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
-                          <Info className="w-4 h-4" /> Data Teknis Pendukung
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-5 sm:p-8 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2rem] sm:rounded-[2.5rem] border border-blue-100 dark:border-blue-900/30">
+                      <div className="col-span-1 md:col-span-2 mb-1">
+                        <h4 className="text-[9px] sm:text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                          <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Data Teknis Pendukung
                         </h4>
                       </div>
                       {classifications
@@ -757,7 +789,7 @@ export default function TaxpayerManagement() {
                               <select
                                 value={form.metadata[field.key] || ''}
                                 onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
-                                className="w-full px-6 py-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                                className="w-full px-4 md:px-6 py-3 md:py-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
                               >
                                 <option value="">Pilih {field.label}</option>
                                 {field.options?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
@@ -767,21 +799,21 @@ export default function TaxpayerManagement() {
                                 type={field.type}
                                 value={form.metadata[field.key] || ''}
                                 onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
-                                className="w-full px-6 py-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                                className="w-full px-4 md:px-6 py-3 md:py-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
                                 placeholder={field.label}
                               />
                             )}
                           </div>
                         ))}
                       {form.retribution_classification_ids.length === 0 && (
-                        <div className="col-span-2 py-10 text-center text-gray-400 font-bold text-xs uppercase tracking-widest">
+                        <div className="col-span-1 md:col-span-2 py-6 md:py-10 text-center text-gray-400 font-bold text-[10px] md:text-xs uppercase tracking-widest">
                           Pilih klasifikasi untuk melihat formulir tambahan
                         </div>
                       )}
                     </div>
 
                     {/* Requirements / File Upload Section */}
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       {classifications
                         .filter(c => form.retribution_classification_ids.includes(c.id) && c.requirements)
                         .reduce((acc, current) => {
@@ -793,11 +825,11 @@ export default function TaxpayerManagement() {
                         .map((req: any, idx: number) => (
                           <label key={req.key} className="block group cursor-pointer">
                             <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">{req.label}</div>
-                            <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
+                            <div className={`p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
                               files[req.key] ? 'bg-emerald-50 border-emerald-500/50' : idx % 2 === 0 ? 'bg-orange-50/50 border-orange-100 hover:border-orange-500' : 'bg-indigo-50/50 border-indigo-100 hover:border-indigo-500'
                             }`}>
                               <input type="file" onChange={e => setFiles({...files, [req.key]: e.target.files?.[0] || null})} className="hidden" />
-                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files[req.key] ? 'bg-emerald-500 text-white' : idx % 2 === 0 ? 'bg-white text-orange-400' : 'bg-white text-indigo-400'}`}>
+                              <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center ${files[req.key] ? 'bg-emerald-500 text-white' : idx % 2 === 0 ? 'bg-white text-orange-400' : 'bg-white text-indigo-400'}`}>
                                 {idx % 2 === 0 ? <Camera className="w-7 h-7" /> : <FileCheck className="w-7 h-7" />}
                               </div>
                               <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
@@ -846,13 +878,13 @@ export default function TaxpayerManagement() {
                 )}
 
                 {currentStep === 4 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 flex flex-col h-full">
-                    <div>
-                      <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Lokasi Objek</h3>
-                      <p className="text-gray-500 text-sm font-medium">Klik pada peta untuk menentuakan lokasi objek retribusi</p>
+                  <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 flex flex-col h-full pb-10">
+                    <div className="md:block">
+                      <h3 className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2 text-center md:text-left">Lokasi Objek</h3>
+                      <p className="text-gray-400 md:text-gray-500 text-xs md:text-sm font-medium text-center md:text-left">Tentukan koordinat lokasi unit retribusi</p>
                     </div>
 
-                    <div className="flex-1 min-h-[400px] rounded-[2.5rem] overflow-hidden border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                    <div className="h-[300px] sm:flex-1 sm:min-h-[400px] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 shadow-inner">
                       <MapContainer 
                         center={[form.latitude, form.longitude]} 
                         zoom={15} 
@@ -898,28 +930,28 @@ export default function TaxpayerManagement() {
                 )}
 
                 {currentStep === 5 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-                    <div>
-                      <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Review & Selesai</h3>
-                      <p className="text-gray-500 text-sm font-medium">Tinjau kembali data sebelum pendaftaran diajukan</p>
+                  <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 pb-10">
+                    <div className="md:block">
+                      <h3 className="text-[10px] md:text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-1 md:mb-2 text-center md:text-left">Review & Selesai</h3>
+                      <p className="text-gray-400 md:text-gray-500 text-xs md:text-sm font-medium text-center md:text-left">Tinjau kembali data pendaftaran</p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nama Wajib Pajak</div>
-                        <div className="text-gray-900 dark:text-white font-bold">{form.name}</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                      <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-50 dark:border-gray-800">
+                        <div className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 sm:mb-2">Nama Wajib Pajak</div>
+                        <div className="text-gray-900 dark:text-white font-bold text-sm sm:text-base">{form.name}</div>
                       </div>
-                      <div className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nama Objek</div>
-                        <div className="text-gray-900 dark:text-white font-bold">{form.object_name}</div>
+                      <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-50 dark:border-gray-800">
+                        <div className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 sm:mb-2">Nama Objek</div>
+                        <div className="text-gray-900 dark:text-white font-bold text-sm sm:text-base">{form.object_name}</div>
                       </div>
-                      <div className="col-span-2 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Klasifikasi Terpilih</div>
+                      <div className="col-span-1 sm:col-span-2 p-4 sm:p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-50 dark:border-gray-800">
+                        <div className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 sm:mb-2">Klasifikasi Terpilih</div>
                         <div className="flex flex-wrap gap-2">
                           {classifications
                             .filter(c => form.retribution_classification_ids.includes(c.id))
                             .map(c => (
-                              <span key={c.id} className="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-black rounded-lg uppercase tracking-tighter">
+                              <span key={c.id} className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[9px] sm:text-[10px] font-black rounded-lg uppercase tracking-wider">
                                 {c.name}
                               </span>
                             ))}
@@ -927,16 +959,15 @@ export default function TaxpayerManagement() {
                       </div>
                     </div>
 
-                    <div className="p-8 bg-blue-600 rounded-[2.5rem] text-white">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 bg-white/20 rounded-2xl">
-                          <CheckCircle2 className="w-6 h-6" />
+                    <div className="p-6 sm:p-8 bg-blue-600 rounded-[2rem] sm:rounded-[2.5rem] text-white shadow-lg shadow-blue-500/20">
+                      <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                        <div className="p-2.5 sm:p-3 bg-white/20 rounded-xl sm:rounded-2xl">
+                          <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
-                        <h4 className="font-black text-lg">Konfirmasi Pendaftaran</h4>
+                        <h4 className="font-black text-base sm:text-lg">Konfirmasi</h4>
                       </div>
-                      <p className="text-blue-100 text-sm font-medium leading-relaxed">
-                        Pastikan seluruh data yang dimasukkan telah sesuai dengan persyaratan. 
-                        Data yang didaftarkan akan melalui proses verifikasi oleh tim dinas terkait.
+                      <p className="text-blue-100 text-xs sm:text-sm font-medium leading-relaxed">
+                        Pastikan seluruh data yang dimasukkan telah sesuai dengan persyaratan asli. 
                       </p>
                     </div>
                   </div>
@@ -944,32 +975,32 @@ export default function TaxpayerManagement() {
               </div>
 
               {/* Action Bar */}
-              <div className="p-10 border-t border-gray-100 dark:border-gray-800 flex justify-between bg-white dark:bg-gray-900 rounded-b-[2rem]">
+              <div className="p-6 md:p-10 border-t border-gray-100 dark:border-gray-800 flex justify-between bg-white dark:bg-gray-900 rounded-b-[2rem] sticky bottom-0 z-[210]">
                 <button
                   type="button"
                   onClick={() => currentStep > 1 && setCurrentStep(currentStep - 1)}
                   disabled={currentStep === 1}
-                  className="px-10 py-4 border-2 border-gray-100 dark:border-gray-800 text-xs font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 disabled:opacity-0 transition-all"
+                  className="px-6 md:px-10 py-4 border-2 border-gray-100 dark:border-gray-800 text-[10px] font-black text-gray-400 uppercase tracking-widest rounded-2xl hover:bg-gray-50 disabled:opacity-0 transition-all active:scale-95"
                 >
-                  Previous
+                  Prev
                 </button>
                 
                 {currentStep < 5 ? (
                   <button
                     type="button"
                     onClick={() => setCurrentStep(currentStep + 1)}
-                    className="px-12 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95"
+                    className="px-8 md:px-12 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95"
                   >
-                    Next Step
+                    Lanjut
                   </button>
                 ) : (
                   <button
                     type="submit"
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] transition-all active:scale-95"
+                    className="px-8 md:px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] transition-all active:scale-95"
                   >
-                    {submitting ? 'Processing...' : (editingTaxpayer ? 'Simpan Perubahan' : 'Submit Registration')}
+                    {submitting ? '...' : (editingTaxpayer ? 'Simpan' : 'Daftarkan')}
                   </button>
                 )}
               </div>

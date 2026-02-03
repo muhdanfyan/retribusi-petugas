@@ -35,29 +35,29 @@ export default function PetugasLogin() {
   return (
     <div className="min-h-screen bg-[#2d5cd5] flex flex-col relative overflow-hidden font-sans">
       {/* Dynamic Background Elements */}
-      <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[50%] bg-white/20 rounded-full blur-[100px] transform rotate-12"></div>
-      <div className="absolute top-[10%] left-[5%] w-24 h-24 bg-white/20 rounded-full blur-md"></div>
-      <div className="absolute top-[25%] right-[20%] w-32 h-32 bg-white/10 rounded-full backdrop-blur-sm"></div>
+      <div className="absolute top-[-5%] right-[-10%] w-[100%] h-[40%] bg-white/20 rounded-full blur-[80px] sm:blur-[120px] transform rotate-12"></div>
+      <div className="absolute top-[15%] left-[5%] w-16 h-16 sm:w-24 sm:h-24 bg-white/20 rounded-full blur-md"></div>
+      <div className="absolute top-[30%] right-[15%] w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full backdrop-blur-sm"></div>
 
       {/* Header / Back Button */}
-      <div className="relative z-20 px-6 pt-12 flex items-center justify-between">
+      <div className="relative z-20 px-6 pt-10 sm:pt-12 flex items-center justify-between">
         <button 
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-white/80 hover:text-white transition-all font-bold text-sm"
+          className="flex items-center gap-2 text-white/80 hover:text-white transition-all font-bold text-xs sm:text-sm"
         >
-          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
-            <ArrowLeft size={20} />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
+            <ArrowLeft size={18} />
           </div>
-          Back
+          <span>Kembali</span>
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col justify-end relative z-10 mt-12">
-        <div className="bg-white rounded-t-[3.5rem] px-8 pt-12 pb-16 shadow-[0_-20px_50px_rgba(0,0,0,0.2)]">
+      <div className="flex-1 flex flex-col justify-end relative z-10 pt-10 sm:pt-12">
+        <div className="bg-white rounded-t-[2.5rem] sm:rounded-t-[3.5rem] px-6 sm:px-8 pt-10 sm:pt-12 pb-10 sm:pb-16 shadow-[0_-20px_50px_rgba(0,0,0,0.2)]">
           <div className="max-w-md mx-auto">
-            <div className="text-center mb-10">
-              <h1 className="text-4xl font-black text-[#2d5cd5] tracking-tight mb-2">Welcome back</h1>
-              <p className="text-slate-400 font-medium">Please sign in to your officer account</p>
+            <div className="text-center mb-8 sm:mb-10">
+              <h1 className="text-3xl sm:text-4xl font-black text-[#2d5cd5] tracking-tight mb-2">Selamat Datang</h1>
+              <p className="text-slate-400 text-sm font-medium">Silakan masuk ke akun petugas Anda</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -135,15 +135,15 @@ export default function PetugasLogin() {
 
               <div className="flex justify-center gap-5">
                 {[Facebook, Twitter, Chrome, Apple].map((Icon, i) => (
-                  <button key={i} className="w-14 h-14 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#2d5cd5] hover:border-[#2d5cd5]/20 hover:bg-blue-50/50 transition-all active:scale-90">
-                    <Icon size={20} fill="currentColor" className="opacity-80" />
+                  <button key={i} className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#2d5cd5] hover:border-[#2d5cd5]/20 hover:bg-blue-50/50 transition-all active:scale-90">
+                    <Icon size={18} fill="currentColor" className="opacity-80" />
                   </button>
                 ))}
               </div>
 
-              <p className="text-center mt-10 text-sm font-bold text-slate-400">
-                Don't have an account?{' '}
-                <Link to="/register" className="text-[#2d5cd5] hover:underline">Sign up</Link>
+              <p className="text-center mt-8 sm:mt-10 text-xs sm:text-sm font-bold text-slate-400">
+                Belum punya akun?{' '}
+                <Link to="/register" className="text-[#2d5cd5] hover:underline">Daftar sekarang</Link>
               </p>
 
               <div className="mt-8 flex justify-center">

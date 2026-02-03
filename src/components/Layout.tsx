@@ -68,6 +68,7 @@ const menuItems: MenuItem[] = [
 
 export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
@@ -180,16 +181,60 @@ export default function Layout({ children }: LayoutProps) {
               </div>
             </div>
           </div>
-          <button 
-            onClick={() => navigate('/profile')}
-            className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none p-1 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-800 group active:scale-95 transition-all"
-          >
-            <div className="w-full h-full rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-black">
-              {user?.name?.charAt(0) || <User size={20} />}
-            </div>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none p-1 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-800 group active:scale-95 transition-all"
+            >
+              <div className="w-full h-full rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-black">
+                {user?.name?.charAt(0) || <User size={20} />}
+              </div>
+            </button>
+
+            {/* Mobile Profile Dropdown */}
+            {profileOpen && (
+              <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-800 z-[200] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div className="p-4 border-b border-slate-50 dark:border-slate-800">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Signed in as</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white truncate">{user?.name}</p>
+                </div>
+                <div className="p-2">
+                  <button 
+                    onClick={() => { navigate('/profile'); setProfileOpen(false); }}
+                    className="w-full flex items-center gap-3 p-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-sm font-bold"
+                  >
+                    <User size={18} />
+                    Lihat Profil
+                  </button>
+                  <button 
+                    onClick={toggleTheme}
+                    className="w-full flex items-center gap-3 p-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-sm font-bold"
+                  >
+                    {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                    Mode {theme === 'light' ? 'Gelap' : 'Terang'}
+                  </button>
+                  <div className="h-px bg-slate-50 dark:bg-slate-800 my-1"></div>
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors text-sm font-black uppercase tracking-widest"
+                  >
+                    <LogOut size={18} />
+                    Keluar
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Profile Dropdown Overlay */}
+      {profileOpen && (
+        <div 
+          className="fixed inset-0 z-[190] lg:hidden"
+          onClick={() => setProfileOpen(false)}
+        ></div>
+      )}
 
       {/* Sidebar Navigation (Desktop & Mobile) */}
       <aside

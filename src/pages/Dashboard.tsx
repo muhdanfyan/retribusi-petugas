@@ -296,17 +296,17 @@ export default function Dashboard() {
       </div>
 
       {/* Mobile Title & Navigator */}
-      <div className="lg:hidden flex flex-col gap-4">
+      <div className="lg:hidden flex flex-col gap-5">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-black text-slate-900 dark:text-white">Pendapatan</h2>
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm scale-90">
-            <button onClick={handlePrev} className="p-1"><ChevronLeft size={14} /></button>
-            <span className="text-[10px] font-black uppercase tracking-widest">{getDisplayDate(true)}</span>
-            <button onClick={handleNext} className="p-1"><ChevronRight size={14} /></button>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Utama</h2>
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+            <button onClick={handlePrev} className="p-1 text-[#2d5cd5]"><ChevronLeft size={16} /></button>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2d5cd5]">{getDisplayDate(true)}</span>
+            <button onClick={handleNext} className="p-1 text-[#2d5cd5]"><ChevronRight size={16} /></button>
           </div>
         </div>
         
-        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm w-full">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner w-full">
           <button 
             onClick={() => { setFilterType('day'); setCurrentDate(new Date()); }}
             className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'day' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
@@ -330,30 +330,30 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <div className="col-span-12 lg:col-span-4">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#2d5cd5] to-blue-500 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-blue-500/30 group">
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#2d5cd5] to-blue-500 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 text-white shadow-2xl shadow-blue-500/30 group">
             <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
             <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-400/20 rounded-full blur-3xl group-hover:bg-blue-400/30 transition-all duration-700"></div>
             
-            <div className="relative z-10 flex flex-col h-full justify-between gap-8">
+            <div className="relative z-10 flex flex-col h-full justify-between gap-6 sm:gap-8">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-blue-100 text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Total Pendapatan</p>
-                  <h3 className="text-3xl font-black tracking-tight">{formatLargeCurrency(stats?.total_revenue || 0)}</h3>
+                  <p className="text-blue-100 text-[10px] sm:text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Total Pendapatan</p>
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight">{formatLargeCurrency(stats?.total_revenue || 0)}</h3>
                 </div>
                 <button 
                   onClick={() => navigate('/billing')}
-                  className="w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-2xl flex items-center justify-center transition-all active:scale-90"
+                  className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl sm:rounded-2xl flex items-center justify-center transition-all active:scale-90"
                 >
-                  <Plus size={24} />
+                  <Plus size={20} sm:size={24} />
                 </button>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                  <TrendingUp size={14} className="text-emerald-300" />
+                <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                  <TrendingUp size={12} sm:size={14} className="text-emerald-300" />
                   {stats?.trends.revenue || '+0%'}
                 </div>
-                <p className="text-blue-100 text-[10px] font-bold uppercase tracking-widest opacity-60">vs periode lalu</p>
+                <p className="text-blue-100 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-60">vs periode lalu</p>
               </div>
             </div>
           </div>
@@ -435,20 +435,20 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Buttons (Mobile) */}
+      {/* Buttons (Mobile Quick Actions) */}
       <div className="lg:hidden grid grid-cols-2 gap-4">
         <button 
           onClick={() => navigate('/scanner')}
-          className="flex flex-col items-center justify-center gap-3 bg-[#2d5cd5] text-white p-6 rounded-[2rem] font-bold text-xs shadow-xl shadow-blue-500/20"
+          className="flex items-center justify-center gap-3 bg-[#2d5cd5] text-white p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
         >
-          <QrCode size={24} />
+          <QrCode size={18} />
           Scan QR
         </button>
         <button 
           onClick={() => navigate('/billing')}
-          className="flex flex-col items-center justify-center gap-3 bg-white text-slate-700 border border-slate-100 p-6 rounded-[2rem] font-bold text-xs shadow-sm"
+          className="flex items-center justify-center gap-3 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm active:scale-95 transition-all"
         >
-          <SearchIcon size={24} />
+          <SearchIcon size={18} />
           Cari WP
         </button>
       </div>
@@ -492,21 +492,21 @@ export default function Dashboard() {
           <h2 className="text-xl font-black text-slate-900 dark:text-white">Aktivitas</h2>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-sm overflow-hidden relative group">
-          <div className="flex items-start justify-between mb-8">
-            <div className="flex items-center gap-6">
+        <div className="bg-white dark:bg-slate-900 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-sm overflow-hidden relative group">
+          <div className="flex items-start justify-between mb-6 sm:mb-8">
+            <div className="flex items-center gap-4 sm:gap-6">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#2d5cd5] rounded-full"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pendapatan</span>
+                <div className="w-2.5 h-2.5 bg-[#2d5cd5] rounded-full"></div>
+                <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Pendapatan</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Target</span>
+                <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full"></div>
+                <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Target</span>
               </div>
             </div>
           </div>
           
-          <div className="h-48 relative w-full overflow-hidden mt-4">
+          <div className="h-40 sm:h-48 relative w-full overflow-hidden mt-2 sm:mt-4">
             <svg viewBox="0 0 400 150" className="w-full h-full preserve-3d">
               {[30, 60, 90, 120].map((y) => (
                 <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="currentColor" className="text-slate-50 dark:text-slate-800/50" strokeWidth="1" />
@@ -573,16 +573,16 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="col-span-12 lg:col-span-5 h-full min-h-[400px]">
-            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-2 shadow-sm h-full overflow-hidden group">
-              <div className="p-6 flex items-center justify-between">
-                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                  <MapIcon size={16} className="text-[#2d5cd5]" />
+          <div className="col-span-12 lg:col-span-5 h-full min-h-[300px] sm:min-h-[400px]">
+            <div className="bg-white dark:bg-slate-900 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-2 shadow-sm h-full overflow-hidden group">
+              <div className="p-4 sm:p-6 flex items-center justify-between">
+                <h3 className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
+                  <MapIcon size={14} sm:size={16} className="text-[#2d5cd5]" />
                   Potensi Langsung
                 </h3>
                 <MoreHorizontal size={18} className="text-slate-300 cursor-pointer" />
               </div>
-              <div className="h-[calc(100%-4rem)] rounded-[2rem] overflow-hidden">
+              <div className="h-[250px] sm:h-[calc(100%-4rem)] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
                 <MapContainer center={[-5.47, 122.6]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
