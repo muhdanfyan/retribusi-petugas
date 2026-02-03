@@ -11,6 +11,7 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 | :--- | :--- | :--- |
 | **Masuk ke Sistem** | Ketik Email & Password, lalu tekan **Login** (Biru) | Masuk ke Dashboard Utama |
 | **Cek Ketikan Password** | Tekan ikon **Mata** di kolom password | Password terlihat (bukan titik-titik) |
+| **Lihat Panduan** | Tekan ikon **Buku** di pojok kanan atas | Membuka halaman User Guide |
 | **Membatalkan** | Tutup aplikasi/tab browser | Sesi tidak dimulai, data aman |
 
 ---
@@ -22,6 +23,11 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 1.  **Total Wajib Retribusi:** Jumlah orang/toko yang sudah Anda data selamanya.
 2.  **Total Billing Aktif:** Tagihan yang sudah Anda buat tapi orangnya belum bayar.
 3.  **Penerimaan Hari Ini:** Total uang (Rupiah) yang Anda terima hari ini.
+4.  **Peta Potensi:** Lokasi objek retribusi yang terdaftar di wilayah Anda.
+
+**Filter Waktu:**
+- Pilih **Harian**, **Pekanan**, atau **Bulanan** untuk melihat statistik sesuai periode.
+- Gunakan tombol **panah kiri/kanan** untuk navigasi tanggal.
 
 **Aksi yang Bisa Dilakukan:**
 *   **Logout (Keluar):** Tekan menu **Profil** (Kanan Atas) > Tekan **Logout** (Merah) > Konfirmasi **Ya**.
@@ -35,30 +41,35 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 ### A. Cara Menambah Wajib Retribusi Baru (Alur 5 Tahap)
 Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
 
-1.  **Tahap 1 (Identitas):** Masukkan NIK, Nama, WA, dan Alamat. 
-    *   *Aksi:* Tekan **"Selanjutnya"** (Biru).
-    *   *Batal:* Tekan **"Batalkan"** (Kiri Bawah) untuk menghapus semua inputan.
+1.  **Tahap 1 (Identitas & Objek):** Masukkan Nama, NIK/NPWPD, Nama Objek, Alamat, dan Nomor WA. 
+    *   *Aksi:* Tekan **"Lanjut"** untuk melanjutkan.
+    *   *Batal:* Tekan tombol **X** (Pojok Kanan Atas) untuk membatalkan.
 
-2.  **Tahap 2 (Skema):** Pilih Jenis Retribusi & Bidang (Klasifikasi).
-    *   *Aksi:* Tekan **"Selanjutnya"** atau **"Kembali"** jika NIK salah ketik.
+2.  **Tahap 2 (Kategori):** Pilih Jenis Retribusi & Klasifikasi yang sesuai.
+    *   Pilih satu atau lebih klasifikasi dengan mencentang kotak yang tersedia.
+    *   *Aksi:* Tekan **"Lanjut"** atau **"Prev"** jika ingin kembali.
 
-3.  **Tahap 3 (Persyaratan):** Isi data teknis (seperti Luas Lahan, Jenis Usaha) & Upload Foto Fisik/Dokumen.
-    *   *Aksi:* Data teknis muncul otomatis sesuai kategori yang dipilih. Pastikan foto terlihat jelas, lalu tekan **"Selanjutnya"**.
+3.  **Tahap 3 (Persyaratan):** Isi data teknis sesuai klasifikasi yang dipilih & Upload Foto/Dokumen.
+    *   Data teknis muncul otomatis sesuai kategori yang dipilih.
+    *   Klik area upload untuk memilih file dari perangkat.
+    *   *Aksi:* Tekan **"Lanjut"** setelah semua terisi.
 
 4.  **Tahap 4 (Lokasi):** Geser Pin di peta ke titik koordinat yang tepat di lapangan.
-    *   *Aksi:* Tandai lokasi objek, lalu tekan **"Selanjutnya"**.
+    *   Klik pada peta untuk menandai lokasi objek.
+    *   Koordinat Latitude dan Longitude akan terisi otomatis.
+    *   *Aksi:* Tekan **"Lanjut"** untuk melanjutkan.
 
-5.  **Tahap 5 (Simpan):** Baca rangkuman seluruh data di layar review.
-    *   *Aksi:* Jika sudah BENAR, tekan **"Simpan & Daftarkan"**.
-    *   *Aksi:* Jika ada yang SALAH, tekan **"Prev"** untuk kembali memperbaiki tahap sebelumnya.
+5.  **Tahap 5 (Review & Selesai):** Baca rangkuman seluruh data di layar review.
+    *   *Aksi:* Jika sudah BENAR, tekan **"Daftarkan"** (Biru).
+    *   *Aksi:* Jika ada yang SALAH, tekan **"Prev"** untuk kembali memperbaiki.
 
 
 ### B. Cara Mengubah (Edit) Data
-1. Cari nama warga di tabel.
+1. Cari nama warga di tabel atau gunakan kotak pencarian.
 2. Tekan tombol **ikon Pensil Biru**.
 3. Lakukan perubahan di tahap yang salah.
-4. Di tahap terakhir, tekan **"Update Data"** untuk menyimpan permanen.
-5. Tekan **"Batalkan"** jika ingin data kembali ke semula (sebelum diedit).
+4. Di tahap terakhir, tekan **"Simpan"** untuk menyimpan permanen.
+5. Tekan tombol **X** jika ingin membatalkan.
 
 ### C. Cara Menghapus Data
 1. Tekan tombol **ikon Tempat Sampah Merah**.
@@ -71,9 +82,9 @@ Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
 ## 📷 4. Modul Scanner Lapangan
 **Fungsi:** Mencari data warga secepat kilat menggunakan kamera.
 
-*   **Scan:** Arahkan kamera ke QR Code di Kartu atau Invoice. Jika berhasil, sistem otomatis membuka halaman rincian tagihan/data warga.
-*   **Input Manual:** Jika kamera sulit fokus, ketik NIK atau Nomor Invoice di kotak "Input Manual", lalu tekan **Enter/Cari**.
-*   **Tutup Scanner:** Tekan tombol **Panah Kembali** (Pojok Kiri Atas) untuk kembali ke menu utama.
+*   **Scan QR Code:** Arahkan kamera ke QR Code di Kartu atau Invoice. Jika berhasil, sistem otomatis membuka halaman Billing dengan hasil pencarian.
+*   **Input Manual:** Jika kamera sulit fokus, ketik NIK atau Nomor Invoice di kotak "Input Manual", lalu tekan **Enter**.
+*   **Tutup Scanner:** Tekan tombol **Panah Kiri** (Pojok Kiri Atas) untuk kembali ke menu utama.
 
 ---
 
@@ -92,29 +103,51 @@ Dokumen rujukan resmi untuk harga dan peraturan. Anda memiliki 4 tab informasi:
 ## 💰 6. Modul Billing & Pembayaran
 **Fungsi:** Mencetak Nota (Tagihan) dan menerima Bayaran.
 
-### A. Terbitkan Nota (Generate)
-1.  **Generate Tunggal:** Tekan tombol **"Generate"** (Biru). Pilih Wajib Pajak, isi Periode, dan Jatuh Tempo.
-2.  **Bulk Generate:** Digunakan untuk menerbitkan tagihan massal untuk satu jenis retribusi sekaligus.
-3.  **Batal:** Tekan tombol silang **(×)** atau klik di luar area kotak untuk membatalkan.
+**Ringkasan Status:**
+- **Total Tagihan:** Jumlah seluruh tagihan yang terdaftar.
+- **Lunas:** Tagihan yang sudah dibayar (Hijau).
+- **Pending:** Tagihan yang menunggu pembayaran (Kuning).
+- **Overdue:** Tagihan yang sudah lewat jatuh tempo (Merah).
 
+### A. Mencari Tagihan
+1.  Gunakan kotak pencarian untuk mencari berdasarkan Nomor Invoice, Nama, atau NPWPD.
+2.  Gunakan filter **Status** untuk memfilter berdasarkan status pembayaran.
+3.  Tekan tombol **SCAN** untuk membuka scanner QR Code.
 
 ### B. Terima Pembayaran (Setoran)
-1.  Cari Invoice, tekan tombol **"Bayar"** (Hijau).
-2.  Muncul jendela konfirmasi pembayaran tunai (Cash).
-3.  Pastikan uang fisik sudah diterima, lalu tekan **"Konfirmasi Bayar"**. Status otomatis berubah menjadi **Lunas**.
-
+1.  Cari Invoice dengan status **Pending**.
+2.  Tekan tombol **"Bayar"** (Hijau) di kolom Aksi.
+3.  Muncul jendela konfirmasi dengan detail tagihan:
+    - Nomor Invoice
+    - Nama Wajib Pajak
+    - Jenis Retribusi
+    - Total Pembayaran
+4.  Pastikan uang fisik sudah diterima.
+5.  Tekan **"KONFIRMASI BAYAR"** (Hijau) untuk mencatat pembayaran.
+6.  Status otomatis berubah menjadi **Lunas**.
 
 ---
 
 ## 📊 7. Modul Laporan (Reporting)
-Monitoring capaian kinerja dan setoran harian Anda.
-*   **Filter Waktu:** Gunakan tombol **Harian / Pekanan / Bulanan** atau pilih tanggal manual di bagian atas.
-*   **Export Data:** Tekan tombol **"Ekspor CSV"** untuk mengunduh laporan ke perangkat Anda.
+Monitoring capaian kinerja dan setoran Anda.
 
+**Informasi yang Ditampilkan:**
+- **Total Penerimaan:** Jumlah total pendapatan dalam periode yang dipilih.
+- **Total Transaksi:** Jumlah transaksi yang tercatat.
+- **Rata-rata Transaksi:** Nilai rata-rata per transaksi.
+- **Grafik Pie:** Distribusi pendapatan berdasarkan jenis retribusi.
+
+**Filter Waktu:**
+- Gunakan tombol **Harian / Pekanan / Bulanan** untuk mengubah periode.
+- Gunakan pemilih tanggal untuk memilih rentang waktu tertentu.
+
+**Export Data:**
+- Tekan tombol **"Ekspor CSV"** untuk mengunduh laporan ke perangkat Anda.
 
 ---
 
 ## 💡 Tips Penggunaan
-- **Warna Tombol:** Biru = Simpan/Lanjut, Hijau = Bayar, Merah = Hapus/Keluar, Abu-abu = Batal.
+- **Warna Tombol:** Biru = Simpan/Lanjut, Hijau = Bayar/Konfirmasi, Merah = Hapus/Keluar, Abu-abu = Batal.
 - **Koneksi:** Jika data tidak muncul, pastikan sinyal internet lancar dan tekan **Refresh** (Muat Ulang) halaman.
+- **Scroll Mobile:** Pada tampilan mobile, geser ke atas/bawah untuk melihat seluruh konten form.
 - **Bantuan:** Jika menemui kendala, hubungi Admin melalui menu Profil.
