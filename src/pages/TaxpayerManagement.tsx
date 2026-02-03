@@ -651,10 +651,10 @@ export default function TaxpayerManagement() {
                   </div>
                 )}
 
-                {currentStep === 3 && (
+                {currentStep === 2 && (
                   <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                     <div>
-                      <h3 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Tax & Retribution Details</h3>
+                      <h3 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Kategori & Skema</h3>
                       <p className="text-gray-500 text-sm font-medium">Pilih kategori retribusi yang berlaku</p>
                     </div>
 
@@ -728,66 +728,20 @@ export default function TaxpayerManagement() {
                   </div>
                 )}
 
-                {currentStep === 4 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 flex flex-col h-full">
-                    <div>
-                      <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Lokasi Objek</h3>
-                      <p className="text-gray-500 text-sm font-medium">Klik pada peta untuk menentuakan lokasi objek retribusi</p>
-                    </div>
-
-                    <div className="flex-1 min-h-[400px] rounded-[2.5rem] overflow-hidden border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
-                      <MapContainer 
-                        center={[form.latitude, form.longitude]} 
-                        zoom={15} 
-                        style={{ height: '100%', width: '100%' }}
-                        scrollWheelZoom={true}
-                      >
-                        <TileLayer
-                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <MapEvents />
-                        <Marker position={[form.latitude, form.longitude]}>
-                          <Popup>
-                            Lokasi Objek: <br /> {form.latitude.toFixed(6)}, {form.longitude.toFixed(6)}
-                          </Popup>
-                        </Marker>
-                      </MapContainer>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-gray-800/50 p-6 rounded-[2rem] border-2 border-gray-100 dark:border-gray-800">
-                      <div className="group">
-                        <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 ml-1">Latitude</label>
-                        <input
-                          type="number"
-                          step="any"
-                          value={form.latitude}
-                          onChange={(e) => setForm({ ...form, latitude: parseFloat(e.target.value) })}
-                          className="w-full px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
-                        />
-                      </div>
-                      <div className="group">
-                        <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 ml-1">Longitude</label>
-                        <input
-                          type="number"
-                          step="any"
-                          value={form.longitude}
-                          onChange={(e) => setForm({ ...form, longitude: parseFloat(e.target.value) })}
-                          className="w-full px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {currentStep === 5 && (
+                {currentStep === 3 && (
                   <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
                     <div>
-                      <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Additional Specifications</h3>
-                      <p className="text-gray-500 text-sm font-medium">Informasi tambahan sesuai kategori retribusi</p>
+                      <h3 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Persyaratan & Skema Detail</h3>
+                      <p className="text-gray-500 text-sm font-medium">Lengkapi data teknis dan unggah dokumen pendukung</p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    {/* Meta Data / Form Schema Section */}
+                    <div className="grid grid-cols-2 gap-6 p-8 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2.5rem] border border-blue-100 dark:border-blue-900/30">
+                      <div className="col-span-2 mb-2">
+                        <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                          <Info className="w-4 h-4" /> Data Teknis Pendukung
+                        </h4>
+                      </div>
                       {classifications
                         .filter(c => form.retribution_classification_ids.includes(c.id) && c.form_schema)
                         .reduce((acc, current) => {
@@ -803,7 +757,7 @@ export default function TaxpayerManagement() {
                               <select
                                 value={form.metadata[field.key] || ''}
                                 onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
-                                className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                                className="w-full px-6 py-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
                               >
                                 <option value="">Pilih {field.label}</option>
                                 {field.options?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
@@ -813,29 +767,21 @@ export default function TaxpayerManagement() {
                                 type={field.type}
                                 value={form.metadata[field.key] || ''}
                                 onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
-                                className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                                className="w-full px-6 py-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
                                 placeholder={field.label}
                               />
                             )}
                           </div>
                         ))}
-                      {form.retribution_type_ids.length === 0 && (
-                        <div className="col-span-2 py-20 text-center text-gray-400 font-black uppercase text-[10px] tracking-widest border-2 border-dashed border-gray-100 rounded-[2rem]">
-                          Tidak ada field tambahan untuk kategori terpilih
+                      {form.retribution_classification_ids.length === 0 && (
+                        <div className="col-span-2 py-10 text-center text-gray-400 font-bold text-xs uppercase tracking-widest">
+                          Pilih klasifikasi untuk melihat formulir tambahan
                         </div>
                       )}
                     </div>
-                  </div>
-                )}
 
-                {currentStep === 6 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-                    <div>
-                      <h3 className="text-xs font-black text-rose-600 uppercase tracking-[0.2em] mb-2">Review & Documentation</h3>
-                      <p className="text-gray-500 text-sm font-medium">Unggah dokumen pendukung dan tinjau data</p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-8">
+                    {/* Requirements / File Upload Section */}
+                    <div className="grid grid-cols-2 gap-6">
                       {classifications
                         .filter(c => form.retribution_classification_ids.includes(c.id) && c.requirements)
                         .reduce((acc, current) => {
@@ -896,6 +842,90 @@ export default function TaxpayerManagement() {
                         </>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {currentStep === 4 && (
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 flex flex-col h-full">
+                    <div>
+                      <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Lokasi Objek</h3>
+                      <p className="text-gray-500 text-sm font-medium">Klik pada peta untuk menentuakan lokasi objek retribusi</p>
+                    </div>
+
+                    <div className="flex-1 min-h-[400px] rounded-[2.5rem] overflow-hidden border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                      <MapContainer 
+                        center={[form.latitude, form.longitude]} 
+                        zoom={15} 
+                        style={{ height: '100%', width: '100%' }}
+                        scrollWheelZoom={true}
+                      >
+                        <TileLayer
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <MapEvents />
+                        <Marker position={[form.latitude, form.longitude]}>
+                          <Popup>
+                            Lokasi Objek: <br /> {form.latitude.toFixed(6)}, {form.longitude.toFixed(6)}
+                          </Popup>
+                        </Marker>
+                      </MapContainer>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-gray-800/50 p-6 rounded-[2rem] border-2 border-gray-100 dark:border-gray-800">
+                      <div className="group">
+                        <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 ml-1">Latitude</label>
+                        <input
+                          type="number"
+                          step="any"
+                          value={form.latitude}
+                          onChange={(e) => setForm({ ...form, latitude: parseFloat(e.target.value) })}
+                          className="w-full px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                        />
+                      </div>
+                      <div className="group">
+                        <label className="block text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 ml-1">Longitude</label>
+                        <input
+                          type="number"
+                          step="any"
+                          value={form.longitude}
+                          onChange={(e) => setForm({ ...form, longitude: parseFloat(e.target.value) })}
+                          className="w-full px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 5 && (
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
+                    <div>
+                      <h3 className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Review & Selesai</h3>
+                      <p className="text-gray-500 text-sm font-medium">Tinjau kembali data sebelum pendaftaran diajukan</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nama Wajib Pajak</div>
+                        <div className="text-gray-900 dark:text-white font-bold">{form.name}</div>
+                      </div>
+                      <div className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nama Objek</div>
+                        <div className="text-gray-900 dark:text-white font-bold">{form.object_name}</div>
+                      </div>
+                      <div className="col-span-2 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Klasifikasi Terpilih</div>
+                        <div className="flex flex-wrap gap-2">
+                          {classifications
+                            .filter(c => form.retribution_classification_ids.includes(c.id))
+                            .map(c => (
+                              <span key={c.id} className="px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-black rounded-lg uppercase tracking-tighter">
+                                {c.name}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="p-8 bg-blue-600 rounded-[2.5rem] text-white">
                       <div className="flex items-center gap-4 mb-4">
@@ -924,7 +954,7 @@ export default function TaxpayerManagement() {
                   Previous
                 </button>
                 
-                {currentStep < 6 ? (
+                {currentStep < 5 ? (
                   <button
                     type="button"
                     onClick={() => setCurrentStep(currentStep + 1)}
