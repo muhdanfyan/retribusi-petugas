@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft, Loader2, Facebook, Twitter, Chrome, Apple, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Loader2, Facebook, Twitter, Chrome, Apple, Eye, EyeOff, BookOpen } from 'lucide-react';
 
 export default function PetugasLogin() {
   const [email, setEmail] = useState('');
@@ -145,6 +145,16 @@ export default function PetugasLogin() {
                 Don't have an account?{' '}
                 <Link to="/register" className="text-[#2d5cd5] hover:underline">Sign up</Link>
               </p>
+
+              <div className="mt-8 flex justify-center">
+                <Link 
+                  to="/user-guide" 
+                  className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#2d5cd5] transition-colors group"
+                >
+                  <BookOpen size={14} className="group-hover:rotate-12 transition-transform" />
+                  View User Guide
+                </Link>
+              </div>
             </div>
           </div>
         </div>

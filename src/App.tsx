@@ -14,6 +14,7 @@ import TaxpayerManagement from './pages/TaxpayerManagement';
 import Profile from './pages/Profile';
 import FieldScanner from './pages/FieldScanner';
 import PaymentConfirmation from './pages/PaymentConfirmation';
+import UserGuide from './pages/UserGuide';
 
 function App() {
   return (
@@ -112,6 +113,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route path="/user-guide" element={<UserGuide />} />
 
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -15,12 +15,9 @@ import {
   Menu,
   X,
   ChevronLeft,
-  Settings,
   Search,
   QrCode,
   Home,
-  CreditCard,
-  MessageSquare,
   User
 } from 'lucide-react';
 import { UserRole } from '../types';
