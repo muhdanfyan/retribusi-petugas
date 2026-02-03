@@ -74,10 +74,7 @@ export default function TaxpayerManagement() {
     metadata: {} as Record<string, any>,
   });
 
-  const [files, setFiles] = useState<Record<string, File | null>>({
-    foto_lokasi_open_kamera: null,
-    formulir_data_dukung: null,
-  });
+  const [files, setFiles] = useState<Record<string, File | null>>({});
 
   const fetchData = async () => {
     setLoading(true);
