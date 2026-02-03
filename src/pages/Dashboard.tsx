@@ -297,31 +297,31 @@ export default function Dashboard() {
 
       {/* Mobile Title & Navigator */}
       <div className="lg:hidden flex flex-col gap-5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Utama</h2>
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-            <button onClick={handlePrev} className="p-1 text-[#2d5cd5]"><ChevronLeft size={16} /></button>
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#2d5cd5]">{getDisplayDate(true)}</span>
-            <button onClick={handleNext} className="p-1 text-[#2d5cd5]"><ChevronRight size={16} /></button>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight shrink-0">Dashboard</h2>
+          <div className="flex items-center gap-1.5 bg-white dark:bg-slate-800 px-2 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden min-w-0">
+            <button onClick={handlePrev} className="p-1 text-[#2d5cd5] shrink-0"><ChevronLeft size={14} /></button>
+            <span className="text-[9px] font-black uppercase tracking-widest text-[#2d5cd5] truncate">{getDisplayDate(true)}</span>
+            <button onClick={handleNext} className="p-1 text-[#2d5cd5] shrink-0"><ChevronRight size={14} /></button>
           </div>
         </div>
         
-        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner w-full">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner w-full mb-2">
           <button 
             onClick={() => { setFilterType('day'); setCurrentDate(new Date()); }}
-            className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'day' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all ${filterType === 'day' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400'}`}
           >
             Harian
           </button>
           <button 
             onClick={() => { setFilterType('week'); setCurrentDate(new Date()); }}
-            className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'week' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all ${filterType === 'week' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400'}`}
           >
             Pekanan
           </button>
           <button 
             onClick={() => { setFilterType('month'); setCurrentDate(new Date()); }}
-            className={`flex-1 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filterType === 'month' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex-1 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all ${filterType === 'month' ? 'bg-white dark:bg-slate-700 text-[#2d5cd5] shadow-sm' : 'text-slate-400'}`}
           >
             Bulanan
           </button>
@@ -344,13 +344,13 @@ export default function Dashboard() {
                   onClick={() => navigate('/billing')}
                   className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl sm:rounded-2xl flex items-center justify-center transition-all active:scale-90"
                 >
-                  <Plus size={20} sm:size={24} />
+                  <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                  <TrendingUp size={12} sm:size={14} className="text-emerald-300" />
+                  <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-300" />
                   {stats?.trends.revenue || '+0%'}
                 </div>
                 <p className="text-blue-100 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-60">vs periode lalu</p>
@@ -577,7 +577,7 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-slate-900 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-2 shadow-sm h-full overflow-hidden group">
               <div className="p-4 sm:p-6 flex items-center justify-between">
                 <h3 className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                  <MapIcon size={14} sm:size={16} className="text-[#2d5cd5]" />
+                  <MapIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2d5cd5]" />
                   Potensi Langsung
                 </h3>
                 <MoreHorizontal size={18} className="text-slate-300 cursor-pointer" />

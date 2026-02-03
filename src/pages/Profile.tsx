@@ -134,9 +134,11 @@ export default function Profile() {
       {/* Profile Card */}
       <div className="relative z-10 -mt-4 mx-4">
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-6 text-center">
-          {/* Avatar */}
-          <div className="w-20 h-20 mx-auto bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-full flex items-center justify-center text-2xl font-black text-slate-500 dark:text-slate-400 shadow-lg">
-            {user?.name?.charAt(0) || <User size={32} />}
+          {/* Avatar Area */}
+          <div className="relative inline-block">
+            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[#2d5cd5] to-blue-500 rounded-[2rem] flex items-center justify-center text-3xl font-black text-white shadow-2xl shadow-blue-500/30 border-4 border-white dark:border-slate-800 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+              {user?.name?.charAt(0) || <User size={40} />}
+            </div>
           </div>
           
           {/* User Info */}
@@ -155,9 +157,9 @@ export default function Profile() {
           {/* Edit Profile Button */}
           <button 
             onClick={() => setShowEditModal(true)}
-            className="mt-6 inline-flex items-center gap-2 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-full shadow-lg shadow-orange-500/30 transition-all active:scale-95"
+            className="mt-8 w-full py-4 bg-[#2d5cd5] hover:bg-blue-600 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-3"
           >
-            <Pencil size={16} />
+            <Pencil size={14} />
             Edit Profile
           </button>
         </div>
@@ -173,10 +175,10 @@ export default function Profile() {
               className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-b-0"
             >
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center">
-                  <item.icon size={20} className="text-slate-500 dark:text-slate-400" />
+                <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800/50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <item.icon size={22} className="text-[#2d5cd5]" />
                 </div>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{item.label}</span>
+                <span className="font-black text-[11px] uppercase tracking-widest text-slate-700 dark:text-slate-300">{item.label}</span>
               </div>
               <div className="flex items-center gap-2">
                 {item.value && <span className="text-sm text-slate-400">{item.value}</span>}
@@ -194,10 +196,10 @@ export default function Profile() {
               className={`w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-b-0 ${item.className || ''}`}
             >
               <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.iconClassName || 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
-                  <item.icon size={20} />
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform ${item.iconClassName || 'bg-slate-50 dark:bg-slate-800/50 text-[#2d5cd5]'}`}>
+                  <item.icon size={22} />
                 </div>
-                <span className="font-medium">{item.label}</span>
+                <span className="font-black text-[11px] uppercase tracking-widest">{item.label}</span>
               </div>
               <ChevronRight size={18} className="text-slate-300" />
             </button>
@@ -207,8 +209,8 @@ export default function Profile() {
 
       {/* Edit Profile Modal */}
       {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden my-auto">
             <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Edit Profile</h3>
               <button onClick={() => setShowEditModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">
@@ -271,8 +273,8 @@ export default function Profile() {
 
       {/* Change Password Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden my-auto">
             <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Ganti Password</h3>
               <button onClick={() => setShowPasswordModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">

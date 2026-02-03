@@ -319,14 +319,14 @@ export default function TaxpayerManagement() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Pengelolaan Wajib Pajak</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Kelola data subjek dan objek retribusi</p>
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Taxpayers</h1>
+          <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-0.5">Kelola data subjek dan objek retribusi</p>
         </div>
         <button
           onClick={handleAdd}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors whitespace-nowrap"
+          className="flex items-center justify-center gap-2 px-5 py-3 md:px-4 md:py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl md:rounded-lg transition-all font-black text-[10px] md:text-xs uppercase tracking-widest shadow-lg shadow-blue-500/20 active:scale-95"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4 md:w-5 md:h-5" />
           Tambah Wajib Pajak
         </button>
       </div>
@@ -360,7 +360,8 @@ export default function TaxpayerManagement() {
           )}
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700/50">
               <tr>
@@ -432,6 +433,69 @@ export default function TaxpayerManagement() {
           </table>
         </div>
 
+        {/* Mobile Card Layout */}
+        <div className="md:hidden space-y-4">
+          {loading ? (
+            <div className="py-12 text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto" />
+            </div>
+          ) : taxpayers.length === 0 ? (
+            <div className="py-12 text-center text-gray-500 font-bold text-sm uppercase tracking-widest">
+              Tidak ada data ditemukan
+            </div>
+          ) : (
+            taxpayers.map((tp) => (
+              <div key={tp.id} className="bg-white dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm active:scale-[0.98] transition-all">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-sm font-black text-gray-900 dark:text-white truncate">{tp.name}</h4>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">NIK: {tp.nik}</p>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                    tp.is_active 
+                      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' 
+                      : 'bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
+                  }`}>
+                    {tp.is_active ? 'Aktif' : 'Non-Aktif'}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">NPWPD</p>
+                    <p className="text-[10px] font-bold text-blue-600 truncate">{tp.npwpd || '-'}</p>
+                  </div>
+                  <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Kontak</p>
+                    <p className="text-[10px] font-bold text-gray-700 dark:text-gray-300 truncate">{tp.phone || '-'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-gray-50 dark:border-gray-700/50">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Briefcase size={12} className="text-gray-400" />
+                    <span className="text-[10px] font-bold truncate max-w-[120px]">{tp.opd?.name || 'No Department'}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleEdit(tp)}
+                      className="w-8 h-8 flex items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg active:scale-90 transition-all"
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(tp.id)}
+                      className="w-8 h-8 flex items-center justify-center bg-rose-50 dark:bg-rose-900/30 text-rose-600 rounded-lg active:scale-90 transition-all"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
         {totalPages > 1 && (
           <div className="mt-6 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-4">
             <p className="text-sm text-gray-700 dark:text-gray-400">
@@ -471,7 +535,7 @@ export default function TaxpayerManagement() {
                   <span className="font-black text-xl tracking-tighter">RETRIBUSI</span>
                 </div>
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white leading-tight">
-                  {editingTaxpayer ? 'Perbarui Data' : 'Pendaftaran Baru'}
+                  {editingTaxpayer ? 'Perbarui Data' : 'Daftar WP Baru'}
                 </h2>
               </div>
 

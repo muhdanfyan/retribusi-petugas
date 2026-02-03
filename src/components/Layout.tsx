@@ -161,8 +161,8 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      {/* Mobile Top Header (Mockup Style) - Updated: Toggle Sidebar, Removed Search */}
-      <div className="lg:hidden px-4 pt-10 pb-4 space-y-6">
+      {/* Mobile Top Header (Compact Style) */}
+      <div className="lg:hidden px-4 pt-6 pb-2 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 

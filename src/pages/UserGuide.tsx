@@ -7,26 +7,24 @@ import {
   Database, 
   FileText, 
   BarChart3, 
-  Info,
   CheckCircle2,
   XCircle,
   ArrowLeft,
   Eye,
   Trash2,
   Edit3,
-  Camera,
   Download,
   HelpCircle,
-  AlertTriangle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const Highlight = ({ children, color = 'blue' }: { children: React.ReactNode, color?: 'blue' | 'emerald' | 'rose' | 'amber' }) => {
+const GuideHighlight = ({ children, color = 'blue' }: { children: React.ReactNode; color?: 'blue' | 'emerald' | 'rose' | 'amber' | 'slate' }) => {
   const colors = {
     blue: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-800',
     emerald: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-800',
     rose: 'bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-100 dark:border-rose-800',
     amber: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-100 dark:border-amber-800',
+    slate: 'bg-slate-50 dark:bg-slate-900/30 text-slate-700 dark:text-slate-300 border-slate-100 dark:border-slate-800',
   };
   
   return (
@@ -47,7 +45,10 @@ export default function UserGuide() {
       color: 'emerald',
       description: 'Gerbang utama untuk memverifikasi identitas Anda sebagai petugas resmi Pemerintah Kota Baubau.',
       content: (
-        <div className="space-y-4">
+        <div className="space-y-6">
+          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
+            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138920/retribusi/userguide/zfelzfcxa6hpepsmomcy.png" alt="Login" className="w-full h-auto" />
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400">
@@ -60,7 +61,7 @@ export default function UserGuide() {
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800 font-medium">
                 <tr>
                   <td className="px-4 py-3 font-bold">Masuk</td>
-                  <td className="px-4 py-3">Email & Password, tekan <Highlight color="blue">Login</Highlight></td>
+                  <td className="px-4 py-3">Email & Password, tekan <GuideHighlight color="blue">Login</GuideHighlight></td>
                   <td className="px-4 py-3 italic">Buka Dashboard</td>
                 </tr>
                 <tr>
@@ -86,18 +87,23 @@ export default function UserGuide() {
       color: 'blue',
       description: 'Monitor hasil kerja harian Anda dalam satu layar ringkas.',
       content: (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: 'Total Pendapatan', desc: 'Total uang (Rupiah) terinput' },
-            { label: 'Tingkat Penagihan', desc: 'Persentase keberhasilan setoran' },
-            { label: 'Tagihan Pending', desc: 'Jumlah invoice belum lunas' },
-            { label: 'Wajib Retribusi Aktif', desc: 'Jumlah orang/toko terdata' }
-          ].map((item, i) => (
-            <div key={i} className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800">
-              <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">{item.label}</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">{item.desc}</p>
-            </div>
-          ))}
+        <div className="space-y-6">
+          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
+            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138923/retribusi/userguide/uz9xnhzrkup0jngyp0gz.png" alt="Dashboard" className="w-full h-auto" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { label: 'Total Penerimaan Hari Ini', desc: 'Total uang (Rupiah) yang Anda terima hari ini.' },
+              { label: 'Total Billing Aktif', desc: 'Tagihan yang sudah dibuat tapi belum lunas.' },
+              { label: 'Wajib Retribusi Aktif', desc: 'Jumlah orang/toko yang sudah Anda data.' },
+              { label: 'Peta Potensi', desc: 'Lokasi objek retribusi yang terdaftar di wilayah Anda.' }
+            ].map((item, i) => (
+              <div key={i} className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800 font-bold">
+                <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">{item.label}</p>
+                <p className="text-xs text-gray-700 dark:text-gray-300">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )
     },
@@ -109,28 +115,32 @@ export default function UserGuide() {
       description: 'Tempat mengelola "Buku Induk" Wajib Retribusi (Daftar, Edit, Hapus).',
       content: (
           <div className="space-y-8">
+            <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg mb-4">
+              <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138931/retribusi/userguide/ujg7m8usjnsq4hdlvwyk.png" alt="Daftar WP" className="w-full h-auto" />
+            </div>
+
             {/* Create Flow */}
             <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10">
-                <Users className="w-16 h-16" />
-              </div>
               <h4 className="font-black text-sm uppercase tracking-tight mb-6 flex items-center gap-2 text-orange-600">
                 <CheckCircle2 className="w-5 h-5" />
                 Alur Pendaftaran (WP Baru)
               </h4>
-              <div className="space-y-4">
+              <div className="space-y-6">
+                <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-md mb-4 bg-gray-50">
+                  <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138934/retribusi/userguide/meenu7d0yxwagdv97bhg.png" alt="Registrasi Step 1" className="w-full h-auto" />
+                </div>
                 {[
-                  { s: '1', t: 'Identitas', d: 'Masukkan NIK, Nama, WA, dan Alamat Objek.' },
-                  { s: '2', t: 'Skema', d: 'Pilih kategori retribusi dan klasifikasi bidang usaha.' },
-                  { s: '3', t: 'Persyaratan', d: 'Isi data teknis dinamis & upload foto fisik/dokumen.' },
-                  { s: '4', t: 'Lokasi', d: 'Tentukan titik koordinat tepat di peta lapangan.' },
-                  { s: '5', t: 'Selesai', d: 'Review seluruh data lalu tekan "Simpan & Daftarkan".' }
+                  { s: '1', t: 'Identitas & Objek', d: 'Masukkan NIK, Nama Lengkap, No. WhatsApp, Nama Toko, dan Alamat.' },
+                  { s: '2', t: 'Kategori', d: 'Pilih jenis retribusi dan klasifikasi bidang usaha yang sesuai.' },
+                  { s: '3', t: 'Persyaratan', d: 'Isi data teknis dan upload dokumentasi foto/berkas.' },
+                  { s: '4', t: 'Lokasi Map', d: 'Tentukan titik koordinat tepat di peta untuk akurasi data.' },
+                  { s: '5', t: 'Review & Selesai', d: 'Pastikan semua data benar, lalu tekan "Daftarkan".' }
                 ].map((step) => (
                   <div key={step.s} className="flex gap-4 group">
                     <div className="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-[10px] font-black text-orange-600 shrink-0 group-hover:scale-110 transition-transform">{step.s}</div>
                     <div>
                       <p className="text-sm font-bold text-gray-900 dark:text-white leading-none mb-1">{step.t}</p>
-                      <p className="text-xs text-gray-500">{step.d}</p>
+                      <p className="text-xs text-gray-500 font-medium">{step.d}</p>
                     </div>
                   </div>
                 ))}
@@ -138,80 +148,45 @@ export default function UserGuide() {
             </div>
 
             {/* Edit Flow */}
-            <div className="bg-blue-50/50 dark:bg-blue-900/10 p-8 rounded-[2.5rem] border border-blue-100 dark:border-blue-800 shadow-xl shadow-blue-500/5">
+            <div className="bg-blue-50/50 dark:bg-blue-900/10 p-8 rounded-[2.5rem] border border-blue-100 dark:border-blue-800">
               <h4 className="font-black text-sm uppercase tracking-tight mb-8 flex items-center gap-3 text-blue-600">
                 <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
                   <Edit3 className="w-5 h-5" />
                 </div>
-                Alur Pengubahan (Edit) Data
+                Cara Mengubah (Edit) Data
               </h4>
-              <div className="space-y-8">
-                <div className="flex gap-6">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white font-black flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">1</div>
-                  <p className="text-sm font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
-                    Temukan nama warga, lalu tekan tombol <Highlight color="blue">Ikon Pensil Biru</Highlight> di baris tabel paling kanan.
-                  </p>
-                </div>
-                <div className="flex gap-6">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white font-black flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">2</div>
-                  <p className="text-sm font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
-                    Gunakan panel navigasi kiri untuk langsung melompat ke bagian yang ingin diubah (Misal: <Highlight color="amber">Persyaratan</Highlight>).
-                  </p>
-                </div>
-                <div className="flex gap-6">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white font-black flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">3</div>
-                  <div className="space-y-4">
-                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
-                      Selesaikan perubahan, lalu pada tahap terakhir tekan tombol <Highlight color="emerald">Update Data</Highlight>.
-                    </p>
-                    <div className="p-4 bg-white/80 dark:bg-gray-800/80 rounded-2xl border-2 border-dashed border-blue-200 dark:border-blue-800 flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
-                        <Info className="w-4 h-4" />
-                      </div>
-                      <p className="text-[11px] font-bold text-blue-800 dark:text-blue-400 leading-relaxed italic">
-                        PEMBATALAN: Jika ragu, tekan tombol <Highlight color="rose">Batalkan</Highlight> di posisi kiri bawah layar sebelum menekan update.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-6">
+                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                  1. Cari nama warga, tekan ikon <GuideHighlight color="blue">Pensil Biru</GuideHighlight>.
+                </p>
+                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                  2. Lakukan perubahan pada bagian yang salah.
+                </p>
+                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                  3. Simpan perubahan di tahap terakhir. Tekan <GuideHighlight color="rose">X</GuideHighlight> untuk membatalkan.
+                </p>
               </div>
             </div>
 
             {/* Delete Flow */}
-            <div className="bg-rose-50/50 dark:bg-rose-900/10 p-8 rounded-[2.5rem] border border-rose-100 dark:border-rose-800 shadow-xl shadow-rose-500/5">
+            <div className="bg-rose-50/50 dark:bg-rose-900/10 p-8 rounded-[2.5rem] border border-rose-100 dark:border-rose-800">
               <h4 className="font-black text-sm uppercase tracking-tight mb-8 flex items-center gap-3 text-rose-600">
                 <div className="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-rose-500/20">
                   <Trash2 className="w-5 h-5" />
                 </div>
-                Alur Penghapusan (Hapus) Data
+                Cara Menghapus Data
               </h4>
-              <div className="space-y-8">
-                <div className="flex items-start gap-6">
-                  <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white font-black flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/20">1</div>
-                  <p className="text-sm font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
-                    Tekan tombol <Highlight color="rose">Ikon Tempat Sampah Merah</Highlight> pada data yang ingin dibuang.
-                  </p>
-                </div>
-                <div className="flex items-start gap-6">
-                  <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white font-black flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/20">2</div>
-                  <div className="space-y-5">
-                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
-                      Konfirmasi keamanan akan muncul. Pastikan Anda tidak salah pilih objek.
-                    </p>
-                    <div className="p-6 bg-white dark:bg-gray-900 rounded-[2rem] border-2 border-rose-100 flex flex-col items-center gap-4 shadow-sm">
-                      <AlertTriangle className="w-8 h-8 text-rose-500 animate-bounce" />
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Tindakan Akhir:</p>
-                      <div className="flex gap-4">
-                        <button className="px-6 py-2 bg-rose-600 text-white text-[10px] font-black rounded-xl uppercase shadow-lg shadow-rose-500/20">Ya, Hapus Sekarang</button>
-                        <button className="px-6 py-2 bg-gray-100 text-gray-500 text-[10px] font-black rounded-xl uppercase">Jangan Hapus</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="ml-16 flex items-start gap-3 p-4 bg-rose-600 text-white rounded-2xl shadow-lg shadow-rose-500/10">
+              <div className="space-y-6">
+                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                  1. Tekan tombol <GuideHighlight color="rose">Ikon Tempat Sampah Merah</GuideHighlight>.
+                </p>
+                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                  2. Konfirmasi dengan menekan <GuideHighlight color="rose">Ya, Hapus</GuideHighlight> atau <GuideHighlight color="slate">Batal</GuideHighlight>.
+                </p>
+                <div className="flex items-start gap-3 p-4 bg-rose-600 text-white rounded-2xl shadow-lg">
                   <XCircle className="w-5 h-5 shrink-0" />
                   <p className="text-[11px] font-black uppercase tracking-wider leading-relaxed">
-                    DANGER: DATA YANG DIHAPUS TIDAK DAPAT DIKEMBALIKAN LAGI.
+                    DATA YANG DIHAPUS TIDAK DAPAT DIKEMBALIKAN.
                   </p>
                 </div>
               </div>
@@ -226,15 +201,18 @@ export default function UserGuide() {
       color: 'indigo',
       description: 'Mencari data warga secepat kilat menggunakan kamera.',
       content: (
-        <div className="space-y-4">
-          <div className="flex flex-col items-center p-8 bg-indigo-50 dark:bg-indigo-900/20 rounded-[2rem] border-2 border-dashed border-indigo-200 dark:border-indigo-800">
-            <Camera className="w-12 h-12 text-indigo-400 mb-4" />
-            <p className="text-sm font-bold text-indigo-900 dark:text-indigo-300">Arahkan Kamera ke QR Code</p>
-            <p className="text-xs text-indigo-600/60 mt-1">Gunakan "Input Manual" jika kamera buram</p>
+        <div className="space-y-6">
+          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
+            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138929/retribusi/userguide/a9scu3nmgwtav3qb4osj.png" alt="Scanner" className="w-full h-auto" />
           </div>
-          <p className="text-xs text-gray-500 italic flex items-center gap-2">
-            <Info className="w-4 h-4" /> Tekan tombol <Highlight color="slate">Panah Kembali</Highlight> di pojok kiri atas untuk menutup kamera.
-          </p>
+          <div className="space-y-4">
+            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 font-bold">
+              <p className="text-sm text-indigo-900 dark:text-indigo-300">Scan QR Code: Arahkan kamera ke QR kartu atau invoice.</p>
+            </div>
+            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 font-bold">
+              <p className="text-sm text-indigo-900 dark:text-indigo-300">Input Manual: Ketik NIK atau Nomor Invoice jika kamera sulit fokus.</p>
+            </div>
+          </div>
         </div>
       )
     },
@@ -246,25 +224,16 @@ export default function UserGuide() {
       description: 'Pusat informasi harga dan aturan (Read-Only).',
       content: (
         <div className="space-y-6">
-          <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Tab: JENIS</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Daftar kategori utama. Cek <Highlight color="blue">Kategori</Highlight> dan <Highlight color="blue">Tarif Dasar</Highlight>.</p>
+          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg mb-4">
+            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138936/retribusi/userguide/u4uir2amk0xrs8qwaswj.png" alt="Master Data" className="w-full h-auto" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {['Jenis', 'Klasifikasi', 'Zona', 'Tarif'].map((tab) => (
+              <div key={tab} className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Tab {tab}</p>
+                <p className="text-xs font-bold text-gray-700 dark:text-gray-300">Berisi referensi {tab.toLowerCase()} resmi yang berlaku.</p>
               </div>
-              <div className="space-y-2">
-                <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Tab: KLASIFIKASI</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Pembagian <Highlight color="blue">Bidang Usaha</Highlight> yang menentukan formulir teknis.</p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Tab: ZONA</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Daftar wilayah dengan <Highlight color="amber">Koordinat</Highlight> dan data <Highlight color="emerald">OPD</Highlight>.</p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Tab: TARIF</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Nominal <Highlight color="emerald">Harga Final</Highlight> (Rupiah) per satuan penagihan.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       )
@@ -276,21 +245,17 @@ export default function UserGuide() {
       color: 'teal',
       description: 'Mencetak Nota (Tagihan) dan menerima Bayaran.',
       content: (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h5 className="font-black text-[10px] text-teal-600 uppercase tracking-widest">Terbitkan Nota</h5>
-            <div className="p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-              <p className="text-xs font-bold leading-relaxed">1. Tekan <Highlight color="blue">Generate</Highlight></p>
-              <p className="text-xs text-gray-500 italic">2. Pilih objek & atur tanggal jatuh tempo</p>
-              <p className="text-xs font-bold leading-relaxed">3. Tekan <Highlight color="blue">Buat Tagihan</Highlight></p>
-            </div>
+        <div className="space-y-6">
+          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg overflow-x-auto">
+            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138926/retribusi/userguide/zjebykaugo2eselctre7.png" alt="Billing List" className="w-full h-auto" />
           </div>
-          <div className="space-y-4">
-            <h5 className="font-black text-[10px] text-emerald-600 uppercase tracking-widest">Terima Bayaran</h5>
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100 shadow-sm space-y-3">
-              <p className="text-xs font-bold text-emerald-900">1. Tekan <Highlight color="emerald">Bayar</Highlight> (Hijau)</p>
-              <p className="text-xs text-emerald-700 italic">2. Terima uang tunai sesuai tagihan</p>
-              <p className="text-xs font-bold text-emerald-900">3. Tekan <Highlight color="emerald">Konfirmasi Bayar</Highlight></p>
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-3xl border border-emerald-100 shadow-sm space-y-4">
+            <h5 className="font-black text-xs text-emerald-600 uppercase tracking-widest">Alur Terima Setoran</h5>
+            <div className="space-y-3 font-bold text-sm">
+              <p>1. Cari Invoice <GuideHighlight color="amber">Pending</GuideHighlight>, tekan tombol <GuideHighlight color="emerald">Bayar</GuideHighlight>.</p>
+              <p>2. Pastikan uang fisik sudah diterima dari wajib pajak.</p>
+              <p>3. Tekan tombol <GuideHighlight color="emerald">KONFIRMASI BAYAR</GuideHighlight> di jendela modal.</p>
+              <p>4. Status otomatis berubah menjadi <GuideHighlight color="emerald">Lunas</GuideHighlight>.</p>
             </div>
           </div>
         </div>
@@ -301,16 +266,36 @@ export default function UserGuide() {
       title: '7. Modul Laporan',
       icon: <BarChart3 className="w-6 h-6 text-purple-500" />,
       color: 'purple',
-      description: 'Laporan rekapitulasi setoran untuk diserahkan ke Dinas.',
+      description: 'Laporan rekapitulasi setoran harian/bulanan.',
       content: (
-        <div className="flex items-center justify-between p-6 bg-purple-50 dark:bg-purple-900/20 rounded-3xl border border-purple-100 dark:border-purple-800">
-          <div className="space-y-2">
-            <p className="text-sm font-bold text-purple-900 dark:text-purple-300 leading-none">Ekspor ke Excel/CSV</p>
-            <p className="text-xs text-purple-600">Download rekap transaksi dalam satu klik.</p>
+        <div className="space-y-6">
+          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
+            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138938/retribusi/userguide/fcnjjcwjnu86raiiggna.png" alt="Reporting" className="w-full h-auto" />
           </div>
-          <button className="p-4 bg-purple-600 text-white rounded-2xl shadow-lg shadow-purple-500/20">
-            <Download className="w-5 h-5" />
-          </button>
+          <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-3xl border border-purple-100 dark:border-purple-800 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-purple-900 dark:text-purple-300">Ekspor Data CSV/Excel</p>
+              <p className="text-xs text-purple-600">Klik tombol <GuideHighlight color="blue">Ekspor</GuideHighlight> untuk unduh rekap.</p>
+            </div>
+            <Download className="w-8 h-8 text-purple-600" />
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'profile',
+      title: '8. Profil & Logout',
+      icon: <Users className="w-6 h-6 text-slate-500" />,
+      color: 'slate',
+      description: 'Kelola identitas dan keluar dari aplikasi aman.',
+      content: (
+        <div className="space-y-6">
+          <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
+            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770139339/retribusi/userguide/whhkffjwvbn3bycomf5g.png" alt="Profile" className="w-full h-auto" />
+          </div>
+          <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
+            Tekan menu <GuideHighlight color="slate">Profile</GuideHighlight> di bawah, lalu pilih <GuideHighlight color="rose">Keluar dari Akun</GuideHighlight> untuk logout.
+          </p>
         </div>
       )
     }
@@ -342,7 +327,7 @@ export default function UserGuide() {
         <div className="relative z-10 max-w-lg">
           <h2 className="text-4xl font-black mb-4 tracking-tighter">Siap Bertugas?</h2>
           <p className="text-blue-50/70 font-bold leading-relaxed text-sm">
-            Klik dan pelajari setiap modul di bawah ini. Kami menandai teks-teks penting dengan <Highlight color="amber">Warna Kuning</Highlight> untuk membantu Anda fokus.
+            Klik dan pelajari setiap modul di bawah ini. Kami menandai teks-teks penting dengan <GuideHighlight color="amber">Warna Kuning</GuideHighlight> untuk membantu Anda fokus.
           </p>
         </div>
         <HelpCircle className="absolute -right-10 -bottom-10 w-64 h-64 text-white/10 rotate-12" />

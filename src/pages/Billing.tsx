@@ -277,7 +277,8 @@ export default function Billing() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-gray-50 dark:bg-gray-700/50">
               <tr>
@@ -332,7 +333,57 @@ export default function Billing() {
                 </tr>
               )}
             </tbody>
-          </table>
+        </table>
+        </div>
+
+        {/* Mobile Card Layout */}
+        <div className="md:hidden space-y-4 px-4 pb-4">
+          {filteredBillings.length > 0 ? (
+            filteredBillings.map((billing) => (
+              <div key={billing.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm active:scale-[0.98] transition-all">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-none mb-1">{billing.invoiceNumber}</p>
+                    <h4 className="text-sm font-black text-gray-900 dark:text-white truncate">{billing.taxpayerName}</h4>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                    billing.status === 'lunas' ? 'bg-emerald-50 text-emerald-600' : 
+                    billing.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'
+                  }`}>
+                    {billing.status}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="p-2 bg-gray-50 dark:bg-gray-900 rounded-xl">
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Jumlah</p>
+                    <p className="text-xs font-black text-gray-900 dark:text-white">{formatCurrency(billing.amount)}</p>
+                  </div>
+                  <div className="p-2 bg-gray-50 dark:bg-gray-900 rounded-xl">
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Tanggal</p>
+                    <p className="text-[10px] font-bold text-gray-700 dark:text-gray-300">{new Date(billing.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-3 border-t border-gray-50 dark:border-gray-700/50">
+                  <p className="text-[10px] font-bold text-gray-400 truncate max-w-[150px]">{billing.type}</p>
+                  {billing.status === 'pending' && (
+                    <button
+                      onClick={() => {
+                        setSelectedBill(billing);
+                        setShowPaymentModal(true);
+                      }}
+                      className="px-4 py-2 bg-emerald-600 text-white text-[10px] font-black uppercase rounded-lg active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
+                    >
+                      Bayar
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="py-12 text-center text-gray-400 italic font-medium">Data tidak ditemukan</div>
+          )}
         </div>
       </div>
 
