@@ -17,7 +17,8 @@ import {
   Pencil,
   X,
   Eye,
-  EyeOff
+  EyeOff,
+  LogOut
 } from 'lucide-react';
 
 export default function Profile() {
