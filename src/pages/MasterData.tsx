@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-  Loader2, Search
+  Loader2, Search, Landmark, Droplet, Car, CreditCard, Building2, Users, Key, Truck, Home, FileText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
