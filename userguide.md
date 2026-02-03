@@ -8,7 +8,7 @@ Selamat datang di Panduan Pengguna Aplikasi **SIPANDA Petribusi** (Sistem Inform
 Aplikasi Petugas dapat diakses melalui portal khusus petugas. 
 1. Masukkan **Email** dan **Password** yang telah didaftarkan oleh Admin.
 2. Klik tombol **Login**.
-3. Setelah login, Anda akan diarahkan ke halaman **Dashboard**.
+3. Jika ingin membatalkan atau kembali, Anda dapat menutup tab browser atau klik tautan "Kembali ke Beranda" (jika tersedia).
 
 ---
 
@@ -17,6 +17,7 @@ Halaman utama yang menampilkan statistik singkat kinerja Anda:
 - **Total Wajib Retribusi**: Jumlah wajib retribusi yang terdaftar di bawah pengawasan Anda.
 - **Total Billing Aktif**: Jumlah tagihan yang belum terbayar.
 - **Penerimaan Hari Ini**: Total uang yang terkumpul dari objek retribusi Anda pada hari ini.
+- Untuk keluar dan mengakhiri sesi, tekan tombol **Profil** lalu pilih **Logout**.
 
 ---
 
@@ -24,63 +25,85 @@ Halaman utama yang menampilkan statistik singkat kinerja Anda:
 Menu utama untuk mendaftarkan dan mengelola data masyarakat yang wajib membayar retribusi.
 
 ### A. Mendaftarkan Wajib Retribusi Baru
-Klik tombol **"Tambah Wajib Retribusi"** untuk memulai proses pendaftaran 5 tahap:
+Tekan tombol **"Tambah Wajib Retribusi"** untuk membuka formulir pendaftaran 5 tahap. Jika ingin membatalkan pendataan di tengah jalan, tekan tombol **"Batal"** atau ikon silang (**×**) di pojok kanan atas modal.
 
 #### Tahap 1: Identitas Pribadi
 - Masukkan **NIK**, **Nama Lengkap**, **Alamat**, dan **No. Telepon**.
-- Pastikan NIK valid agar tidak terjadi duplikasi data.
+- Tekan **"Selanjutnya"** untuk lanjut, atau **"Batal"** untuk keluar.
 
 #### Tahap 2: Kategori & Skema
-- Pilih **Jenis Retribusi** (misal: Retribusi Pasar, Parkir, dll).
-- Pilih **Klasifikasi/Bidang** (misal: Toko, Kios, atau Lokasi tertentu).
-- Sistem akan menyesuaikan formulir pada tahap berikutnya berdasarkan pilihan ini.
+- Pilih **Jenis Retribusi** dan **Klasifikasi/Bidang**.
+- Tekan **"Selanjutnya"** untuk lanjut, atau **"Kembali"** untuk ke tahap sebelumnya.
 
 #### Tahap 3: Persyaratan & Detail Skema
-- **Input Data Dinamis**: Masukkan detail khusus (misal: Luas Tempat, Jumlah Alat, dll) sesuai persyaratan jenis retribusi yang dipilih.
-- **Unggah Dokumen**: Lampirkan foto dokumen pendukung (KTP, Foto Lokasi, atau Izin) sebagai bukti fisik.
+- Masukkan detail persyaratan dan unggah dokumen pendukung.
+- Tekan **"Selanjutnya"** untuk lanjut.
 
 #### Tahap 4: Lokasi Objek
-- Tentukan lokasi tepat objek retribusi pada peta.
-- Anda bisa mencari alamat atau menggeser pin ke titik koordinat yang benar.
-- Masukkan **Nama Objek** dan **Alamat Objek** secara spesifik.
+- Tentukan lokasi objek pada peta. 
+- Pastikan pin lokasi sudah akurat.
 
-#### Tahap 5: Konfirmasi
-- Tinjau kembali seluruh data yang telah dimasukkan.
-- Jika sudah benar, klik **"Simpan & Daftarkan"**.
-- Data akan masuk ke sistem dan siap untuk dibuatkan billing.
+#### Tahap 5: Konfirmasi & Simpan
+- Tinjau seluruh data.
+- Tekan tombol **"Simpan & Daftarkan"** untuk mengirim data ke server.
+- Tekan **"Kembali"** jika ada data yang perlu diperbaiki.
+
+### B. Mengubah (Edit) Data
+Jika terdapat kesalahan data pada Wajib Retribusi yang sudah terdaftar:
+1. Temukan nama Wajib Retribusi pada tabel.
+2. Tekan tombol **ikon Pensil (Edit)** berwarna biru di kolom Aksi.
+3. Ubah data yang diperlukan pada formulir 5 tahap yang muncul.
+4. Tekan **"Update"** pada tahap terakhir untuk menyimpan perubahan.
+5. Tekan **"Batal"** jika tidak ingin menyimpan perubahan.
+
+### C. Menghapus Data
+Jika data Wajib Retribusi sudah tidak valid atau double:
+1. Tekan tombol **ikon Tempat Sampah (Hapus)** berwarna merah.
+2. Akan muncul jendela konfirmasi.
+3. Tekan **"Ya, Hapus"** untuk menghapus permanen.
+4. Tekan **"Batal"** jika tidak yakin ingin menghapus.
 
 ---
 
 ## 4. Scanner Lapangan (QR Code)
-Menu ini digunakan untuk mempercepat pencarian data wajib retribusi atau verifikasi invoice di lapangan:
-1. Pastikan izin kamera telah diberikan ke browser/aplikasi.
-2. Arahkan kamera ke **QR Code** yang ada di kartu Wajib Retribusi atau Invoice.
-3. Aplikasi akan otomatis mengarahkan Anda ke data yang bersangkutan untuk diproses lebih lanjut.
-4. Jika QR Code rusak, tersedia fitur **Input Manual** untuk mengetik NIK atau No. Invoice.
+Menu ini digunakan untuk memindai QR Code untuk mempercepat pencarian.
+- **Mulai Scan**: Arahkan kamera ke QR Code.
+- **Input Manual**: Jika scan gagal, ketik NIK/Invoice di kolom "Input Manual".
+- **Keluar**: Tekan tombol **ikon Panah (Kembali)** di pojok kiri atas untuk keluar dari mode kamera.
 
 ---
 
 ## 5. Master Data (Referensi)
-Menu ini digunakan untuk melihat daftar referensi yang ada di sistem secara *Read-Only*:
-- **Daftar Jenis Retribusi**: Melihat kategori retribusi yang tersedia.
-- **Daftar Klasifikasi**: Melihat pembagian bidang atau tarif per kategori.
-- Gunakan fitur **Pencarian** untuk menemukan data spesifik dengan cepat.
+Menu untuk melihat daftar referensi (Klasifikasi, Tarif, dll) secara *Read-Only*.
+- Gunakan kolom **Pencarian** untuk mencari data.
+- Tekan tab (Jenis, Klasifikasi, dll) untuk berpindah kategori.
+- Tidak ada fitur edit/hapus pada menu ini karena hanya bersifat referensi.
 
 ---
 
 ## 6. Billing & Pembayaran
-Pengelolaan tagihan untuk Wajib Retribusi:
-1. **Penerbitan Billing**: Pilih Wajib Retribusi, lalu generate billing sesuai periode (Bulanan/Harian).
-2. **Konfirmasi Pembayaran**: Setelah menerima uang, petugas dapat melakukan konfirmasi pembayaran di aplikasi untuk mencetak bukti bayar digital (QR Code/Status Lunas).
+Pengelolaan tagihan untuk Wajib Retribusi.
+
+### A. Membuat Tagihan (Generate)
+1. Tekan tombol **"Generate"** (Biru).
+2. Pilih Objek Retribusi, masukkan Periode dan Jatuh Tempo.
+3. Tekan **"Buat Tagihan"** untuk konfirmasi.
+4. Tekan **"Batal"** atau klik di luar kotak modal untuk membatalkan.
+
+### B. Konfirmasi Pembayaran
+1. Cari invoice yang berstatus **"Pending"**.
+2. Tekan tombol **"Bayar"** (Hijau).
+3. Tinjau detail tagihan pada jendela konfirmasi.
+4. Tekan **"Konfirmasi Bayar"** untuk melunasi.
+5. Tekan **"BATAL"** jika pembayaran belum diterima secara fisik.
 
 ---
 
 ## 7. Laporan & Ekspor Data
-Menu **Reporting** memungkinkan petugas untuk:
-- **Analisis Pendapatan**: Melihat kontribusi per objek retribusi dalam bentuk chart/persentase.
-- **Filter Periode**: Memilih laporan berdasarkan harian, pekanan, atau bulanan.
-- **Ekspor CSV**: Mengunduh data laporan dalam format Excel/CSV untuk kebutuhan administrasi luring.
-- **Riwayat Transaksi**: Memantau daftar setoran terakhir yang telah diinput ke sistem.
+Menu **Reporting** untuk memantau setoran.
+- **Filter**: Tekan tombol **Harian/Pekanan/Bulanan** untuk mengubah rentang waktu.
+- **Ekspor**: Tekan tombol **"Ekspor CSV"** untuk mengunduh laporan. Laporan akan otomatis tersimpan di perangkat Anda.
+- **Batal Filter**: Jika ingin kembali ke data awal, ganti filter tanggal atau pilih periode yang sesuai.
 
 ---
 
