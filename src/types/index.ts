@@ -30,8 +30,6 @@ export interface RetributionType {
   unit: string;
   is_active: boolean;
   opd?: Opd;
-  form_schema?: any[];
-  requirements?: any[];
 }
 
 export interface RetributionClassification {
@@ -42,6 +40,8 @@ export interface RetributionClassification {
   code?: string;
   description?: string;
   icon?: string;
+  form_schema?: any[];
+  requirements?: any[];
   opd?: Opd;
   retribution_type?: RetributionType;
   zones?: Zona[];

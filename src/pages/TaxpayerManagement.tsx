@@ -74,9 +74,9 @@ export default function TaxpayerManagement() {
     metadata: {} as Record<string, any>,
   });
 
-  const [files, setFiles] = useState({
-    foto_lokasi_open_kamera: null as File | null,
-    formulir_data_dukung: null as File | null,
+  const [files, setFiles] = useState<Record<string, File | null>>({
+    foto_lokasi_open_kamera: null,
+    formulir_data_dukung: null,
   });
 
   const fetchData = async () => {
@@ -213,11 +213,26 @@ export default function TaxpayerManagement() {
         }
       });
 
-      // Append files
-      if (files.foto_lokasi_open_kamera) {
+      // Append files dynamically based on selected classifications' requirements
+      const selectedClassifications = classifications.filter(c => form.retribution_classification_ids.includes(c.id));
+      const requirements = selectedClassifications.reduce((acc, current) => {
+        current.requirements?.forEach((req: any) => {
+          if (!acc.find((r: any) => r.key === req.key)) acc.push(req);
+        });
+        return acc;
+      }, [] as any[]);
+
+      requirements.forEach((req: any) => {
+        if (files[req.key]) {
+          formData.append(req.key, files[req.key] as File);
+        }
+      });
+
+      // Backward compatibility for old hardcoded file keys
+      if (files.foto_lokasi_open_kamera && !formData.has('foto_lokasi_open_kamera')) {
         formData.append('foto_lokasi_open_kamera', files.foto_lokasi_open_kamera);
       }
-      if (files.formulir_data_dukung) {
+      if (files.formulir_data_dukung && !formData.has('formulir_data_dukung')) {
         formData.append('formulir_data_dukung', files.formulir_data_dukung);
       }
 
@@ -467,12 +482,11 @@ export default function TaxpayerManagement() {
                 <div className="absolute left-[23px] top-6 bottom-6 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
 
                 {[
-                  { id: 1, title: 'Data Penanggung Jawab', icon: User },
-                  { id: 2, title: 'Data Objek', icon: Briefcase },
-                  { id: 3, title: 'Kategori', icon: CreditCard },
+                  { id: 1, title: 'Data Identitas & Objek', icon: User },
+                  { id: 2, title: 'Kategori & Skema', icon: CreditCard },
+                  { id: 3, title: 'Persyaratan', icon: FileCheck },
                   { id: 4, title: 'Lokasi', icon: MapPin },
-                  { id: 5, title: 'Lainnya', icon: Info },
-                  { id: 6, title: 'Selesai', icon: CheckCircle2 },
+                  { id: 5, title: 'Selesai', icon: CheckCircle2 },
                 ].map((step) => (
                   <div key={step.id} className="relative z-10 flex items-center gap-4 group">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
@@ -504,67 +518,10 @@ export default function TaxpayerManagement() {
             <div className="flex-1 flex flex-col min-w-0">
               <div className="flex-1 overflow-y-auto p-12 custom-scrollbar">
                 {currentStep === 1 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
+                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500 pb-10">
                     <div>
-                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Data Penanggung Jawab</h3>
-                      <p className="text-gray-500 text-sm font-medium">Informasi identitas dasar wajib pajak</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-6">
-                      <div className="group relative">
-                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">NIK (Nomor Induk Kependudukan)</label>
-                        <input
-                          type="text"
-                          maxLength={16}
-                          placeholder="01010102302..."
-                          value={form.nik}
-                          onChange={(e) => setForm({ ...form, nik: e.target.value })}
-                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:border-blue-500/50 transition-all font-bold placeholder:text-gray-300"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="group">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
-                          <input
-                            type="text"
-                            placeholder="Sesuai KTP"
-                            value={form.name}
-                            onChange={(e) => setForm({ ...form, name: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:border-blue-500 transition-all font-bold"
-                          />
-                        </div>
-                        <div className="group">
-                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">No. WhatsApp</label>
-                          <input
-                            type="text"
-                            placeholder="0812..."
-                            value={form.phone}
-                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:border-blue-500 transition-all font-bold"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="group">
-                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Domisili</label>
-                        <textarea
-                          rows={3}
-                          placeholder="Alamat lengkap..."
-                          value={form.address}
-                          onChange={(e) => setForm({ ...form, address: e.target.value })}
-                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl text-gray-900 dark:text-white focus:border-blue-500 transition-all font-bold resize-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {currentStep === 2 && (
-                  <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-                    <div>
-                      <h3 className="text-xs font-black text-orange-600 uppercase tracking-[0.2em] mb-2">Account & Object Details</h3>
-                      <p className="text-gray-500 text-sm font-medium">Informasi instansi dan lokasi objek retribusi</p>
+                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Data Identitas & Objek</h3>
+                      <p className="text-gray-500 text-sm font-medium">Informasi dasar wajib pajak dan unit retribusi</p>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
@@ -573,7 +530,7 @@ export default function TaxpayerManagement() {
                           <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Dinas/OPD Terkait</label>
                           <select
                             value={form.opd_id}
-                            onChange={(e) => setForm({ ...form, opd_id: e.target.value, retribution_type_ids: [] })}
+                            onChange={(e) => setForm({ ...form, opd_id: e.target.value, retribution_type_ids: [], retribution_classification_ids: [] })}
                             className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold appearance-none cursor-pointer"
                           >
                             <option value="">Pilih Dinas Pengelola</option>
@@ -587,15 +544,51 @@ export default function TaxpayerManagement() {
                         </div>
                       )}
 
-                      <div className="group">
-                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nama Objek Retribusi</label>
-                        <input
-                          type="text"
-                          placeholder="Merek/Toko/Lahan..."
-                          value={form.object_name}
-                          onChange={(e) => setForm({ ...form, object_name: e.target.value })}
-                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
-                        />
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="group relative">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">NIK (Wajib Pajak)</label>
+                          <input
+                            type="text"
+                            maxLength={16}
+                            placeholder="01010102302..."
+                            value={form.nik}
+                            onChange={(e) => setForm({ ...form, nik: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                          />
+                        </div>
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
+                          <input
+                            type="text"
+                            placeholder="Sesuai KTP"
+                            value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">No. WhatsApp</label>
+                          <input
+                            type="text"
+                            placeholder="0812..."
+                            value={form.phone}
+                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                          />
+                        </div>
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nama Objek Retribusi</label>
+                          <input
+                            type="text"
+                            placeholder="Merek/Toko/Lahan..."
+                            value={form.object_name}
+                            onChange={(e) => setForm({ ...form, object_name: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                          />
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-6">
@@ -604,7 +597,7 @@ export default function TaxpayerManagement() {
                           <select
                             value={form.district}
                             onChange={(e) => setForm({ ...form, district: e.target.value, sub_district: '' })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold appearance-none cursor-pointer"
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold cursor-pointer"
                           >
                             <option value="">Pilih Kecamatan</option>
                             {Object.keys(BAUBAU_DATA).map(kec => <option key={kec} value={kec}>{kec}</option>)}
@@ -615,7 +608,7 @@ export default function TaxpayerManagement() {
                           <select
                             value={form.sub_district}
                             onChange={(e) => setForm({ ...form, sub_district: e.target.value })}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold appearance-none cursor-pointer"
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold cursor-pointer"
                             disabled={!form.district}
                           >
                             <option value="">Pilih Kelurahan</option>
@@ -625,16 +618,20 @@ export default function TaxpayerManagement() {
                       </div>
 
                       <div className="group">
-                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Lokasi Objek (Detail)</label>
-                        <input
-                          type="text"
-                          placeholder="Jl. Gajah Mada No..."
-                          value={form.object_address}
-                          onChange={(e) => setForm({ ...form, object_address: e.target.value })}
-                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold"
+                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Domisili & Objek</label>
+                        <textarea
+                          rows={2}
+                          placeholder="Alamat lengkap..."
+                          value={form.address + (form.object_address ? ' | ' + form.object_address : '')}
+                          onChange={(e) => {
+                             const val = e.target.value;
+                             const parts = val.split(' | ');
+                             setForm({ ...form, address: parts[0] || '', object_address: parts[1] || '' });
+                          }}
+                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold resize-none"
                         />
                       </div>
-
+                      
                       <div className="group">
                         <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">NPWPD (Opsional)</label>
                         <input
@@ -786,15 +783,15 @@ export default function TaxpayerManagement() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
-                      {retributionTypes
-                        .filter(t => form.retribution_type_ids.includes(t.id) && t.form_schema)
+                      {classifications
+                        .filter(c => form.retribution_classification_ids.includes(c.id) && c.form_schema)
                         .reduce((acc, current) => {
-                          current.form_schema?.forEach(field => {
-                            if (!acc.find(f => f.key === field.key)) acc.push(field);
+                          current.form_schema?.forEach((field: any) => {
+                            if (!acc.find((f: any) => f.key === field.key)) acc.push(field);
                           });
                           return acc;
                         }, [] as any[])
-                        .map((field) => (
+                        .map((field: any) => (
                           <div key={field.key} className="group">
                             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">{field.label}</label>
                             {field.type === 'select' ? (
@@ -834,35 +831,65 @@ export default function TaxpayerManagement() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-8">
-                       <label className="block group cursor-pointer">
-                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Foto Lokasi (Open Kamera)</div>
-                         <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
-                           files.foto_lokasi_open_kamera ? 'bg-emerald-50 border-emerald-500/50' : 'bg-gray-50 border-gray-100 hover:border-blue-500'
-                         }`}>
-                           <input type="file" accept="image/*" onChange={e => setFiles({...files, foto_lokasi_open_kamera: e.target.files?.[0] || null})} className="hidden" />
-                           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files.foto_lokasi_open_kamera ? 'bg-emerald-500 text-white' : 'bg-white text-gray-300'}`}>
-                             <Camera className="w-7 h-7" />
-                           </div>
-                           <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
-                             {files.foto_lokasi_open_kamera ? files.foto_lokasi_open_kamera.name : 'Klik untuk Upload'}
-                           </span>
-                         </div>
-                       </label>
+                      {classifications
+                        .filter(c => form.retribution_classification_ids.includes(c.id) && c.requirements)
+                        .reduce((acc, current) => {
+                          current.requirements?.forEach((req: any) => {
+                            if (!acc.find((r: any) => r.key === req.key)) acc.push(req);
+                          });
+                          return acc;
+                        }, [] as any[])
+                        .map((req: any, idx: number) => (
+                          <label key={req.key} className="block group cursor-pointer">
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">{req.label}</div>
+                            <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
+                              files[req.key] ? 'bg-emerald-50 border-emerald-500/50' : idx % 2 === 0 ? 'bg-orange-50/50 border-orange-100 hover:border-orange-500' : 'bg-indigo-50/50 border-indigo-100 hover:border-indigo-500'
+                            }`}>
+                              <input type="file" onChange={e => setFiles({...files, [req.key]: e.target.files?.[0] || null})} className="hidden" />
+                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files[req.key] ? 'bg-emerald-500 text-white' : idx % 2 === 0 ? 'bg-white text-orange-400' : 'bg-white text-indigo-400'}`}>
+                                {idx % 2 === 0 ? <Camera className="w-7 h-7" /> : <FileCheck className="w-7 h-7" />}
+                              </div>
+                              <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
+                                {files[req.key] ? (files[req.key] as File).name : 'Klik untuk Upload'}
+                              </span>
+                            </div>
+                          </label>
+                        ))}
+                      
+                      {/* Backward compatibility fallback */}
+                      {(!classifications.some(c => form.retribution_classification_ids.includes(c.id) && c.requirements?.length)) && (
+                        <>
+                          <label className="block group cursor-pointer">
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Foto Lokasi (Open Kamera)</div>
+                            <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
+                              files.foto_lokasi_open_kamera ? 'bg-emerald-50 border-emerald-500/50' : 'bg-gray-50 border-gray-100 hover:border-blue-500'
+                            }`}>
+                              <input type="file" accept="image/*" onChange={e => setFiles({...files, foto_lokasi_open_kamera: e.target.files?.[0] || null})} className="hidden" />
+                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files.foto_lokasi_open_kamera ? 'bg-emerald-500 text-white' : 'bg-white text-gray-300'}`}>
+                                <Camera className="w-7 h-7" />
+                              </div>
+                              <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
+                                {files.foto_lokasi_open_kamera ? (files.foto_lokasi_open_kamera as File).name : 'Klik untuk Upload'}
+                              </span>
+                            </div>
+                          </label>
 
-                       <label className="block group cursor-pointer">
-                         <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Formulir Data Dukung</div>
-                         <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
-                           files.formulir_data_dukung ? 'bg-indigo-50 border-indigo-500/50' : 'bg-gray-50 border-gray-100 hover:border-blue-500'
-                         }`}>
-                           <input type="file" onChange={e => setFiles({...files, formulir_data_dukung: e.target.files?.[0] || null})} className="hidden" />
-                           <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files.formulir_data_dukung ? 'bg-indigo-500 text-white' : 'bg-white text-gray-300'}`}>
-                             <FileCheck className="w-7 h-7" />
-                           </div>
-                           <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
-                             {files.formulir_data_dukung ? files.formulir_data_dukung.name : 'Klik untuk Upload'}
-                           </span>
-                         </div>
-                       </label>
+                          <label className="block group cursor-pointer">
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Formulir Data Dukung</div>
+                            <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
+                              files.formulir_data_dukung ? 'bg-indigo-50 border-indigo-500/50' : 'bg-gray-50 border-gray-100 hover:border-blue-500'
+                            }`}>
+                              <input type="file" onChange={e => setFiles({...files, formulir_data_dukung: e.target.files?.[0] || null})} className="hidden" />
+                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files.formulir_data_dukung ? 'bg-indigo-500 text-white' : 'bg-white text-gray-300'}`}>
+                                <FileCheck className="w-7 h-7" />
+                              </div>
+                              <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
+                                {files.formulir_data_dukung ? (files.formulir_data_dukung as File).name : 'Klik untuk Upload'}
+                              </span>
+                            </div>
+                          </label>
+                        </>
+                      )}
                     </div>
 
                     <div className="p-8 bg-blue-600 rounded-[2.5rem] text-white">
