@@ -617,19 +617,27 @@ export default function TaxpayerManagement() {
                         </div>
                       </div>
 
-                      <div className="group">
-                        <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Domisili & Objek</label>
-                        <textarea
-                          rows={2}
-                          placeholder="Alamat lengkap..."
-                          value={form.address + (form.object_address ? ' | ' + form.object_address : '')}
-                          onChange={(e) => {
-                             const val = e.target.value;
-                             const parts = val.split(' | ');
-                             setForm({ ...form, address: parts[0] || '', object_address: parts[1] || '' });
-                          }}
-                          className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold resize-none"
-                        />
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Domisili</label>
+                          <textarea
+                            rows={2}
+                            placeholder="Alamat penanggung jawab..."
+                            value={form.address}
+                            onChange={(e) => setForm({ ...form, address: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold resize-none"
+                          />
+                        </div>
+                        <div className="group">
+                          <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Lokasi Objek</label>
+                          <textarea
+                            rows={2}
+                            placeholder="Alamat unit retribusi..."
+                            value={form.object_address}
+                            onChange={(e) => setForm({ ...form, object_address: e.target.value })}
+                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold resize-none"
+                          />
+                        </div>
                       </div>
                       
                       <div className="group">
