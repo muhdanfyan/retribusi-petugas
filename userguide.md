@@ -1,111 +1,113 @@
-# Panduan Pengguna Aplikasi SIPANDA Petribusi - Petugas
+# 📄 Panduan Pengguna Lengkap: SIPANDA Petribusi - Petugas
 
-Selamat datang di Panduan Pengguna Aplikasi **SIPANDA Petribusi** (Sistem Informasi Pendapatan Daerah). Dokumen ini dirancang untuk membantu Petugas Lapangan dalam mengoperasikan aplikasi petugas, mulai dari pendaftaran Wajib Retribusi hingga pengelolaan billing.
-
----
-
-## 1. Login Petugas
-Aplikasi Petugas dapat diakses melalui portal khusus petugas. 
-1. Masukkan **Email** dan **Password** yang telah didaftarkan oleh Admin.
-2. Klik tombol **Login**.
-3. Jika ingin membatalkan atau kembali, Anda dapat menutup tab browser atau klik tautan "Kembali ke Beranda" (jika tersedia).
+Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandiri dalam waktu kurang dari 10 menit. Ikuti panduan visual dan langkah-langkah di bawah ini untuk menghindari kesalahan input data.
 
 ---
 
-## 2. Dashboard
-Halaman utama yang menampilkan statistik singkat kinerja Anda:
-- **Total Wajib Retribusi**: Jumlah wajib retribusi yang terdaftar di bawah pengawasan Anda.
-- **Total Billing Aktif**: Jumlah tagihan yang belum terbayar.
-- **Penerimaan Hari Ini**: Total uang yang terkumpul dari objek retribusi Anda pada hari ini.
-- Untuk keluar dan mengakhiri sesi, tekan tombol **Profil** lalu pilih **Logout**.
+## 🟢 1. Modul Login (Akses Masuk)
+**Fungsi:** Gerbang utama untuk memverifikasi identitas Anda sebagai petugas resmi Pemerintah Kota Baubau.
+
+| Apa yang Bisa Dilakukan | Cara Melakukannya | Hasil/Output |
+| :--- | :--- | :--- |
+| **Masuk ke Sistem** | Ketik Email & Password, lalu tekan **Login** (Biru) | Masuk ke Dashboard Utama |
+| **Cek Ketikan Password** | Tekan ikon **Mata** di kolom password | Password terlihat (bukan titik-titik) |
+| **Membatalkan** | Tutup aplikasi/tab browser | Sesi tidak dimulai, data aman |
 
 ---
 
-## 3. Manajemen Wajib Retribusi
-Menu utama untuk mendaftarkan dan mengelola data masyarakat yang wajib membayar retribusi.
+## 🔵 2. Modul Dashboard (Beranda Utama)
+**Fungsi:** Monitor hasil kerja harian Anda dalam satu layar ringkas.
 
-### A. Mendaftarkan Wajib Retribusi Baru
-Tekan tombol **"Tambah Wajib Retribusi"** untuk membuka formulir pendaftaran 5 tahap. Jika ingin membatalkan pendataan di tengah jalan, tekan tombol **"Batal"** atau ikon silang (**×**) di pojok kanan atas modal.
+**Elemen Informasi:**
+1.  **Total Wajib Retribusi:** Jumlah orang/toko yang sudah Anda data selamanya.
+2.  **Total Billing Aktif:** Tagihan yang sudah Anda buat tapi orangnya belum bayar.
+3.  **Penerimaan Hari Ini:** Total uang (Rupiah) yang Anda terima hari ini.
 
-#### Tahap 1: Identitas Pribadi
-- Masukkan **NIK**, **Nama Lengkap**, **Alamat**, dan **No. Telepon**.
-- Tekan **"Selanjutnya"** untuk lanjut, atau **"Batal"** untuk keluar.
-
-#### Tahap 2: Kategori & Skema
-- Pilih **Jenis Retribusi** dan **Klasifikasi/Bidang**.
-- Tekan **"Selanjutnya"** untuk lanjut, atau **"Kembali"** untuk ke tahap sebelumnya.
-
-#### Tahap 3: Persyaratan & Detail Skema
-- Masukkan detail persyaratan dan unggah dokumen pendukung.
-- Tekan **"Selanjutnya"** untuk lanjut.
-
-#### Tahap 4: Lokasi Objek
-- Tentukan lokasi objek pada peta. 
-- Pastikan pin lokasi sudah akurat.
-
-#### Tahap 5: Konfirmasi & Simpan
-- Tinjau seluruh data.
-- Tekan tombol **"Simpan & Daftarkan"** untuk mengirim data ke server.
-- Tekan **"Kembali"** jika ada data yang perlu diperbaiki.
-
-### B. Mengubah (Edit) Data
-Jika terdapat kesalahan data pada Wajib Retribusi yang sudah terdaftar:
-1. Temukan nama Wajib Retribusi pada tabel.
-2. Tekan tombol **ikon Pensil (Edit)** berwarna biru di kolom Aksi.
-3. Ubah data yang diperlukan pada formulir 5 tahap yang muncul.
-4. Tekan **"Update"** pada tahap terakhir untuk menyimpan perubahan.
-5. Tekan **"Batal"** jika tidak ingin menyimpan perubahan.
-
-### C. Menghapus Data
-Jika data Wajib Retribusi sudah tidak valid atau double:
-1. Tekan tombol **ikon Tempat Sampah (Hapus)** berwarna merah.
-2. Akan muncul jendela konfirmasi.
-3. Tekan **"Ya, Hapus"** untuk menghapus permanen.
-4. Tekan **"Batal"** jika tidak yakin ingin menghapus.
+**Aksi yang Bisa Dilakukan:**
+*   **Logout (Keluar):** Tekan menu **Profil** (Kanan Atas) > Tekan **Logout** (Merah) > Konfirmasi **Ya**.
+*   **Batal Keluar:** Jika muncul jendela konfirmasi, tekan **Batal** untuk kembali bekerja.
 
 ---
 
-## 4. Scanner Lapangan (QR Code)
-Menu ini digunakan untuk memindai QR Code untuk mempercepat pencarian.
-- **Mulai Scan**: Arahkan kamera ke QR Code.
-- **Input Manual**: Jika scan gagal, ketik NIK/Invoice di kolom "Input Manual".
-- **Keluar**: Tekan tombol **ikon Panah (Kembali)** di pojok kiri atas untuk keluar dari mode kamera.
+## 🟠 3. Modul Manajemen Wajib Retribusi
+**Fungsi:** Tempat mengelola "Buku Induk" Wajib Retribusi (Daftar, Edit, Hapus).
+
+### A. Cara Menambah Wajib Retribusi Baru (Alur 5 Tahap)
+Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
+
+1.  **Tahap 1 (Identitas):** Masukkan NIK, Nama, WA, dan Alamat. 
+    *   *Aksi:* Tekan **"Selanjutnya"** (Biru).
+    *   *Batal:* Tekan **"Batalkan"** (Kiri Bawah) untuk menghapus semua inputan.
+2.  **Tahap 2 (Skema):** Pilih Jenis Retribusi & Bidang (Klasifikasi).
+    *   *Aksi:* Tekan **"Selanjutnya"** atau **"Kembali"** jika NIK salah ketik.
+3.  **Tahap 3 (Detail):** Isi data teknis (misal: Luas Lahan) & Upload Foto fisik.
+    *   *Aksi:* Pastikan foto terlihat jelas, lalu tekan **"Selanjutnya"**.
+4.  **Tahap 4 (Lokasi):** Geser Pin di peta ke titik yang tepat.
+    *   *Aksi:* Tandai lokasi, lalu tekan **"Selanjutnya"**.
+5.  **Tahap 5 (Simpan):** Baca rangkuman data di layar.
+    *   *Aksi:* Jika sudah BENAR, tekan **"Simpan & Daftarkan"**.
+    *   *Aksi:* Jika ada yang SALAH, tekan **"Kembali"** untuk memperbaiki.
+
+### B. Cara Mengubah (Edit) Data
+1. Cari nama warga di tabel.
+2. Tekan tombol **ikon Pensil Biru**.
+3. Lakukan perubahan di tahap yang salah.
+4. Di tahap terakhir, tekan **"Update Data"** untuk menyimpan permanen.
+5. Tekan **"Batalkan"** jika ingin data kembali ke semula (sebelum diedit).
+
+### C. Cara Menghapus Data
+1. Tekan tombol **ikon Tempat Sampah Merah**.
+2. Muncul pertanyaan konfirmasi. 
+3. Tekan **"Ya, Hapus"** untuk menghapus selamanya.
+4. Tekan **"Batal"** jika salah tekan tombol.
 
 ---
 
-## 5. Master Data (Referensi)
-Menu untuk melihat daftar referensi (Klasifikasi, Tarif, dll) secara *Read-Only*.
-- Gunakan kolom **Pencarian** untuk mencari data.
-- Tekan tab (Jenis, Klasifikasi, dll) untuk berpindah kategori.
-- Tidak ada fitur edit/hapus pada menu ini karena hanya bersifat referensi.
+## 📷 4. Modul Scanner Lapangan
+**Fungsi:** Mencari data warga secepat kilat menggunakan kamera.
+
+*   **Scan:** Arahkan kamera ke Kartu/Invoice. Jika bunyi *beep* atau layar berkedip hijau, data otomatis terbuka.
+*   **Input Manual:** Jika kamera buram, ketik NIK di kotak bawah, lalu tekan tombol **Cari**.
+*   **Batal/Tutup:** Tekan tombol **Panah Kembali** (Pojok Kiri Atas) untuk mematikan kamera.
 
 ---
 
-## 6. Billing & Pembayaran
-Pengelolaan tagihan untuk Wajib Retribusi.
+## 📑 5. Modul Master Data (Referensi Harga)
+**Fungsi:** Pusat informasi harga dan aturan (Hanya dibaca, tidak bisa diubah).
 
-### A. Membuat Tagihan (Generate)
+*   **Lihat Harga:** Tekan tab "Tarif" untuk melihat berapa biaya per kategori.
+*   **Cari Aturan:** Ketik jenis retribusi di kolom "Cari".
+*   **Batal Cari:** Hapus tulisan di kolom cari untuk melihat semua data lagi.
+
+---
+
+## 💰 6. Modul Billing & Pembayaran
+**Fungsi:** Mencetak Nota (Tagihan) dan menerima Bayaran.
+
+### A. Terbitkan Nota (Generate)
 1. Tekan tombol **"Generate"** (Biru).
-2. Pilih Objek Retribusi, masukkan Periode dan Jatuh Tempo.
-3. Tekan **"Buat Tagihan"** untuk konfirmasi.
-4. Tekan **"Batal"** atau klik di luar kotak modal untuk membatalkan.
+2. Isi Target, Periode (Bulan), dan Jatuh Tempo.
+3. Tekan **"Buat Tagihan"**. Nota akan muncul di tabel status **Pending**.
+4. **Batal:** Klik tanda **(×)** di pojok modal untuk batal buat nota.
 
-### B. Konfirmasi Pembayaran
-1. Cari invoice yang berstatus **"Pending"**.
-2. Tekan tombol **"Bayar"** (Hijau).
-3. Tinjau detail tagihan pada jendela konfirmasi.
-4. Tekan **"Konfirmasi Bayar"** untuk melunasi.
-5. Tekan **"BATAL"** jika pembayaran belum diterima secara fisik.
-
----
-
-## 7. Laporan & Ekspor Data
-Menu **Reporting** untuk memantau setoran.
-- **Filter**: Tekan tombol **Harian/Pekanan/Bulanan** untuk mengubah rentang waktu.
-- **Ekspor**: Tekan tombol **"Ekspor CSV"** untuk mengunduh laporan. Laporan akan otomatis tersimpan di perangkat Anda.
-- **Batal Filter**: Jika ingin kembali ke data awal, ganti filter tanggal atau pilih periode yang sesuai.
+### B. Terima Pembayaran
+1. Cari Invoice di tabel, tekan tombol **"Bayar"** (Hijau).
+2. Verifikasi jumlah uang tunai yang Anda terima di tangan.
+3. Tekan **"Konfirmasi Bayar"** (Hijau Tua). Status invoice otomatis jadi **Lunas**.
+4. **Batal:** Tekan tombol **"BATAL"** (Merah/Abu) jika warga belum jadi membayar.
 
 ---
 
-## Kontak Bantuan
-Jika menemukan kendala teknis, silakan hubungi **Admin OPD** atau **Super Admin** melalui portal pengaduan yang tersedia di menu Profil atau melalui sistem helpdesk pusat.
+## 📊 7. Modul Laporan (Reporting)
+**Fungsi:** Laporan rekapitulasi setoran untuk diserahkan ke Dinas.
+
+*   **Pilih Waktu:** Tekan tombol **Harian / Bulanan**.
+*   **Download:** Tekan tombol **"Ekspor CSV"** (Biru). File akan tersimpan di HP/Komputer Anda.
+*   **Batal:** Cukup jangan tekan tombol ekspor, atau hapus file jika sudah terlanjur unduh.
+
+---
+
+## 💡 Tips Penggunaan
+- **Warna Tombol:** Biru = Simpan/Lanjut, Hijau = Bayar, Merah = Hapus/Keluar, Abu-abu = Batal.
+- **Koneksi:** Jika data tidak muncul, pastikan sinyal internet lancar dan tekan **Refresh** (Muat Ulang) halaman.
+- **Bantuan:** Jika menemui kendala, hubungi Admin melalui menu Profil.
