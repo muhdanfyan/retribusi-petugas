@@ -7,6 +7,8 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 ## 🟢 1. Modul Login (Akses Masuk)
 **Fungsi:** Gerbang utama untuk memverifikasi identitas Anda sebagai petugas resmi Pemerintah Kota Baubau.
 
+![Tampilan Login Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138920/retribusi/userguide/zfelzfcxa6hpepsmomcy.png)
+
 | Apa yang Bisa Dilakukan | Cara Melakukannya | Hasil/Output |
 | :--- | :--- | :--- |
 | **Masuk ke Sistem** | Ketik Email & Password, lalu tekan **Login** (Biru) | Masuk ke Dashboard Utama |
@@ -18,6 +20,8 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 
 ## 🔵 2. Modul Dashboard (Beranda Utama)
 **Fungsi:** Monitor hasil kerja harian Anda dalam satu layar ringkas.
+
+![Tampilan Dashboard Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138923/retribusi/userguide/uz9xnhzrkup0jngyp0gz.png)
 
 **Elemen Informasi:**
 1.  **Total Wajib Retribusi:** Jumlah orang/toko yang sudah Anda data selamanya.
@@ -38,8 +42,12 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 ## 🟠 3. Modul Manajemen Wajib Retribusi
 **Fungsi:** Tempat mengelola "Buku Induk" Wajib Retribusi (Daftar, Edit, Hapus).
 
+![Daftar Wajib Retribusi Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138931/retribusi/userguide/ujg7m8usjnsq4hdlvwyk.png)
+
 ### A. Cara Menambah Wajib Retribusi Baru (Alur 5 Tahap)
-Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
+Tekan tombol **"Tambah Wajib Pajak"** (Biru, Tengah Atas).
+
+![Modal Registrasi Tahap 1](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138934/retribusi/userguide/meenu7d0yxwagdv97bhg.png)
 
 1.  **Tahap 1 (Identitas & Objek):** Masukkan Nama, NIK/NPWPD, Nama Objek, Alamat, dan Nomor WA. 
     *   *Aksi:* Tekan **"Lanjut"** untuk melanjutkan.
@@ -82,6 +90,8 @@ Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
 ## 📷 4. Modul Scanner Lapangan
 **Fungsi:** Mencari data warga secepat kilat menggunakan kamera.
 
+![Scanner Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138929/retribusi/userguide/a9scu3nmgwtav3qb4osj.png)
+
 *   **Scan QR Code:** Arahkan kamera ke QR Code di Kartu atau Invoice. Jika berhasil, sistem otomatis membuka halaman Billing dengan hasil pencarian.
 *   **Input Manual:** Jika kamera sulit fokus, ketik NIK atau Nomor Invoice di kotak "Input Manual", lalu tekan **Enter**.
 *   **Tutup Scanner:** Tekan tombol **Panah Kiri** (Pojok Kiri Atas) untuk kembali ke menu utama.
@@ -95,6 +105,8 @@ Dokumen rujukan resmi untuk harga dan peraturan. Anda memiliki 4 tab informasi:
 3.  **Zona:** Daftar wilayah/lokasi pemungutan.
 4.  **Tarif:** Rincian biaya (Rupiah) per unit/satuan.
 
+![Master Data Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138936/retribusi/userguide/u4uir2amk0xrs8qwaswj.png)
+
 *   **Pencarian:** Gunakan kolom cari di kanan atas untuk memfilter data dengan cepat.
 *   **Read-Only:** Data ini hanya untuk referensi dan tidak dapat diubah oleh petugas lapangan.
 
@@ -102,6 +114,8 @@ Dokumen rujukan resmi untuk harga dan peraturan. Anda memiliki 4 tab informasi:
 
 ## 💰 6. Modul Billing & Pembayaran
 **Fungsi:** Mencetak Nota (Tagihan) dan menerima Bayaran.
+
+![Daftar Billing Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138926/retribusi/userguide/zjebykaugo2eselctre7.png)
 
 **Ringkasan Status:**
 - **Total Tagihan:** Jumlah seluruh tagihan yang terdaftar.
@@ -131,6 +145,8 @@ Dokumen rujukan resmi untuk harga dan peraturan. Anda memiliki 4 tab informasi:
 ## 📊 7. Modul Laporan (Reporting)
 Monitoring capaian kinerja dan setoran Anda.
 
+![Laporan Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138938/retribusi/userguide/fcnjjcwjnu86raiiggna.png)
+
 **Informasi yang Ditampilkan:**
 - **Total Penerimaan:** Jumlah total pendapatan dalam periode yang dipilih.
 - **Total Transaksi:** Jumlah transaksi yang tercatat.
@@ -150,4 +166,6 @@ Monitoring capaian kinerja dan setoran Anda.
 - **Warna Tombol:** Biru = Simpan/Lanjut, Hijau = Bayar/Konfirmasi, Merah = Hapus/Keluar, Abu-abu = Batal.
 - **Koneksi:** Jika data tidak muncul, pastikan sinyal internet lancar dan tekan **Refresh** (Muat Ulang) halaman.
 - **Scroll Mobile:** Pada tampilan mobile, geser ke atas/bawah untuk melihat seluruh konten form.
-- **Bantuan:** Jika menemui kendala, hubungi Admin melalui menu Profil.
+- **Profil & Logout:** Klik ikon inisial nama di pojok kanan atas untuk melihat ringkasan profil atau keluar dari aplikasi.
+
+![Menu Profil Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138942/retribusi/userguide/cvuzzl1oby4280plrlvo.png)
