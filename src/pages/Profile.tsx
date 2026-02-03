@@ -108,10 +108,6 @@ export default function Profile() {
     },
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-32">

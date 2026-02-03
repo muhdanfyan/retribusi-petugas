@@ -168,4 +168,4 @@ Monitoring capaian kinerja dan setoran Anda.
 - **Scroll Mobile:** Pada tampilan mobile, geser ke atas/bawah untuk melihat seluruh konten form.
 - **Profil & Logout:** Klik ikon inisial nama di pojok kanan atas untuk melihat ringkasan profil atau keluar dari aplikasi.
 
-![Menu Profil Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138942/retribusi/userguide/cvuzzl1oby4280plrlvo.png)
+![Halaman Profil Utama](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770139339/retribusi/userguide/whhkffjwvbn3bycomf5g.png)
