@@ -13,8 +13,6 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 | **Cek Ketikan Password** | Tekan ikon **Mata** di kolom password | Password terlihat (bukan titik-titik) |
 | **Membatalkan** | Tutup aplikasi/tab browser | Sesi tidak dimulai, data aman |
 
-![Tampilan Login Mobile](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/login_page_mobile_1770114654167.png)
-
 ---
 
 ## 🔵 2. Modul Dashboard (Beranda Utama)
@@ -24,8 +22,6 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 1.  **Total Wajib Retribusi:** Jumlah orang/toko yang sudah Anda data selamanya.
 2.  **Total Billing Aktif:** Tagihan yang sudah Anda buat tapi orangnya belum bayar.
 3.  **Penerimaan Hari Ini:** Total uang (Rupiah) yang Anda terima hari ini.
-
-![Tampilan Dashboard Mobile](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/dashboard_mobile_1770114684057.png)
 
 **Aksi yang Bisa Dilakukan:**
 *   **Logout (Keluar):** Tekan menu **Profil** (Kanan Atas) > Tekan **Logout** (Merah) > Konfirmasi **Ya**.
@@ -42,29 +38,20 @@ Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
 1.  **Tahap 1 (Identitas):** Masukkan NIK, Nama, WA, dan Alamat. 
     *   *Aksi:* Tekan **"Selanjutnya"** (Biru).
     *   *Batal:* Tekan **"Batalkan"** (Kiri Bawah) untuk menghapus semua inputan.
-    
-    ![Step 1: Identitas](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step1_mobile_1770114728167.png)
 
 2.  **Tahap 2 (Skema):** Pilih Jenis Retribusi & Bidang (Klasifikasi).
     *   *Aksi:* Tekan **"Selanjutnya"** atau **"Kembali"** jika NIK salah ketik.
-    
-    ![Step 2: Kategori](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step2_mobile_1770125443167.png)
 
 3.  **Tahap 3 (Persyaratan):** Isi data teknis (seperti Luas Lahan, Jenis Usaha) & Upload Foto Fisik/Dokumen.
     *   *Aksi:* Data teknis muncul otomatis sesuai kategori yang dipilih. Pastikan foto terlihat jelas, lalu tekan **"Selanjutnya"**.
-    
-    ![Step 3: Persyaratan](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step3_mobile.png)
 
 4.  **Tahap 4 (Lokasi):** Geser Pin di peta ke titik koordinat yang tepat di lapangan.
     *   *Aksi:* Tandai lokasi objek, lalu tekan **"Selanjutnya"**.
-    
-    ![Step 4: Lokasi](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step4_mobile_1770125546831.png)
 
 5.  **Tahap 5 (Simpan):** Baca rangkuman seluruh data di layar review.
     *   *Aksi:* Jika sudah BENAR, tekan **"Simpan & Daftarkan"**.
     *   *Aksi:* Jika ada yang SALAH, tekan **"Prev"** untuk kembali memperbaiki tahap sebelumnya.
 
-    ![Step 5: Review](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step5_mobile.png)
 
 ### B. Cara Mengubah (Edit) Data
 1. Cari nama warga di tabel.
@@ -88,8 +75,6 @@ Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
 *   **Input Manual:** Jika kamera sulit fokus, ketik NIK atau Nomor Invoice di kotak "Input Manual", lalu tekan **Enter/Cari**.
 *   **Tutup Scanner:** Tekan tombol **Panah Kembali** (Pojok Kiri Atas) untuk kembali ke menu utama.
 
-![Tampilan Scanner](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_scanner_view.png)
-
 ---
 
 ## 📑 5. Modul Master Data (Referensi Harga)
@@ -102,8 +87,6 @@ Dokumen rujukan resmi untuk harga dan peraturan. Anda memiliki 4 tab informasi:
 *   **Pencarian:** Gunakan kolom cari di kanan atas untuk memfilter data dengan cepat.
 *   **Read-Only:** Data ini hanya untuk referensi dan tidak dapat diubah oleh petugas lapangan.
 
-![Tampilan Master Data](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_master_view.png)
-
 ---
 
 ## 💰 6. Modul Billing & Pembayaran
@@ -114,14 +97,12 @@ Dokumen rujukan resmi untuk harga dan peraturan. Anda memiliki 4 tab informasi:
 2.  **Bulk Generate:** Digunakan untuk menerbitkan tagihan massal untuk satu jenis retribusi sekaligus.
 3.  **Batal:** Tekan tombol silang **(×)** atau klik di luar area kotak untuk membatalkan.
 
-![Modal Buat Tagihan](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_generate_bill.png)
 
 ### B. Terima Pembayaran (Setoran)
 1.  Cari Invoice, tekan tombol **"Bayar"** (Hijau).
 2.  Muncul jendela konfirmasi pembayaran tunai (Cash).
 3.  Pastikan uang fisik sudah diterima, lalu tekan **"Konfirmasi Bayar"**. Status otomatis berubah menjadi **Lunas**.
 
-![Modal Pembayaran](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_payment_confirmation.png)
 
 ---
 
@@ -130,7 +111,6 @@ Monitoring capaian kinerja dan setoran harian Anda.
 *   **Filter Waktu:** Gunakan tombol **Harian / Pekanan / Bulanan** atau pilih tanggal manual di bagian atas.
 *   **Export Data:** Tekan tombol **"Ekspor CSV"** untuk mengunduh laporan ke perangkat Anda.
 
-![Tampilan Laporan](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_reporting_view.png)
 
 ---
 

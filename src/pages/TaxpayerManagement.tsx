@@ -459,7 +459,7 @@ export default function TaxpayerManagement() {
 
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[200] p-0 sm:p-4 transition-all duration-500 overflow-y-auto sm:overflow-hidden">
-          <div className="bg-white dark:bg-gray-900 sm:rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] max-w-5xl w-full min-h-screen sm:min-h-0 sm:max-h-[92vh] flex flex-col md:flex-row overflow-hidden animate-in fade-in zoom-in duration-300 relative">
+          <div className="bg-white dark:bg-gray-900 sm:rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] max-w-5xl w-full min-h-screen sm:min-h-0 sm:h-[92vh] flex flex-col md:flex-row overflow-hidden animate-in fade-in zoom-in duration-300 relative">
             
             {/* Left Sidebar: Stepper */}
             <div className="hidden md:flex w-80 bg-slate-50 dark:bg-gray-800/50 border-r border-gray-100 dark:border-gray-800 p-10 flex-col shrink-0">
@@ -976,7 +976,7 @@ export default function TaxpayerManagement() {
               </div>
 
               {/* Action Bar */}
-              <div className="p-6 md:p-10 border-t border-gray-100 dark:border-gray-800 flex justify-between bg-white dark:bg-gray-900 rounded-b-[2rem] sticky bottom-0 z-[210]">
+              <div className="p-4 sm:p-6 md:p-10 border-t border-gray-100 dark:border-gray-800 flex justify-between bg-white dark:bg-gray-900 rounded-b-[2rem] sticky bottom-0 z-[210]">
                 <button
                   type="button"
                   onClick={() => currentStep > 1 && setCurrentStep(currentStep - 1)}
