@@ -1,7 +1,8 @@
 import { 
   Plus, Edit, Trash2, Search, Loader2, Filter, X, 
   User, CreditCard, MapPin, Phone, Briefcase, 
-  FileCheck, Camera, HardDrive, Info, CheckCircle2 
+  FileCheck, Camera, HardDrive, Info, CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { api } from '../lib/api';

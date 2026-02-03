@@ -1,4 +1,4 @@
-# 📄 Panduan Pengguna Lengkap: SIPANDA Petribusi - Petugas
+# 📄 Panduan Pengguna Lengkap: SIPANDA Pajak dan Retribusi - Petugas
 
 Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandiri dalam waktu kurang dari 10 menit. Ikuti panduan visual dan langkah-langkah di bawah ini untuk menghindari kesalahan input data.
 
@@ -13,6 +13,8 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 | **Cek Ketikan Password** | Tekan ikon **Mata** di kolom password | Password terlihat (bukan titik-titik) |
 | **Membatalkan** | Tutup aplikasi/tab browser | Sesi tidak dimulai, data aman |
 
+![Tampilan Login Mobile](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/login_page_mobile_1770114654167.png)
+
 ---
 
 ## 🔵 2. Modul Dashboard (Beranda Utama)
@@ -22,6 +24,8 @@ Dokumen ini disusun agar Petugas Lapangan dapat menguasai aplikasi secara mandir
 1.  **Total Wajib Retribusi:** Jumlah orang/toko yang sudah Anda data selamanya.
 2.  **Total Billing Aktif:** Tagihan yang sudah Anda buat tapi orangnya belum bayar.
 3.  **Penerimaan Hari Ini:** Total uang (Rupiah) yang Anda terima hari ini.
+
+![Tampilan Dashboard Mobile](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/dashboard_mobile_1770114684057.png)
 
 **Aksi yang Bisa Dilakukan:**
 *   **Logout (Keluar):** Tekan menu **Profil** (Kanan Atas) > Tekan **Logout** (Merah) > Konfirmasi **Ya**.
@@ -38,15 +42,29 @@ Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
 1.  **Tahap 1 (Identitas):** Masukkan NIK, Nama, WA, dan Alamat. 
     *   *Aksi:* Tekan **"Selanjutnya"** (Biru).
     *   *Batal:* Tekan **"Batalkan"** (Kiri Bawah) untuk menghapus semua inputan.
+    
+    ![Step 1: Identitas](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step1_mobile_1770114728167.png)
+
 2.  **Tahap 2 (Skema):** Pilih Jenis Retribusi & Bidang (Klasifikasi).
     *   *Aksi:* Tekan **"Selanjutnya"** atau **"Kembali"** jika NIK salah ketik.
-3.  **Tahap 3 (Detail):** Isi data teknis (misal: Luas Lahan) & Upload Foto fisik.
-    *   *Aksi:* Pastikan foto terlihat jelas, lalu tekan **"Selanjutnya"**.
-4.  **Tahap 4 (Lokasi):** Geser Pin di peta ke titik yang tepat.
-    *   *Aksi:* Tandai lokasi, lalu tekan **"Selanjutnya"**.
-5.  **Tahap 5 (Simpan):** Baca rangkuman data di layar.
+    
+    ![Step 2: Kategori](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step2_mobile_1770125443167.png)
+
+3.  **Tahap 3 (Persyaratan):** Isi data teknis (seperti Luas Lahan, Jenis Usaha) & Upload Foto Fisik/Dokumen.
+    *   *Aksi:* Data teknis muncul otomatis sesuai kategori yang dipilih. Pastikan foto terlihat jelas, lalu tekan **"Selanjutnya"**.
+    
+    ![Step 3: Persyaratan](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step3_mobile.png)
+
+4.  **Tahap 4 (Lokasi):** Geser Pin di peta ke titik koordinat yang tepat di lapangan.
+    *   *Aksi:* Tandai lokasi objek, lalu tekan **"Selanjutnya"**.
+    
+    ![Step 4: Lokasi](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step4_mobile_1770125546831.png)
+
+5.  **Tahap 5 (Simpan):** Baca rangkuman seluruh data di layar review.
     *   *Aksi:* Jika sudah BENAR, tekan **"Simpan & Daftarkan"**.
-    *   *Aksi:* Jika ada yang SALAH, tekan **"Kembali"** untuk memperbaiki.
+    *   *Aksi:* Jika ada yang SALAH, tekan **"Prev"** untuk kembali memperbaiki tahap sebelumnya.
+
+    ![Step 5: Review](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/registration_step5_mobile.png)
 
 ### B. Cara Mengubah (Edit) Data
 1. Cari nama warga di tabel.
@@ -66,18 +84,25 @@ Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
 ## 📷 4. Modul Scanner Lapangan
 **Fungsi:** Mencari data warga secepat kilat menggunakan kamera.
 
-*   **Scan:** Arahkan kamera ke Kartu/Invoice. Jika bunyi *beep* atau layar berkedip hijau, data otomatis terbuka.
-*   **Input Manual:** Jika kamera buram, ketik NIK di kotak bawah, lalu tekan tombol **Cari**.
-*   **Batal/Tutup:** Tekan tombol **Panah Kembali** (Pojok Kiri Atas) untuk mematikan kamera.
+*   **Scan:** Arahkan kamera ke QR Code di Kartu atau Invoice. Jika berhasil, sistem otomatis membuka halaman rincian tagihan/data warga.
+*   **Input Manual:** Jika kamera sulit fokus, ketik NIK atau Nomor Invoice di kotak "Input Manual", lalu tekan **Enter/Cari**.
+*   **Tutup Scanner:** Tekan tombol **Panah Kembali** (Pojok Kiri Atas) untuk kembali ke menu utama.
+
+![Tampilan Scanner](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_scanner_view.png)
 
 ---
 
 ## 📑 5. Modul Master Data (Referensi Harga)
-**Fungsi:** Pusat informasi harga dan aturan (Hanya dibaca, tidak bisa diubah).
+Dokumen rujukan resmi untuk harga dan peraturan. Anda memiliki 4 tab informasi:
+1.  **Jenis:** Daftar kategori utama retribusi.
+2.  **Klasifikasi:** Detail sub-kategori untuk setiap jenis.
+3.  **Zona:** Daftar wilayah/lokasi pemungutan.
+4.  **Tarif:** Rincian biaya (Rupiah) per unit/satuan.
 
-*   **Lihat Harga:** Tekan tab "Tarif" untuk melihat berapa biaya per kategori.
-*   **Cari Aturan:** Ketik jenis retribusi di kolom "Cari".
-*   **Batal Cari:** Hapus tulisan di kolom cari untuk melihat semua data lagi.
+*   **Pencarian:** Gunakan kolom cari di kanan atas untuk memfilter data dengan cepat.
+*   **Read-Only:** Data ini hanya untuk referensi dan tidak dapat diubah oleh petugas lapangan.
+
+![Tampilan Master Data](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_master_view.png)
 
 ---
 
@@ -85,25 +110,27 @@ Tekan tombol **"Tambah Wajib Retribusi"** (Biru, Kanan Atas).
 **Fungsi:** Mencetak Nota (Tagihan) dan menerima Bayaran.
 
 ### A. Terbitkan Nota (Generate)
-1. Tekan tombol **"Generate"** (Biru).
-2. Isi Target, Periode (Bulan), dan Jatuh Tempo.
-3. Tekan **"Buat Tagihan"**. Nota akan muncul di tabel status **Pending**.
-4. **Batal:** Klik tanda **(×)** di pojok modal untuk batal buat nota.
+1.  **Generate Tunggal:** Tekan tombol **"Generate"** (Biru). Pilih Wajib Pajak, isi Periode, dan Jatuh Tempo.
+2.  **Bulk Generate:** Digunakan untuk menerbitkan tagihan massal untuk satu jenis retribusi sekaligus.
+3.  **Batal:** Tekan tombol silang **(×)** atau klik di luar area kotak untuk membatalkan.
 
-### B. Terima Pembayaran
-1. Cari Invoice di tabel, tekan tombol **"Bayar"** (Hijau).
-2. Verifikasi jumlah uang tunai yang Anda terima di tangan.
-3. Tekan **"Konfirmasi Bayar"** (Hijau Tua). Status invoice otomatis jadi **Lunas**.
-4. **Batal:** Tekan tombol **"BATAL"** (Merah/Abu) jika warga belum jadi membayar.
+![Modal Buat Tagihan](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_generate_bill.png)
+
+### B. Terima Pembayaran (Setoran)
+1.  Cari Invoice, tekan tombol **"Bayar"** (Hijau).
+2.  Muncul jendela konfirmasi pembayaran tunai (Cash).
+3.  Pastikan uang fisik sudah diterima, lalu tekan **"Konfirmasi Bayar"**. Status otomatis berubah menjadi **Lunas**.
+
+![Modal Pembayaran](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_payment_confirmation.png)
 
 ---
 
 ## 📊 7. Modul Laporan (Reporting)
-**Fungsi:** Laporan rekapitulasi setoran untuk diserahkan ke Dinas.
+Monitoring capaian kinerja dan setoran harian Anda.
+*   **Filter Waktu:** Gunakan tombol **Harian / Pekanan / Bulanan** atau pilih tanggal manual di bagian atas.
+*   **Export Data:** Tekan tombol **"Ekspor CSV"** untuk mengunduh laporan ke perangkat Anda.
 
-*   **Pilih Waktu:** Tekan tombol **Harian / Bulanan**.
-*   **Download:** Tekan tombol **"Ekspor CSV"** (Biru). File akan tersimpan di HP/Komputer Anda.
-*   **Batal:** Cukup jangan tekan tombol ekspor, atau hapus file jika sudah terlanjur unduh.
+![Tampilan Laporan](/Users/pondokit/.gemini/antigravity/brain/f652c469-2622-4b0b-9a52-94db5bd77fc3/mobile_reporting_view.png)
 
 ---
 

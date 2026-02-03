@@ -86,11 +86,12 @@ export default function UserGuide() {
       color: 'blue',
       description: 'Monitor hasil kerja harian Anda dalam satu layar ringkas.',
       content: (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Total Wajib Retribusi', desc: 'Jumlah orang/toko terdata' },
-            { label: 'Total Billing Aktif', desc: 'Tagihan belum lunas' },
-            { label: 'Penerimaan Hari Ini', desc: 'Total uang (Rupiah)' }
+            { label: 'Total Pendapatan', desc: 'Total uang (Rupiah) terinput' },
+            { label: 'Tingkat Penagihan', desc: 'Persentase keberhasilan setoran' },
+            { label: 'Tagihan Pending', desc: 'Jumlah invoice belum lunas' },
+            { label: 'Wajib Retribusi Aktif', desc: 'Jumlah orang/toko terdata' }
           ].map((item, i) => (
             <div key={i} className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800">
               <p className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">{item.label}</p>
@@ -119,11 +120,11 @@ export default function UserGuide() {
               </h4>
               <div className="space-y-4">
                 {[
-                  { s: '1', t: 'Identitas', d: 'Masukkan NIK, Nama, dan Lokasi Kecamatan.' },
-                  { s: '2', t: 'Skema', d: 'Pilih kategori retribusi yang sesuai usaha.' },
-                  { s: '3', t: 'Detail', d: 'Isi variabel teknis & upload foto fisik.' },
-                  { s: '4', t: 'Mapping', d: 'Tandai titik koordinat tepat di peta.' },
-                  { s: '5', t: 'Simpan', d: 'Tekan tombol "Simpan & Daftarkan".' }
+                  { s: '1', t: 'Identitas', d: 'Masukkan NIK, Nama, WA, dan Alamat Objek.' },
+                  { s: '2', t: 'Skema', d: 'Pilih kategori retribusi dan klasifikasi bidang usaha.' },
+                  { s: '3', t: 'Persyaratan', d: 'Isi data teknis dinamis & upload foto fisik/dokumen.' },
+                  { s: '4', t: 'Lokasi', d: 'Tentukan titik koordinat tepat di peta lapangan.' },
+                  { s: '5', t: 'Selesai', d: 'Review seluruh data lalu tekan "Simpan & Daftarkan".' }
                 ].map((step) => (
                   <div key={step.s} className="flex gap-4 group">
                     <div className="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-[10px] font-black text-orange-600 shrink-0 group-hover:scale-110 transition-transform">{step.s}</div>
@@ -249,19 +250,19 @@ export default function UserGuide() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Tab: JENIS</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Daftar kategori besar. Cek <Highlight color="amber">Tarif Dasar</Highlight> dan <Highlight color="blue">Satuan</Highlight> (misal: per bulan/hari).</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Daftar kategori utama. Cek <Highlight color="blue">Kategori</Highlight> dan <Highlight color="blue">Tarif Dasar</Highlight>.</p>
               </div>
               <div className="space-y-2">
                 <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Tab: KLASIFIKASI</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Pembagian <Highlight color="blue">Bidang Usaha</Highlight> untuk menentukan formulir penginputan.</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Pembagian <Highlight color="blue">Bidang Usaha</Highlight> yang menentukan formulir teknis.</p>
               </div>
               <div className="space-y-2">
                 <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Tab: ZONA</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Peta wilayah yang memiliki <Highlight color="amber">Pengali (Multiplier)</Highlight> tarif berbeda.</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Daftar wilayah dengan <Highlight color="amber">Koordinat</Highlight> dan data <Highlight color="emerald">OPD</Highlight>.</p>
               </div>
               <div className="space-y-2">
                 <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Tab: TARIF</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Nominal <Highlight color="emerald">Harga Jadi</Highlight> yang akan muncul di nota tagihan.</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Nominal <Highlight color="emerald">Harga Final</Highlight> (Rupiah) per satuan penagihan.</p>
               </div>
             </div>
           </div>
