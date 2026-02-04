@@ -113,52 +113,31 @@ Dokumen rujukan resmi untuk harga dan peraturan. Anda memiliki 4 tab informasi:
 ---
 
 ## 💰 6. Modul Billing & Pembayaran
-**Fungsi:** Mencetak Nota (Tagihan) dan menerima Bayaran.
+**Fungsi:** Mencari tagihan warga dan melakukan validasi transaksi sukses di lapangan.
 
 ![Daftar Billing Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138926/retribusi/userguide/zjebykaugo2eselctre7.png)
 
-**Ringkasan Status:**
-- **Total Tagihan:** Jumlah seluruh tagihan yang terdaftar.
-- **Lunas:** Tagihan yang sudah dibayar (Hijau).
-- **Pending:** Tagihan yang menunggu pembayaran (Kuning).
-- **Overdue:** Tagihan yang sudah lewat jatuh tempo (Merah).
-
 ### A. Mencari Tagihan
-1.  Gunakan kotak pencarian untuk mencari berdasarkan Nomor Invoice, Nama, atau NPWPD.
-2.  Gunakan filter **Status** untuk memfilter berdasarkan status pembayaran.
-3.  Tekan tombol **SCAN** untuk membuka scanner QR Code.
+1. **Pencarian Cepat**: Ketik Nama, NIK, atau Nomor Invoice di kolom Cari.
+2. **Scan Barcode**: Tekan tombol scan di aplikasi untuk memindai kode QR pada Surat Tagihan (Invoice).
+3. **Filter Status**: Gunakan filter untuk memisahkan warga yang **Belum Bayar (Unpaid)** dengan yang **Sudah Bayar (Paid)**.
 
-### B. Terima Pembayaran (Setoran)
-1.  Cari Invoice dengan status **Pending**.
-2.  Tekan tombol **"Bayar"** (Hijau) di kolom Aksi.
-3.  Muncul jendela konfirmasi dengan detail tagihan:
-    - Nomor Invoice
-    - Nama Wajib Pajak
-    - Jenis Retribusi
-    - Total Pembayaran
-4.  Pastikan uang fisik sudah diterima.
-5.  Tekan **"KONFIRMASI BAYAR"** (Hijau) untuk mencatat pembayaran.
-6.  Status otomatis berubah menjadi **Lunas**.
+### B. Proses Pembayaran (Validasi)
+1. Setelah uang diterima (atau bukti transfer divalidasi), tekan tombol **Bayar**.
+2. Periksa kembali nominal tagihan yang muncul di layar konfirmasi.
+3. Tekan **Konfirmasi Bayar** (Hijau). 
+4. **PENTING**: Sekali konfirmasi ditekan, status akan berubah menjadi Lunas secara permanen dan tercatat di dashboard pimpinan secara real-time.
 
 ---
 
 ## 📊 7. Modul Laporan (Reporting)
-Monitoring capaian kinerja dan setoran Anda.
+**Fungsi:** Melihat capaian target harian dan total setoran yang Anda kumpulkan.
 
 ![Laporan Mobile](https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138938/retribusi/userguide/fcnjjcwjnu86raiiggna.png)
 
-**Informasi yang Ditampilkan:**
-- **Total Penerimaan:** Jumlah total pendapatan dalam periode yang dipilih.
-- **Total Transaksi:** Jumlah transaksi yang tercatat.
-- **Rata-rata Transaksi:** Nilai rata-rata per transaksi.
-- **Grafik Pie:** Distribusi pendapatan berdasarkan jenis retribusi.
-
-**Filter Waktu:**
-- Gunakan tombol **Harian / Pekanan / Bulanan** untuk mengubah periode.
-- Gunakan pemilih tanggal untuk memilih rentang waktu tertentu.
-
-**Export Data:**
-- Tekan tombol **"Ekspor CSV"** untuk mengunduh laporan ke perangkat Anda.
+1. **Rekap Harian**: Lihat berapa banyak WP yang Anda datakan hari ini.
+2. **Total Rupiah**: Akumulasi nilai tagihan yang berhasil Anda lunasi (Paid).
+3. **Download Laporan**: Gunakan tombol **Ekspor CSV** untuk mendapatkan file rekap yang bisa dikirim ke atasan via WhatsApp atau Email.
 
 ---
 
