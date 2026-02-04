@@ -15,6 +15,7 @@ import {
   Edit3,
   Download,
   HelpCircle,
+  Printer,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -301,6 +302,10 @@ export default function UserGuide() {
     }
   ];
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-32 pt-8 px-6 lg:px-0">
       {/* Header */}
@@ -317,8 +322,17 @@ export default function UserGuide() {
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Instruksi Operasional Petugas</p>
           </div>
         </div>
-        <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
-          <BookOpen size={28} />
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handlePrint}
+            className="print:hidden w-14 h-14 bg-emerald-600 hover:bg-emerald-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-500/20 transition-all active:scale-95"
+            title="Cetak User Guide"
+          >
+            <Printer size={24} />
+          </button>
+          <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+            <BookOpen size={28} />
+          </div>
         </div>
       </div>
 
