@@ -16,6 +16,7 @@ import Profile from './pages/Profile';
 import FieldScanner from './pages/FieldScanner';
 import PaymentConfirmation from './pages/PaymentConfirmation';
 import UserGuide from './pages/UserGuide';
+import Presentation from './pages/Presentation';
 
 function App() {
   return (
@@ -117,6 +118,7 @@ function App() {
             />
 
             <Route path="/user-guide" element={<UserGuide />} />
+            <Route path="/presentation" element={<Presentation />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -16,6 +16,7 @@ import {
   Download,
   HelpCircle,
   Printer,
+  Presentation,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -323,6 +324,13 @@ export default function UserGuide() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate('/presentation')}
+            className="print:hidden w-14 h-14 bg-[#074764] hover:bg-[#063852] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20 transition-all active:scale-95"
+            title="Lihat Presentasi"
+          >
+            <Presentation size={24} />
+          </button>
           <button 
             onClick={handlePrint}
             className="print:hidden w-14 h-14 bg-emerald-600 hover:bg-emerald-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-500/20 transition-all active:scale-95"
