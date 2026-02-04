@@ -47,7 +47,7 @@ export default function UserGuide() {
       content: (
         <div className="space-y-6">
           <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
-            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138920/retribusi/userguide/zfelzfcxa6hpepsmomcy.png" alt="Login" className="w-full h-auto" />
+            <img src="/user-guide/login.png" alt="Login" className="w-full h-auto" />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -89,7 +89,7 @@ export default function UserGuide() {
       content: (
         <div className="space-y-6">
           <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
-            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138923/retribusi/userguide/uz9xnhzrkup0jngyp0gz.png" alt="Dashboard" className="w-full h-auto" />
+            <img src="/user-guide/dashboard.png" alt="Dashboard" className="w-full h-auto" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
@@ -116,7 +116,7 @@ export default function UserGuide() {
       content: (
           <div className="space-y-8">
             <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg mb-4">
-              <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138931/retribusi/userguide/ujg7m8usjnsq4hdlvwyk.png" alt="Daftar WP" className="w-full h-auto" />
+              <img src="/user-guide/wp_list.png" alt="Daftar WP" className="w-full h-auto" />
             </div>
 
             {/* Create Flow */}
@@ -127,7 +127,7 @@ export default function UserGuide() {
               </h4>
               <div className="space-y-6">
                 <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-md mb-4 bg-gray-50">
-                  <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138934/retribusi/userguide/meenu7d0yxwagdv97bhg.png" alt="Registrasi Step 1" className="w-full h-auto" />
+                  <img src="/user-guide/wp_form.png" alt="Registrasi Step 1" className="w-full h-auto" />
                 </div>
                 {[
                   { s: '1', t: 'Identitas & Objek', d: 'Masukkan NIK, Nama Lengkap, No. WhatsApp, Nama Toko, dan Alamat.' },
@@ -203,7 +203,7 @@ export default function UserGuide() {
       content: (
         <div className="space-y-6">
           <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
-            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138929/retribusi/userguide/a9scu3nmgwtav3qb4osj.png" alt="Scanner" className="w-full h-auto" />
+            <img src="/user-guide/scanner.png" alt="Scanner" className="w-full h-auto" />
           </div>
           <div className="space-y-4">
             <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 font-bold">
@@ -225,7 +225,7 @@ export default function UserGuide() {
       content: (
         <div className="space-y-6">
           <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg mb-4">
-            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138936/retribusi/userguide/u4uir2amk0xrs8qwaswj.png" alt="Master Data" className="w-full h-auto" />
+            <img src="/user-guide/master_data.png" alt="Master Data" className="w-full h-auto" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {['Jenis', 'Klasifikasi', 'Zona', 'Tarif'].map((tab) => (
@@ -247,7 +247,7 @@ export default function UserGuide() {
       content: (
         <div className="space-y-6">
           <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg overflow-x-auto">
-            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138926/retribusi/userguide/zjebykaugo2eselctre7.png" alt="Billing List" className="w-full h-auto" />
+            <img src="/user-guide/billing.png" alt="Billing List" className="w-full h-auto" />
           </div>
           <div className="bg-emerald-50 dark:bg-emerald-900/20 p-6 rounded-3xl border border-emerald-100 shadow-sm space-y-4">
             <h5 className="font-black text-xs text-emerald-600 uppercase tracking-widest">Alur Terima Setoran</h5>
@@ -270,7 +270,7 @@ export default function UserGuide() {
       content: (
         <div className="space-y-6">
           <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
-            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770138938/retribusi/userguide/fcnjjcwjnu86raiiggna.png" alt="Reporting" className="w-full h-auto" />
+            <img src="/user-guide/reporting.png" alt="Reporting" className="w-full h-auto" />
           </div>
           <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-3xl border border-purple-100 dark:border-purple-800 flex items-center justify-between">
             <div>
@@ -291,7 +291,7 @@ export default function UserGuide() {
       content: (
         <div className="space-y-6">
           <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-lg">
-            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1770139339/retribusi/userguide/whhkffjwvbn3bycomf5g.png" alt="Profile" className="w-full h-auto" />
+            <img src="/user-guide/profile.png" alt="Profile" className="w-full h-auto" />
           </div>
           <p className="text-sm font-bold text-gray-700 dark:text-gray-300">
             Tekan menu <GuideHighlight color="slate">Profile</GuideHighlight> di bawah, lalu pilih <GuideHighlight color="rose">Keluar dari Akun</GuideHighlight> untuk logout.
