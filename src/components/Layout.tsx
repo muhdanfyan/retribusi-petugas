@@ -18,7 +18,8 @@ import {
   Search,
   QrCode,
   Home,
-  User
+  User,
+  Calculator
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -62,6 +63,12 @@ const menuItems: MenuItem[] = [
     label: 'Master Data',
     path: '/master-data',
     icon: <Database className="w-5 h-5" />,
+    roles: ['super_admin', 'opd', 'petugas'],
+  },
+  {
+    label: 'Simulator Pajak',
+    path: '/calculator',
+    icon: <Calculator className="w-5 h-5" />,
     roles: ['super_admin', 'opd', 'petugas'],
   },
 ];

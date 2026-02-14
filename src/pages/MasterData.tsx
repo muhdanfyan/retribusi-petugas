@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-  Loader2, Search, Landmark, Droplet, Car, CreditCard, Building2, Users, Key, Truck, Home, FileText
+  Loader2, Search
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
-import { Zona, RetributionType, Opd, RetributionClassification, RetributionRate } from '../types';
+import { Zona, RetributionType, RetributionClassification, RetributionRate } from '../types';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -21,19 +21,6 @@ let DefaultIcon = L.icon({
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
-
-const ICON_MAP: Record<string, any> = {
-  'landmark': Landmark,
-  'droplet': Droplet,
-  'car': Car,
-  'credit-card': CreditCard,
-  'building-2': Building2,
-  'users': Users,
-  'key': Key,
-  'truck': Truck,
-  'home': Home,
-  'file-text': FileText,
-};
 
 export default function MasterData() {
   const { user } = useAuth();
@@ -263,6 +250,7 @@ export default function MasterData() {
                       <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Nama Klasifikasi</th>
                       <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Jenis Retribusi</th>
                       <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Kode</th>
+                      <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Rumus</th>
                       <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Deskripsi</th>
                     </tr>
                   </thead>
@@ -283,6 +271,11 @@ export default function MasterData() {
                         </td>
                         <td className="px-8 py-5 text-sm font-medium text-gray-600 dark:text-gray-400">{cls.retribution_type?.name}</td>
                         <td className="px-8 py-5 text-sm font-mono text-gray-500">{cls.code || '-'}</td>
+                        <td className="px-8 py-5">
+                          <code className="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-mono font-bold rounded">
+                            {cls.calculation_formula || '-'}
+                          </code>
+                        </td>
                         <td className="px-8 py-5 text-xs text-gray-400 max-w-xs truncate">{cls.description || '-'}</td>
                       </tr>
                     ))}

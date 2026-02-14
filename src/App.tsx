@@ -14,6 +14,7 @@ import TaxpayerManagement from './pages/TaxpayerManagement';
 import Profile from './pages/Profile';
 import FieldScanner from './pages/FieldScanner';
 import PaymentConfirmation from './pages/PaymentConfirmation';
+import TaxCalculator from './pages/TaxCalculator';
 import UserGuide from './pages/UserGuide';
 
 function App() {
@@ -98,6 +99,17 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin', 'opd', 'verifikator', 'petugas', 'viewer']}>
                   <Layout>
                     <MasterData />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/calculator"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
+                  <Layout>
+                    <TaxCalculator />
                   </Layout>
                 </ProtectedRoute>
               }

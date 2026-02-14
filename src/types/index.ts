@@ -42,6 +42,7 @@ export interface RetributionClassification {
   icon?: string;
   form_schema?: any[];
   requirements?: any[];
+  calculation_formula?: string;
   opd?: Opd;
   retribution_type?: RetributionType;
   zones?: Zona[];
