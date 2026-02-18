@@ -176,8 +176,8 @@ export default function TaxpayerManagement() {
   const handleEdit = (taxpayer: Taxpayer) => {
     setEditingTaxpayer(taxpayer);
     setForm({
-      nik: taxpayer.nik,
-      name: taxpayer.name,
+      nik: taxpayer.nik ?? '',
+      name: taxpayer.name ?? '',
       address: taxpayer.address || '',
       phone: taxpayer.phone || '',
       npwpd: taxpayer.npwpd || '',
@@ -185,10 +185,10 @@ export default function TaxpayerManagement() {
       object_address: taxpayer.object_address || '',
       district: (taxpayer as any).district || '',
       sub_district: (taxpayer as any).sub_district || '',
-      is_active: taxpayer.is_active,
+      is_active: taxpayer.is_active ?? true,
       latitude: parseFloat((taxpayer as any).latitude) || -5.4632,
       longitude: parseFloat((taxpayer as any).longitude) || 122.6075,
-      opd_id: taxpayer.opd_id.toString(),
+      opd_id: taxpayer.opd_id?.toString() ?? '',
       retribution_type_ids: taxpayer.retribution_types?.map(t => t.id) || [],
       retribution_classification_ids: (taxpayer as any).retribution_classifications?.map((c: any) => c.id) || [],
       metadata: taxpayer.metadata || {},
@@ -554,8 +554,8 @@ export default function TaxpayerManagement() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-start sm:items-center justify-center z-[200] p-0 sm:p-4 transition-all duration-500 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-900 sm:rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] max-w-5xl w-full sm:max-h-[92vh] flex flex-col md:flex-row sm:overflow-hidden animate-in fade-in zoom-in duration-300 relative">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-start sm:items-center justify-center z-[200] p-0 sm:p-4 pb-24 sm:pb-4 transition-all duration-500 overflow-y-auto">
+          <div className="bg-white dark:bg-gray-900 sm:rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] max-w-5xl w-full sm:max-h-[92vh] flex flex-col md:flex-row sm:overflow-hidden animate-in fade-in zoom-in duration-300 relative mb-20 sm:mb-0">
             
             {/* Left Sidebar: Stepper */}
             <div className="hidden md:flex w-80 bg-slate-50 dark:bg-gray-800/50 border-r border-gray-100 dark:border-gray-800 p-10 flex-col shrink-0">
@@ -642,9 +642,9 @@ export default function TaxpayerManagement() {
 
             {/* Right Pane: Form Content */}
             <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900">
-              <div className="flex-1 overflow-y-auto p-6 sm:p-8 md:p-12 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-12 pb-40 sm:pb-6 custom-scrollbar">
                 {currentStep === 1 && (
-                  <div className="space-y-8 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 pb-10">
+                  <div className="space-y-4 sm:space-y-6 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 pb-6">
                     <div className="md:block">
                       <h3 className="text-[10px] md:text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-1 md:mb-2 text-center md:text-left">Identitas Wajib Pajak</h3>
                       <p className="text-gray-400 md:text-gray-500 text-xs md:text-sm font-medium text-center md:text-left">Gunakan NIK untuk mencari atau mendaftarkan subjek pajak</p>
@@ -1059,8 +1059,8 @@ export default function TaxpayerManagement() {
                 )}
               </div>
 
-              {/* Action Bar */}
-              <div className="p-4 sm:p-6 md:p-10 border-t border-gray-100 dark:border-gray-800 flex justify-between bg-white dark:bg-gray-900 rounded-b-[2rem] sticky bottom-0 z-[210]">
+              {/* Action Bar - Sticky at bottom */}
+              <div className="p-4 sm:p-6 md:p-10 border-t border-gray-100 dark:border-gray-800 flex justify-between bg-white dark:bg-gray-900 sm:rounded-b-[2rem] sticky bottom-0 z-[205] shadow-[0_-4px_20px_rgba(0,0,0,0.1)] sm:shadow-none mb-20 sm:mb-0">
                 <button
                   type="button"
                   onClick={() => currentStep > 1 && setCurrentStep(currentStep - 1)}

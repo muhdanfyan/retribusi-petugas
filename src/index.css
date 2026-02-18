@@ -30,3 +30,329 @@
     transition: none !important;
   }
 }
+
+/* Print Styles for User Guide - A4 Format */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
+  }
+
+  /* Force all colors to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    transition: none !important;
+  }
+
+  html,
+  body {
+    background: white !important;
+    color: #1a1a1a !important;
+    font-size: 10pt !important;
+    line-height: 1.5 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide navigation and interactive elements */
+  nav,
+  .fixed,
+  .sticky,
+  .lg\:hidden,
+  [class*="bottom-0"],
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Keep buttons hidden but preserve structure */
+  button {
+    display: none !important;
+  }
+
+  /* Main container - full width for A4 */
+  .max-w-4xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .pb-32 {
+    padding-bottom: 0 !important;
+  }
+
+  .pt-8 {
+    padding-top: 0 !important;
+  }
+
+  .px-6 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Headers */
+  h1 {
+    font-size: 20pt !important;
+    font-weight: 900 !important;
+    color: #074764 !important;
+    margin-bottom: 4pt !important;
+  }
+
+  h2 {
+    font-size: 16pt !important;
+    font-weight: 900 !important;
+    color: #074764 !important;
+    margin-bottom: 6pt !important;
+  }
+
+  h3 {
+    font-size: 12pt !important;
+    font-weight: 800 !important;
+    color: #333 !important;
+    margin-bottom: 4pt !important;
+  }
+
+  h4,
+  h5 {
+    font-size: 10pt !important;
+    font-weight: 700 !important;
+    margin-bottom: 3pt !important;
+  }
+
+  /* Page breaks */
+  h1,
+  h2,
+  h3,
+  h4 {
+    page-break-after: avoid !important;
+  }
+
+  /* Images - IMPORTANT: preserve and display properly */
+  img {
+    max-width: 60% !important;
+    width: auto !important;
+    height: auto !important;
+    display: block !important;
+    margin: 8pt auto !important;
+    page-break-inside: avoid !important;
+    border: 1px solid #ccc !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+  }
+
+  /* Image containers */
+  .rounded-2xl:has(img),
+  .rounded-xl:has(img) {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 8pt 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Tables */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: avoid !important;
+    font-size: 9pt !important;
+    margin: 8pt 0 !important;
+  }
+
+  th,
+  td {
+    border: 1px solid #999 !important;
+    padding: 4pt 6pt !important;
+    text-align: left !important;
+    background: white !important;
+    color: #333 !important;
+  }
+
+  th {
+    background-color: #074764 !important;
+    color: white !important;
+    font-weight: bold !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  /* Spacing between sections */
+  .space-y-20>*+* {
+    margin-top: 16pt !important;
+    padding-top: 8pt !important;
+    border-top: 1px solid #eee !important;
+  }
+
+  .space-y-8>*+*,
+  .space-y-6>*+* {
+    margin-top: 8pt !important;
+  }
+
+  .space-y-4>*+* {
+    margin-top: 4pt !important;
+  }
+
+  /* Cards and boxes - simplified for print */
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-xl,
+  [class*="rounded-\["] {
+    border-radius: 4px !important;
+  }
+
+  /* Info boxes with backgrounds */
+  [class*="bg-blue-50"],
+  [class*="bg-emerald-50"],
+  [class*="bg-indigo-50"],
+  [class*="bg-purple-50"],
+  [class*="bg-orange-50"],
+  [class*="bg-teal-50"],
+  [class*="bg-slate-50"] {
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 6pt !important;
+    margin: 4pt 0 !important;
+  }
+
+  /* Gradient header cards - convert to solid color */
+  [class*="bg-gradient"],
+  .from-blue-600,
+  [class*="from-blue-600"] {
+    background: #074764 !important;
+    color: white !important;
+    padding: 12pt !important;
+    border-radius: 8px !important;
+  }
+
+  /* Icon containers */
+  .w-16.h-16,
+  .w-14.h-14,
+  .w-12.h-12,
+  .w-10.h-10 {
+    width: 24pt !important;
+    height: 24pt !important;
+    min-width: 24pt !important;
+  }
+
+  /* Highlight text */
+  .font-black {
+    font-weight: 800 !important;
+  }
+
+  /* GuideHighlight spans */
+  span[class*="px-1.5"] {
+    background-color: #fff3cd !important;
+    border: 1px solid #ffc107 !important;
+    padding: 1pt 3pt !important;
+    border-radius: 2px !important;
+    font-weight: bold !important;
+    color: #856404 !important;
+  }
+
+  /* Warning/Info boxes */
+  [class*="bg-rose-600"],
+  [class*="bg-red-"] {
+    background-color: #dc3545 !important;
+    color: white !important;
+    padding: 6pt !important;
+    border-radius: 4px !important;
+  }
+
+  [class*="bg-blue-600"] {
+    background-color: #074764 !important;
+    color: white !important;
+  }
+
+  [class*="bg-emerald-600"],
+  [class*="bg-emerald-500"] {
+    background-color: #198754 !important;
+    color: white !important;
+  }
+
+  /* Grid layouts */
+  .grid {
+    display: block !important;
+  }
+
+  .grid>* {
+    margin-bottom: 6pt !important;
+  }
+
+  /* Steps/Flow items */
+  .flex.gap-4.group {
+    margin-bottom: 6pt !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Section containers */
+  .scroll-mt-24 {
+    page-break-inside: avoid !important;
+    margin-bottom: 16pt !important;
+  }
+
+  /* Footer section */
+  .p-10[class*="bg-slate-50"] {
+    background: #f8f9fa !important;
+    border: 1px solid #ddd !important;
+    padding: 12pt !important;
+    margin-top: 16pt !important;
+    text-align: center !important;
+  }
+
+  /* Print header - document title */
+  .max-w-4xl::before {
+    content: "SIPANDA PETUGAS - PANDUAN PENGGUNA";
+    display: block;
+    text-align: center;
+    font-size: 14pt;
+    font-weight: 900;
+    color: #074764;
+    border-bottom: 2px solid #074764;
+    padding-bottom: 8pt;
+    margin-bottom: 12pt;
+  }
+
+  .max-w-4xl::after {
+    content: "Pemerintah Kota Baubau - Sistem Informasi Pendapatan Daerah";
+    display: block;
+    text-align: center;
+    font-size: 8pt;
+    color: #666;
+    margin-top: -8pt;
+    margin-bottom: 12pt;
+  }
+
+  /* Dark mode reset for print */
+  .dark,
+  .dark * {
+    background-color: white !important;
+    color: #1a1a1a !important;
+  }
+
+  /* Lucide icons */
+  svg {
+    display: inline-block !important;
+    width: 12pt !important;
+    height: 12pt !important;
+  }
+
+  /* Hide decorative SVGs */
+  svg.absolute {
+    display: none !important;
+  }
+
+  /* Overflow visible */
+  .overflow-hidden {
+    overflow: visible !important;
+  }
+
+  /* Remove shadows */
+  [class*="shadow"] {
+    box-shadow: none !important;
+  }
+}

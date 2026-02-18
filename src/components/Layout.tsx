@@ -91,7 +91,7 @@ export default function Layout({ children }: LayoutProps) {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-[#2d5cd5]/10 selection:text-[#2d5cd5] pb-24 lg:pb-0">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-[#2d5cd5]/10 selection:text-[#2d5cd5] pb-24 lg:pb-0 relative overflow-x-hidden">
       
       {/* Top Navigation Bar (Desktop Only) */}
       <header className="hidden lg:block fixed top-0 left-0 right-0 h-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 z-[40] px-8">
@@ -145,7 +145,7 @@ export default function Layout({ children }: LayoutProps) {
 
             <button 
               onClick={() => navigate('/profile')}
-              className="flex items-center gap-3 p-1.5 pr-4 pl-1.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md hover:border-[#2d5cd5]/20 transition-all group"
+              className="flex items-center gap-3 p-1.5 pr-4 pl-1.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-xl shadow-sm hover:shadow-md hover:border-[#2d5cd5]/20 transition-all group"
             >
               <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-[#2d5cd5]/10 group-hover:text-[#2d5cd5] transition-colors font-black overflow-hidden relative">
                 {user?.name?.charAt(0) || <User size={20} />}
@@ -169,7 +169,7 @@ export default function Layout({ children }: LayoutProps) {
       </header>
 
       {/* Mobile Top Header (Compact Style) */}
-      <div className="lg:hidden px-4 pt-6 pb-2 space-y-4">
+      <div className="lg:hidden px-6 pt-6 pb-2 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
@@ -322,44 +322,34 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main Content Area */}
       <main className="lg:pt-20 lg:pl-72 min-h-screen">
-        <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
+        <div className="p-4 sm:p-6 lg:p-10 max-w-full overflow-hidden">
           {children}
         </div>
       </main>
 
       {/* Bottom Navigation (Mobile Only - Fixed Style) */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[50] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.05)] w-full">
-        <div className="flex items-center justify-between px-1 py-1.5">
-          {[
-            { icon: Home, path: '/dashboard', label: 'Home' },
-            { icon: Search, path: '/billing', label: 'Billing' },
-            { icon: QrCode, path: '/scanner', label: 'Scan' },
-            { icon: Bell, path: '/notifications', label: 'Notif' },
-            { icon: User, path: '/profile', label: 'Profile' }
-          ].map((item, i) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <button 
-                key={i}
-                onClick={() => navigate(item.path)}
-                className={`flex-1 flex flex-col items-center gap-1 py-1 px-0.5 rounded-2xl transition-all duration-300 active:scale-95 ${
-                  isActive 
-                    ? 'text-[#074764]' 
-                    : 'text-slate-400'
-                }`}
-              >
-                <div className={`w-full max-w-[50px] py-1.5 rounded-xl flex items-center justify-center transition-all ${
-                  isActive ? 'bg-[#074764]/10' : 'bg-transparent'
-                }`}>
-                  <item.icon size={22} strokeWidth={isActive ? 2.5 : 2} />
-                </div>
-                <span className={`text-[10px] font-bold uppercase tracking-wider text-center ${isActive ? 'text-[#074764]' : 'text-slate-400'}`}>
-                  {item.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[9999] bg-white dark:bg-slate-900 border-t-2 border-slate-200 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.2)] w-full flex items-center justify-around py-3 px-2 h-20">
+        {[
+          { icon: Home, path: '/dashboard', label: 'Home' },
+          { icon: FileText, path: '/billing', label: 'Billing' },
+          { icon: QrCode, path: '/scanner', label: 'Scan' },
+          { icon: Users, path: '/taxpayers', label: 'WP' },
+          { icon: User, path: '/profile', label: 'Profile' }
+        ].map((item, i) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <button 
+              key={i}
+              onClick={() => navigate(item.path)}
+              className={`flex flex-col items-center gap-1 transition-all ${
+                isActive ? 'text-[#2d5cd5]' : 'text-slate-400'
+              }`}
+            >
+              <item.icon size={24} strokeWidth={isActive ? 3 : 2} />
+              <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );

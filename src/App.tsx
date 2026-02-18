@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import PetugasLogin from './pages/PetugasLogin';
+import LandingPage from './pages/LandingPage';
 import PetugasWelcome from './pages/PetugasWelcome';
 import PetugasRegister from './pages/PetugasRegister';
 import Dashboard from './pages/Dashboard';
@@ -17,6 +18,7 @@ import PaymentConfirmation from './pages/PaymentConfirmation';
 import TaxCalculator from './pages/TaxCalculator';
 import UserGuide from './pages/UserGuide';
 import FieldInspection from './pages/FieldInspection';
+import Presentation from './pages/Presentation';
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<PetugasLogin />} />
             <Route path="/register" element={<PetugasRegister />} />
             <Route path="/welcome" element={<PetugasWelcome />} />
@@ -56,17 +59,6 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
                   <Layout>
                     <PaymentConfirmation />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/field-check"
-              element={
-                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
-                  <Layout>
-                    <FieldInspection />
                   </Layout>
                 </ProtectedRoute>
               }
@@ -150,9 +142,9 @@ function App() {
             />
 
             <Route path="/user-guide" element={<UserGuide />} />
+            <Route path="/presentation" element={<Presentation />} />
 
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </ThemeProvider>
@@ -161,4 +153,3 @@ function App() {
 }
 
 export default App;
-

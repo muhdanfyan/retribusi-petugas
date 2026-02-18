@@ -265,7 +265,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-6 lg:space-y-8 pb-12 animate-in fade-in duration-700">
+    <div className="space-y-6 lg:space-y-8 pb-32 w-full max-w-full overflow-hidden">
       
       {/* Desktop Top Section */}
       <div className="hidden lg:flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -305,7 +305,7 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
             <button onClick={handlePrev} className="p-1 hover:bg-slate-50 rounded-full"><ChevronLeft size={16} /></button>
             <div className="flex items-center gap-2 min-w-[140px] justify-center text-[#2d5cd5]">
               <Calendar size={14} />
@@ -320,10 +320,10 @@ export default function Dashboard() {
       <div className="lg:hidden flex flex-col gap-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight shrink-0">Dashboard</h2>
-          <div className="flex items-center gap-1.5 bg-white dark:bg-slate-800 px-2 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden min-w-0">
-            <button onClick={handlePrev} className="p-1 text-[#2d5cd5] shrink-0"><ChevronLeft size={14} /></button>
-            <span className="text-[9px] font-black uppercase tracking-widest text-[#2d5cd5] truncate">{getDisplayDate(true)}</span>
-            <button onClick={handleNext} className="p-1 text-[#2d5cd5] shrink-0"><ChevronRight size={14} /></button>
+          <div className="flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden">
+            <button onClick={handlePrev} className="p-2 text-[#2d5cd5] active:bg-slate-50 transition-colors"><ChevronLeft size={16} /></button>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#2d5cd5] px-1 whitespace-nowrap">{getDisplayDate(true)}</span>
+            <button onClick={handleNext} className="p-2 text-[#2d5cd5] active:bg-slate-50 transition-colors"><ChevronRight size={16} /></button>
           </div>
         </div>
         
@@ -351,7 +351,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-12 gap-6 lg:gap-8">
         <div className="col-span-12 lg:col-span-4">
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#2d5cd5] to-blue-500 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 text-white shadow-2xl shadow-blue-500/30 group">
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#2d5cd5] to-blue-500 rounded-3xl p-6 sm:p-8 text-white shadow-2xl shadow-blue-500/30 group">
             <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
             <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-blue-400/20 rounded-full blur-3xl group-hover:bg-blue-400/30 transition-all duration-700"></div>
             
@@ -408,7 +408,7 @@ export default function Dashboard() {
                 text: 'text-indigo-600',
               }
             ].map((kpi, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between">
+              <div key={i} className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group flex flex-col justify-between">
                 <div className={`${kpi.bg} w-10 h-10 rounded-xl flex items-center justify-center ${kpi.text} mb-4 group-hover:scale-110 transition-transform`}>
                   <kpi.icon size={20} />
                 </div>
@@ -424,8 +424,8 @@ export default function Dashboard() {
 
       {/* Petugas Personal Achievement Section */}
       {stats?.petugas_achievement && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 scale-95 origin-left lg:scale-100">
-          <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden group">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 origin-left">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden group">
              <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-emerald-500/10 transition-all duration-700"></div>
              <div className="relative z-10 flex items-center justify-between">
                 <div className="flex items-center gap-5">
@@ -442,16 +442,16 @@ export default function Dashboard() {
                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Koleksi</p>
                 </div>
              </div>
-             <div className="mt-8 pt-8 border-t border-slate-100/10 grid grid-cols-2 gap-8 relative z-10">
+              <div className="mt-8 pt-8 border-t border-slate-100 grid grid-cols-2 gap-8 relative z-10">
                 <div>
-                   <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-1">WP Terdaftar</p>
-                   <p className="text-xl font-black text-white">{stats.petugas_achievement.taxpayers_registered}</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">WP Terdaftar</p>
+                   <p className="text-xl font-black text-slate-900 dark:text-white">{stats.petugas_achievement.taxpayers_registered}</p>
                 </div>
                 <div>
-                   <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest mb-1">Rasio Berhasil</p>
-                   <p className="text-xl font-black text-white">{Math.round((stats.petugas_achievement.collections_count / (stats.petugas_achievement.collections_count + (stats.pending_bills / 10))) * 100) || 100}%</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Rasio Berhasil</p>
+                   <p className="text-xl font-black text-slate-900 dark:text-white">{Math.round((stats.petugas_achievement.collections_count / (stats.petugas_achievement.collections_count + (stats.pending_bills / 10))) * 100) || 100}%</p>
                 </div>
-             </div>
+              </div>
           </div>
         </div>
       )}
@@ -494,12 +494,12 @@ export default function Dashboard() {
           </button>
         </div>
         
-        <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-6 lg:gap-6">
+        <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar lg:grid lg:grid-cols-6 lg:gap-6 relative">
           {retributionTypes.slice(0, 6).map((type, i) => (
             <button
               key={type.id || i}
               onClick={() => navigate(`/billing?type=${type.id}`)}
-              className="flex-shrink-0 w-32 lg:w-full bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-center"
+              className="flex-shrink-0 w-32 lg:w-full bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-center"
             >
               <div className="w-16 h-16 mx-auto mb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
                 <img 
@@ -522,7 +522,7 @@ export default function Dashboard() {
           <h2 className="text-xl font-black text-slate-900 dark:text-white">Aktivitas</h2>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-sm overflow-hidden relative group">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 p-6 sm:p-8 shadow-sm overflow-hidden relative group">
           <div className="flex items-start justify-between mb-6 sm:mb-8">
             <div className="flex items-center gap-4 sm:gap-6">
               <div className="flex items-center gap-2">
@@ -585,7 +585,7 @@ export default function Dashboard() {
               { id: 2, title: 'Hotel Grand Baubau', category: 'Pajak Hotel', amount: 'Rp 4.250.000', date: '1 Minggu lalu', status: 'Pending', icon: CreditCard, color: 'text-amber-500', bg: 'bg-amber-50' },
               { id: 3, title: 'CV Maju Jaya', category: 'Retribusi Parkir', amount: 'Rp 750.000', date: '15 Menit lalu', status: 'Baru', icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-50' },
             ].map((item) => (
-              <div key={item.id} className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group flex items-center justify-between">
+              <div key={item.id} className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className={`w-14 h-14 ${item.bg} dark:bg-slate-800 rounded-2xl flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform shadow-sm`}>
                     <item.icon size={24} />
@@ -612,7 +612,7 @@ export default function Dashboard() {
                 </h3>
                 <MoreHorizontal size={18} className="text-slate-300 cursor-pointer" />
               </div>
-              <div className="h-[250px] sm:h-[calc(100%-4rem)] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
+              <div className="h-[250px] sm:h-[calc(100%-4rem)] rounded-3xl overflow-hidden">
                 <MapContainer center={[-5.47, 122.6]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
