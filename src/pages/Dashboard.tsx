@@ -216,7 +216,27 @@ export default function Dashboard() {
     );
   }
 
-  const createCustomIcon = (iconUrl: string | null, seed: any) => {
+  const createCustomIcon = (iconUrl: string | null, seed: any, status?: string) => {
+    // If it's a taxpayer, use a user icon
+    if (status === 'taxpayer') {
+      return L.divIcon({
+        className: 'custom-div-icon',
+        html: `
+          <div style="
+            width: 32px; height: 32px; 
+            background: #2d5cd5; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 4px 10px rgba(45,92,213,0.3); border: 2px solid white;
+            color: white;
+          ">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+        `,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+      });
+    }
+
     const finalIconUrl = iconUrl?.startsWith('http') 
       ? iconUrl 
       : (iconUrl ? `${import.meta.env.VITE_API_URL}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}` : `https://api.dicebear.com/7.x/shapes/svg?seed=${seed}&backgroundColor=2563eb&shape1Color=white`);
@@ -234,6 +254,7 @@ export default function Dashboard() {
           justify-content: center; 
           box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
           overflow: hidden;
+          border: 2px solid #10b981;
         ">
           <img src="${finalIconUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px;" />
         </div>
@@ -436,20 +457,29 @@ export default function Dashboard() {
       )}
 
       {/* Buttons (Mobile Quick Actions) */}
-      <div className="lg:hidden grid grid-cols-2 gap-4">
+      <div className="lg:hidden grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          <button 
+            onClick={() => navigate('/scanner')}
+            className="flex items-center justify-center gap-3 bg-[#2d5cd5] text-white p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+          >
+            <QrCode size={18} />
+            Scan QR
+          </button>
+          <button 
+            onClick={() => navigate('/billing')}
+            className="flex items-center justify-center gap-3 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm active:scale-95 transition-all"
+          >
+            <SearchIcon size={18} />
+            Cari WP
+          </button>
+        </div>
         <button 
-          onClick={() => navigate('/scanner')}
-          className="flex items-center justify-center gap-3 bg-[#2d5cd5] text-white p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+          onClick={() => navigate('/field-check')}
+          className="flex items-center justify-center gap-3 bg-emerald-600 text-white p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all"
         >
-          <QrCode size={18} />
-          Scan QR
-        </button>
-        <button 
-          onClick={() => navigate('/billing')}
-          className="flex items-center justify-center gap-3 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-800 p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm active:scale-95 transition-all"
-        >
-          <SearchIcon size={18} />
-          Cari WP
+          <MapIcon size={18} />
+          Laporan Lapangan (GPS)
         </button>
       </div>
 
@@ -591,14 +621,14 @@ export default function Dashboard() {
                     <Marker 
                       key={index} 
                       position={potential.position}
-                      icon={createCustomIcon(potential.icon || null, potential.retribution_type_id || index)}
+                      icon={createCustomIcon(potential.icon || null, potential.retribution_type_id || index, potential.status)}
                     >
                       <Popup>
                         <div className="p-3 min-w-[200px] font-sans">
                           <h3 className="font-black text-slate-900 text-sm mb-1">{potential.name}</h3>
                           <p className="text-[10px] text-[#2d5cd5] font-black uppercase mb-2 tracking-wider">{potential.agency}</p>
-                          <span className="inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] bg-emerald-50 text-emerald-600">
-                            Aktif
+                          <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${potential.status === 'taxpayer' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                            {potential.status === 'taxpayer' ? 'Wajib Pajak' : 'Zona Potensi'}
                           </span>
                         </div>
                       </Popup>

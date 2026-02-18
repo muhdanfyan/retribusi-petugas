@@ -5,19 +5,18 @@ import SearchableSelect from '../components/SearchableSelect';
 import { Billing as BillingType } from '../types';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { thermalPrintService } from '../services/ThermalPrintService';
 
 export default function Billing() {
   const { user: currentUser } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [billings, setBillings] = useState<BillingType[]>([]);
-  const [retributionTypes, setRetributionTypes] = useState<any[]>([]);
   const [taxObjects, setTaxObjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [showBulkModal, setShowBulkModal] = useState(false);
   
   const [selectedBill, setSelectedBill] = useState<BillingType | null>(null);
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
@@ -26,21 +25,16 @@ export default function Billing() {
   const [formData, setFormData] = useState({
     tax_object_id: '',
     period: '',
-    due_date: '',
   });
 
-  const [bulkFormData, setBulkFormData] = useState({
-    retribution_type_id: '',
-    period: '',
-    due_date: '',
-  });
+  const [pendingPeriods, setPendingPeriods] = useState<any[]>([]);
+  const [fetchingPeriods, setFetchingPeriods] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [billsRes, typesRes, objectsRes] = await Promise.all([
+        const [billsRes, objectsRes] = await Promise.all([
           api.get('/api/bills'),
-          api.get('/api/retribution-types'),
           api.get('/api/tax-objects'),
         ]);
 
@@ -50,14 +44,14 @@ export default function Billing() {
           taxpayerName: b.taxpayer?.name || b.user?.name || 'Unknown',
           taxpayerId: b.taxpayer?.npwpd || 'N/A',
           type: b.retribution_type?.name || 'N/A',
-          amount: Number(b.amount),
+          amount: Number(b.total_amount || b.amount),
+          penalty_amount: Number(b.penalty_amount || 0),
           dueDate: b.due_date,
           status: b.status as any,
           createdAt: b.created_at,
         }));
 
         setBillings(mappedBills);
-        setRetributionTypes(typesRes.data || typesRes);
         setTaxObjects(objectsRes.data || objectsRes);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -69,90 +63,89 @@ export default function Billing() {
     fetchData();
   }, []);
 
-  const handleGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const fetchPendingPeriods = async (taxObjectId: string) => {
+    setFetchingPeriods(true);
     try {
-      const response = await api.post('/api/bills', {
-        tax_object_id: Number(formData.tax_object_id),
-        period: formData.period,
-        due_date: formData.due_date,
-      });
-
-      const b = response.data || response;
-      const selectedObj = taxObjects.find(o => o.id === b.tax_object_id);
-      
-      const newBilling: BillingType = {
-        id: b.id.toString(),
-        invoiceNumber: b.bill_number,
-        taxpayerName: selectedObj?.taxpayer?.name || 'Unknown',
-        taxpayerId: selectedObj?.taxpayer?.npwpd || 'N/A',
-        type: selectedObj?.retribution_type?.name || 'N/A',
-        amount: Number(b.amount),
-        dueDate: b.due_date,
-        status: b.status as any,
-        createdAt: b.created_at,
-      };
-
-      setBillings([newBilling, ...billings]);
-      setShowModal(false);
-      setFormData({ tax_object_id: '', period: '', due_date: '' });
+      const res = await api.get(`/api/tax-objects/${taxObjectId}/pending-periods`);
+      setPendingPeriods(res.data || res);
     } catch (error) {
-      alert('Gagal generate tagihan');
-    }
-  };
-
-  const handleBulkGenerate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await api.post('/api/bills/bulk', {
-        retribution_type_id: Number(bulkFormData.retribution_type_id),
-        period: bulkFormData.period,
-        due_date: bulkFormData.due_date,
-      });
-
-      alert(response.message || 'Bulk generation berhasil');
-      setShowBulkModal(false);
-      
-      // Refresh list
-      setLoading(true);
-      const billsRes = await api.get('/api/bills');
-      const mappedBills: BillingType[] = (billsRes.data || billsRes).map((b: any) => ({
-        id: b.id.toString(),
-        invoiceNumber: b.bill_number,
-        taxpayerName: b.taxpayer?.name || b.user?.name || 'Unknown',
-        taxpayerId: b.taxpayer?.npwpd || 'N/A',
-        type: b.retribution_type?.name || 'N/A',
-        amount: Number(b.amount),
-        dueDate: b.due_date,
-        status: b.status as any,
-        createdAt: b.created_at,
-      }));
-      setBillings(mappedBills);
-      setLoading(false);
-    } catch (error) {
-      alert('Gagal bulk generate');
+      console.error('Error fetching periods:', error);
+    } finally {
+      setFetchingPeriods(false);
     }
   };
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedBill) return;
+    
+    // Traditional bill payment
+    if (selectedBill) {
+      try {
+        await api.post(`/api/bills/${selectedBill.id}/pay`, {
+          payment_method: 'cash',
+          amount: selectedBill.amount,
+        });
+        alert('Pembayaran berhasil dicatat');
+        setShowPaymentModal(false);
+        setSelectedBill(null);
+        setBillings(prev => prev.map(b => b.id === selectedBill.id ? { ...b, status: 'lunas' } : b));
+      } catch (error) {
+        alert('Gagal mencatat pembayaran');
+      }
+      return;
+    }
+
+    // New dynamic period payment
+    if (!formData.tax_object_id || !formData.period) return;
+    
+    const selectedPeriod = pendingPeriods.find(p => p.period === formData.period);
 
     try {
-      await api.post(`/api/bills/${selectedBill.id}/pay`, {
+      await api.post('/api/payments', {
+        tax_object_id: Number(formData.tax_object_id),
+        billing_period: formData.period,
         payment_method: 'cash',
-        amount: selectedBill.amount,
+        amount: selectedPeriod?.total_amount || selectedPeriod?.amount || 0,
       });
 
-      alert('Pembayaran berhasil dicatat');
-      setShowPaymentModal(false);
-      setSelectedBill(null);
+      alert(`Pembayaran periode ${formData.period} berhasil dicatat`);
+      setShowModal(false);
+      setFormData({ tax_object_id: '', period: '' });
+      setPendingPeriods([]);
       
-      setBillings(prev => prev.map(b => 
-        b.id === selectedBill.id ? { ...b, status: 'lunas' } : b
-      ));
+      // Refresh list
+      const billsRes = await api.get('/api/bills');
+      setBillings((billsRes.data || billsRes).map((b: any) => ({
+        id: b.id.toString(),
+        invoiceNumber: b.bill_number,
+        taxpayerName: b.taxpayer?.name || b.user?.name || 'Unknown',
+        taxpayerId: b.taxpayer?.taxpayer_id || b.taxpayer?.npwpd || 'N/A',
+        type: b.retribution_type?.name || 'N/A',
+        amount: Number(b.total_amount || b.amount),
+        dueDate: b.due_date,
+        status: b.status as any,
+        createdAt: b.created_at,
+      })));
     } catch (error) {
       alert('Gagal mencatat pembayaran');
+    }
+  };
+
+  const handlePrint = async (billing: BillingType) => {
+    try {
+      await thermalPrintService.print({
+        billNumber: billing.invoiceNumber,
+        name: billing.taxpayerName,
+        objectName: billing.type, // Using type as name for now
+        amount: billing.amount - (billing.penalty_amount || 0),
+        penalty: billing.penalty_amount || 0,
+        total: billing.amount,
+        date: new Date().toLocaleDateString('id-ID'),
+        period: billing.dueDate ? new Date(billing.dueDate).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : '-'
+      });
+      alert('Resi sedang dicetak...');
+    } catch (error) {
+      alert('Gagal mencetak resi');
     }
   };
 
@@ -201,18 +194,15 @@ export default function Billing() {
           {currentUser?.role !== 'petugas' && (
             <>
               <button
-                onClick={() => setShowBulkModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95 shadow-emerald-500/10"
-              >
-                <FileText size={18} />
-                Bulk Gen
-              </button>
-              <button
-                onClick={() => setShowModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95 shadow-blue-500/10"
+                onClick={() => {
+                  setShowModal(true);
+                  setFormData({ tax_object_id: '', period: '' });
+                  setPendingPeriods([]);
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-baubau-blue hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95 shadow-blue-500/10"
               >
                 <Plus size={18} />
-                Generate
+                Catat Bayar
               </button>
             </>
           )}
@@ -324,6 +314,15 @@ export default function Billing() {
                           Bayar
                         </button>
                       )}
+                      {billing.status === 'lunas' && (
+                        <button
+                          onClick={() => handlePrint(billing)}
+                          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase rounded-lg transition-all active:scale-95 flex items-center gap-2 ml-auto"
+                        >
+                          <Download size={12} />
+                          Print
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -391,100 +390,66 @@ export default function Billing() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden border border-gray-100">
             <div className="p-8 border-b border-gray-50 flex justify-between items-center">
-              <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Generate Tagihan</h2>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">×</button>
+              <div>
+                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Pembayaran Baru</h2>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Sistem Otomatis (Virtual Ledger)</p>
+              </div>
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
             </div>
-            <form onSubmit={handleGenerate} className="p-8 space-y-5">
+            <form onSubmit={handlePayment} className="p-8 space-y-5">
               <SearchableSelect
-                label="Objek Pajak Target"
+                label="Cari Objek Pajak"
                 options={taxObjects.map(obj => ({
                   id: obj.id,
-                  label: `${obj.nop} - ${obj.taxpayer?.name || 'N/A'}`,
+                  label: `${obj.nop || 'TANPA NOP'} - ${obj.taxpayer?.name || 'N/A'}`,
                   subLabel: obj.name
                 }))}
                 value={formData.tax_object_id}
-                onSelect={(val) => setFormData({ ...formData, tax_object_id: val.toString() })}
-                placeholder="Pilih Objek"
+                onSelect={(val) => {
+                  setFormData({ ...formData, tax_object_id: val.toString(), period: '' });
+                  fetchPendingPeriods(val.toString());
+                }}
+                placeholder="Pilih Objek / NOP"
                 searchPlaceholder="Cari NOP atau Nama WP..."
               />
-              <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                <p className="text-[10px] text-blue-900 dark:text-blue-300 font-medium">
-                  Jumlah tagihan akan dihitung otomatis berdasarkan tarif yang berlaku untuk objek pajak ini.
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Periode</label>
-                  <input
-                    type="text"
-                    value={formData.period}
-                    onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 font-bold"
-                    placeholder="e.g. Jan 2026"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Jatuh Tempo</label>
-                  <input
-                    type="date"
-                    value={formData.due_date}
-                    onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 font-bold"
-                    required
-                  />
-                </div>
-              </div>
-              <button type="submit" className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-blue-500/20 active:scale-95 transition-all mt-4">
-                BUAT TAGIHAN
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {showBulkModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden border border-gray-100">
-            <div className="p-8 border-b border-gray-50">
-              <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Bulk Generate</h2>
-            </div>
-            <form onSubmit={handleBulkGenerate} className="p-8 space-y-5">
-              <SearchableSelect
-                label="Kategori Retribusi"
-                options={retributionTypes.map(rt => ({
-                  id: rt.id,
-                  label: rt.name
-                }))}
-                value={bulkFormData.retribution_type_id}
-                onSelect={(val) => setBulkFormData({ ...bulkFormData, retribution_type_id: val.toString() })}
-                placeholder="Pilih Kategori"
-                searchPlaceholder="Cari kategori..."
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Periode</label>
-                  <input
-                    type="text"
-                    value={bulkFormData.period}
-                    onChange={(e) => setBulkFormData({ ...bulkFormData, period: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 font-bold"
-                    required
-                  />
+              {fetchingPeriods ? (
+                <div className="flex items-center justify-center py-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl">
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+                  <span className="ml-2 text-xs text-gray-500 font-bold uppercase tracking-widest">Mengecek...</span>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Jatuh Tempo</label>
-                  <input
-                    type="date"
-                    value={bulkFormData.due_date}
-                    onChange={(e) => setBulkFormData({ ...bulkFormData, due_date: e.target.value })}
-                    className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 font-bold"
-                    required
-                  />
+              ) : formData.tax_object_id && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Pilih Periode</label>
+                  {pendingPeriods.length > 0 ? (
+                    <select
+                      value={formData.period}
+                      onChange={(e) => setFormData({ ...formData, period: e.target.value })}
+                      className="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 font-bold text-sm"
+                      required
+                    >
+                      <option value="">Pilih Bulan Tunggakan</option>
+                      {pendingPeriods.map((p) => (
+                        <option key={p.period} value={p.period}>
+                          {p.label} - {formatCurrency(p.total_amount || p.amount)}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100 dark:border-emerald-800 text-center">
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400 font-black uppercase tracking-widest">Semua Lunas!</p>
+                      <p className="text-[10px] text-emerald-600/70 mt-1 font-medium">Tidak ada tunggakan untuk objek ini.</p>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <button type="submit" className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all mt-4">
-                PROSES BULK
+              )}
+
+              <button 
+                type="submit" 
+                disabled={!formData.period || pendingPeriods.length === 0}
+                className="w-full py-4 bg-emerald-600 disabled:bg-gray-300 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all mt-4"
+              >
+                KONFIRMASI BAYAR
               </button>
             </form>
           </div>
@@ -535,6 +500,9 @@ export default function Billing() {
             <div className="mt-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-2xl p-5 text-center border border-emerald-100 dark:border-emerald-800">
               <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
               <p className="text-3xl font-black text-emerald-700 dark:text-emerald-400">{formatCurrency(selectedBill.amount)}</p>
+              {Number((selectedBill as any).penalty_amount) > 0 && (
+                <p className="text-[10px] text-amber-600 font-black mt-1 uppercase">Termasuk Denda: {formatCurrency((selectedBill as any).penalty_amount)}</p>
+              )}
               <p className="text-[9px] text-emerald-600/70 dark:text-emerald-400/70 font-medium mt-2 uppercase tracking-wider">Metode: Tunai (Cash)</p>
             </div>
 

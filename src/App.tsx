@@ -16,6 +16,7 @@ import FieldScanner from './pages/FieldScanner';
 import PaymentConfirmation from './pages/PaymentConfirmation';
 import TaxCalculator from './pages/TaxCalculator';
 import UserGuide from './pages/UserGuide';
+import FieldInspection from './pages/FieldInspection';
 
 function App() {
   return (
@@ -55,6 +56,28 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
                   <Layout>
                     <PaymentConfirmation />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/field-check"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
+                  <Layout>
+                    <FieldInspection />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/field-check"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
+                  <Layout>
+                    <FieldInspection />
                   </Layout>
                 </ProtectedRoute>
               }

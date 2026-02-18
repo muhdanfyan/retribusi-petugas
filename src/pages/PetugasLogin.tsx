@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, Loader2, Facebook, Twitter, Chrome, Apple, Eye, EyeOff, BookOpen } from 'lucide-react';
+import { InstallPWA } from '../components/InstallPWA';
 
 export default function PetugasLogin() {
   const [email, setEmail] = useState('');
@@ -31,6 +32,26 @@ export default function PetugasLogin() {
     }
     setIsSubmitting(false);
   };
+
+  const quickLogin = async (demoEmail: string, demoPassword: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    setError('');
+    setIsSubmitting(true);
+    const result = await login(demoEmail, demoPassword);
+    const { error: loginError } = result as { error: string | null };
+    if (!loginError) {
+      navigate('/dashboard');
+    } else {
+      setError(loginError);
+    }
+    setIsSubmitting(false);
+  };
+
+  const demoAccounts = [
+    { email: 'petugas@bapenda.go.id', label: 'Petugas BAPENDA' },
+    { email: 'dishub@retribusi.id', label: 'Admin DISHUB' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#2d5cd5] flex flex-col relative overflow-hidden font-sans">
@@ -141,6 +162,21 @@ export default function PetugasLogin() {
                 ))}
               </div>
 
+              <div className="mt-8 pt-6 border-t border-slate-100 space-y-4">
+                <p className="text-[10px] text-center text-slate-400 uppercase tracking-widest font-black">Quick Access</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {demoAccounts.map(acc => (
+                    <button
+                      key={acc.email}
+                      onClick={() => quickLogin(acc.email, 'password123')}
+                      className="bg-slate-50 hover:bg-blue-50 text-[#2d5cd5] py-3 px-4 rounded-2xl text-[10px] font-black transition-all border border-slate-100 uppercase tracking-tighter"
+                    >
+                      {acc.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <p className="text-center mt-8 sm:mt-10 text-xs sm:text-sm font-bold text-slate-400">
                 Belum punya akun?{' '}
                 <Link to="/register" className="text-[#2d5cd5] hover:underline">Daftar sekarang</Link>
@@ -159,6 +195,7 @@ export default function PetugasLogin() {
           </div>
         </div>
       </div>
+      <InstallPWA />
     </div>
   );
 }

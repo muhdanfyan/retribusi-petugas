@@ -61,7 +61,10 @@ export default function TaxCalculator() {
         .filter(v => v && isNaN(Number(v)));
       
       const newVars: Record<string, string> = {};
-      formulaVars.forEach(v => { newVars[v] = ''; });
+      formulaVars.forEach(v => { 
+        const field = cls.form_schema?.find((f: any) => f.key === v);
+        newVars[v] = field?.defaultValue !== undefined ? field.defaultValue.toString() : ''; 
+      });
       setVariables(newVars);
     }
   };
@@ -129,7 +132,7 @@ export default function TaxCalculator() {
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">
             Simulasi <span className="text-[#2d5cd5]">Pajak</span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Hitung perkiraan tagihan retribusi sesuai regulasi Perda No. 1 Tahun 2024</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">Hitung perkiraan tagihan retribusi sesuai regulasi Perwali Nomor 58 Tahun 2024</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center">

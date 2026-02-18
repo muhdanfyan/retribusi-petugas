@@ -98,6 +98,20 @@ export interface Billing {
   tax_object?: TaxObject;
 }
 
+export interface Payment {
+  id: number | string;
+  bill_id?: number | string | null;
+  taxpayer_id?: number | string | null;
+  tax_object_id?: number | string | null;
+  transaction_id: string;
+  payment_method: string;
+  amount: number;
+  status: 'pending' | 'success' | 'failed';
+  billing_period?: string | null;
+  paid_at?: string;
+  proof_url?: string | null;
+}
+
 export interface Verification {
   id: string | number;
   documentNumber: string;
