@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { MapContainer, TileLayer, Marker, useMapEvents, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { MapPicker } from '../components/MapPicker';
 
 // Fix for default marker icon in Leaflet
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -142,8 +143,9 @@ export default function TaxpayerManagement() {
   };
 
   const checkNik = async () => {
-    if (!form.nik || form.nik.length < 16) {
-      alert('Masukkan 16 digit NIK');
+    const nikRegex = /^\d{16}$/;
+    if (!form.nik || !nikRegex.test(form.nik)) {
+      alert('NIK harus terdiri dari 16 digit angka sesuai standar KTP.');
       return;
     }
     
@@ -161,13 +163,12 @@ export default function TaxpayerManagement() {
           sub_district: res.data.sub_district || prev.sub_district,
         }));
         alert('Data wajib pajak ditemukan! Informasi identitas telah otomatis terisi.');
+      } else {
+        alert('NIK belum terdaftar di sistem. Silakan lengkapi data profil baru.');
       }
     } catch (error: any) {
-      if (error.response?.status === 404) {
-        alert('NIK belum terdaftar. Silakan lengkapi data baru.');
-      } else {
-        console.error('Error checking NIK:', error);
-      }
+      console.error('Error checking NIK:', error);
+      alert('Gagal mengecek NIK. Silakan coba lagi.');
     } finally {
       setIsCheckingNik(false);
     }
@@ -679,7 +680,7 @@ export default function TaxpayerManagement() {
                               maxLength={16}
                               placeholder="01010102302..."
                               value={form.nik}
-                              onChange={(e) => setForm({ ...form, nik: e.target.value })}
+                              onChange={(e) => setForm({ ...form, nik: e.target.value.replace(/\D/g, '') })}
                               className="w-full px-4 md:px-6 py-3 md:py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base pr-28"
                             />
                             <button
@@ -846,119 +847,95 @@ export default function TaxpayerManagement() {
                 )}
 
                 {currentStep === 3 && (
-                  <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 pb-10">
-                    <div className="md:block">
-                      <h3 className="text-[10px] md:text-xs font-black text-emerald-600 uppercase tracking-[0.2em] mb-1 md:mb-2 text-center md:text-left">Persyaratan</h3>
-                      <p className="text-gray-400 md:text-gray-500 text-xs md:text-sm font-medium text-center md:text-left">Lengkapi data teknis dan dokumen</p>
+                  <div className="space-y-10 md:space-y-12 animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 duration-500 pb-10">
+                    <div>
+                      <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-2 text-center md:text-left">Data Dukung</h3>
+                      <p className="text-gray-500 text-sm font-medium text-center md:text-left">Lengkapi formulir teknis dan unggah dokumen untuk setiap kategori</p>
                     </div>
 
-                    {/* Meta Data / Form Schema Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-5 sm:p-8 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2rem] sm:rounded-[2.5rem] border border-blue-100 dark:border-blue-900/30">
-                      <div className="col-span-1 md:col-span-2 mb-1">
-                        <h4 className="text-[9px] sm:text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
-                          <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Data Teknis Pendukung
-                        </h4>
-                      </div>
-                      {classifications
-                        .filter(c => form.retribution_classification_ids.includes(c.id) && c.form_schema)
-                        .reduce((acc, current) => {
-                          current.form_schema?.forEach((field: any) => {
-                            if (!acc.find((f: any) => f.key === field.key)) acc.push(field);
-                          });
-                          return acc;
-                        }, [] as any[])
-                        .map((field: any) => (
-                          <div key={field.key} className="group">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">{field.label}</label>
-                            {field.type === 'select' ? (
-                              <select
-                                value={form.metadata[field.key] || ''}
-                                onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
-                                className="w-full px-4 md:px-6 py-3 md:py-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
-                              >
-                                <option value="">Pilih {field.label}</option>
-                                {field.options?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
-                              </select>
-                            ) : (
-                              <input
-                                type={field.type}
-                                value={form.metadata[field.key] || ''}
-                                onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
-                                className="w-full px-4 md:px-6 py-3 md:py-4 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm md:text-base"
-                                placeholder={field.label}
-                              />
-                            )}
+                    {classifications
+                      .filter(c => form.retribution_classification_ids.includes(c.id))
+                      .map((cls) => (
+                        <div key={cls.id} className="space-y-6">
+                          <div className="flex items-center gap-4">
+                            <div className="h-[2px] flex-1 bg-gray-100 dark:bg-gray-800"></div>
+                            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 rounded-full border border-emerald-100 dark:border-emerald-800 text-center">
+                              {cls.name}
+                            </span>
+                            <div className="h-[2px] flex-1 bg-gray-100 dark:bg-gray-800"></div>
                           </div>
-                        ))}
-                      {form.retribution_classification_ids.length === 0 && (
-                        <div className="col-span-1 md:col-span-2 py-6 md:py-10 text-center text-gray-400 font-bold text-[10px] md:text-xs uppercase tracking-widest">
-                          Pilih klasifikasi untuk melihat formulir tambahan
+
+                          {/* Technical Fields Group */}
+                          {cls.form_schema && cls.form_schema.length > 0 && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 p-6 md:p-8 bg-slate-50 dark:bg-gray-800/30 rounded-[2rem] md:rounded-[2.5rem] border-2 border-gray-100 dark:border-gray-800">
+                              {cls.form_schema.map((field: any) => (
+                                <div key={field.key} className={`${field.type === 'google_map' ? 'col-span-1 md:col-span-2' : 'col-span-1'} group`}>
+                                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">{field.label}</label>
+                                  {field.type === 'select' ? (
+                                    <select
+                                      value={form.metadata[field.key] || ''}
+                                      onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
+                                      className="w-full px-5 md:px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm"
+                                    >
+                                      <option value="">Pilih {field.label}</option>
+                                      {field.options?.map((opt: any) => (
+                                        <option key={typeof opt === 'object' ? opt.value : opt} value={typeof opt === 'object' ? opt.value : opt}>
+                                          {typeof opt === 'object' ? opt.label : opt}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : field.type === 'google_map' ? (
+                                    <MapPicker
+                                      label={field.label}
+                                      value={form.metadata[field.key] || ''}
+                                      onChange={(val) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: val } })}
+                                    />
+                                  ) : (
+                                    <input
+                                      type={field.type}
+                                      value={form.metadata[field.key] || ''}
+                                      onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
+                                      className="w-full px-5 md:px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm"
+                                      placeholder={field.label}
+                                    />
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Requirements Group */}
+                          {cls.requirements && cls.requirements.length > 0 && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                              {cls.requirements.map((req: any, idx: number) => (
+                                <label key={req.key} className="block group cursor-pointer">
+                                  <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">{req.label}</div>
+                                  <div className={`p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
+                                    files[req.key] ? 'bg-emerald-50 border-emerald-500/50' : idx % 2 === 0 ? 'bg-orange-50/50 border-orange-100 hover:border-orange-500' : 'bg-indigo-50/50 border-indigo-100 hover:border-indigo-500'
+                                  }`}>
+                                    <input type="file" onChange={e => setFiles({...files, [req.key]: e.target.files?.[0] || null})} className="hidden" />
+                                    <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center ${files[req.key] ? 'bg-emerald-500 text-white' : idx % 2 === 0 ? 'bg-white text-orange-400' : 'bg-white text-indigo-400'}`}>
+                                      {idx % 2 === 0 ? <Camera className="w-7 h-7" /> : <FileCheck className="w-7 h-7" />}
+                                    </div>
+                                    <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter text-center">
+                                      {files[req.key] ? (files[req.key] as File).name : 'Klik untuk Upload'}
+                                    </span>
+                                  </div>
+                                </label>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      ))}
 
-                    {/* Requirements / File Upload Section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                      {classifications
-                        .filter(c => form.retribution_classification_ids.includes(c.id) && c.requirements)
-                        .reduce((acc, current) => {
-                          current.requirements?.forEach((req: any) => {
-                            if (!acc.find((r: any) => r.key === req.key)) acc.push(req);
-                          });
-                          return acc;
-                        }, [] as any[])
-                        .map((req: any, idx: number) => (
-                          <label key={req.key} className="block group cursor-pointer">
-                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">{req.label}</div>
-                            <div className={`p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
-                              files[req.key] ? 'bg-emerald-50 border-emerald-500/50' : idx % 2 === 0 ? 'bg-orange-50/50 border-orange-100 hover:border-orange-500' : 'bg-indigo-50/50 border-indigo-100 hover:border-indigo-500'
-                            }`}>
-                              <input type="file" onChange={e => setFiles({...files, [req.key]: e.target.files?.[0] || null})} className="hidden" />
-                              <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center ${files[req.key] ? 'bg-emerald-500 text-white' : idx % 2 === 0 ? 'bg-white text-orange-400' : 'bg-white text-indigo-400'}`}>
-                                {idx % 2 === 0 ? <Camera className="w-7 h-7" /> : <FileCheck className="w-7 h-7" />}
-                              </div>
-                              <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
-                                {files[req.key] ? (files[req.key] as File).name : 'Klik untuk Upload'}
-                              </span>
-                            </div>
-                          </label>
-                        ))}
-                      
-                      {/* Backward compatibility fallback */}
-                      {(!classifications.some(c => form.retribution_classification_ids.includes(c.id) && c.requirements?.length)) && (
-                        <>
-                          <label className="block group cursor-pointer">
-                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Foto Lokasi (Open Kamera)</div>
-                            <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
-                              files.foto_lokasi_open_kamera ? 'bg-emerald-50 border-emerald-500/50' : 'bg-gray-50 border-gray-100 hover:border-blue-500'
-                            }`}>
-                              <input type="file" accept="image/*" onChange={e => setFiles({...files, foto_lokasi_open_kamera: e.target.files?.[0] || null})} className="hidden" />
-                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files.foto_lokasi_open_kamera ? 'bg-emerald-500 text-white' : 'bg-white text-gray-300'}`}>
-                                <Camera className="w-7 h-7" />
-                              </div>
-                              <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
-                                {files.foto_lokasi_open_kamera ? (files.foto_lokasi_open_kamera as File).name : 'Klik untuk Upload'}
-                              </span>
-                            </div>
-                          </label>
-
-                          <label className="block group cursor-pointer">
-                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Formulir Data Dukung</div>
-                            <div className={`p-8 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-4 transition-all ${
-                              files.formulir_data_dukung ? 'bg-indigo-50 border-indigo-500/50' : 'bg-gray-50 border-gray-100 hover:border-blue-500'
-                            }`}>
-                              <input type="file" onChange={e => setFiles({...files, formulir_data_dukung: e.target.files?.[0] || null})} className="hidden" />
-                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${files.formulir_data_dukung ? 'bg-indigo-500 text-white' : 'bg-white text-gray-300'}`}>
-                                <FileCheck className="w-7 h-7" />
-                              </div>
-                              <span className="text-[10px] font-black uppercase text-gray-400 tracking-tighter">
-                                {files.formulir_data_dukung ? (files.formulir_data_dukung as File).name : 'Klik untuk Upload'}
-                              </span>
-                            </div>
-                          </label>
-                        </>
-                      )}
-                    </div>
+                    {form.retribution_classification_ids.length === 0 && (
+                      <div className="py-20 text-center text-gray-400 bg-slate-50 dark:bg-gray-800/10 rounded-[3rem] border-2 border-dashed border-gray-100 dark:border-gray-800">
+                        <div className="flex flex-col items-center gap-4">
+                          <Info className="w-8 h-8 text-gray-300" />
+                          <p className="font-bold uppercase text-[11px] tracking-widest">Pilih klasifikasi untuk melihat formulir tambahan</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
