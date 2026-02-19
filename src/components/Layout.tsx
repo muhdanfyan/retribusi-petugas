@@ -103,9 +103,9 @@ export default function Layout({ children }: LayoutProps) {
               <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" alt="Logo" className="w-7 h-7 object-contain" />
             </div>
             <div>
-              <h1 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none mb-0.5">
-                SIPANDA <span className="text-[#2d5cd5]">PETUGAS</span>
-              </h1>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                  MITRA <span className="text-blue-600 dark:text-blue-400">Petugas</span>
+                </h1>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Kota Baubau</p>
             </div>
           </Link>
