@@ -68,8 +68,8 @@ export default function LandingPage() {
                 className="w-10 h-10 object-contain" 
               />
               <div>
-                <span className="font-black text-gray-900 text-lg">SIPANDA</span>
-                <span className="text-[10px] text-gray-500 block -mt-1">Petugas Lapangan</span>
+                <span className="font-black text-gray-900 text-lg tracking-tighter">MITRA</span>
+                <span className="text-[10px] text-gray-500 block uppercase font-bold tracking-widest leading-none -mt-1">Petugas Lapangan</span>
               </div>
             </div>
             
@@ -174,7 +174,7 @@ export default function LandingPage() {
                           className="w-8 h-8 object-contain bg-white rounded-lg p-1" 
                         />
                         <div>
-                          <div className="text-white text-sm font-bold">SIPANDA</div>
+                          <div className="text-white text-sm font-bold">MITRA</div>
                           <div className="text-white/60 text-[10px]">Petugas</div>
                         </div>
                       </div>
@@ -361,8 +361,8 @@ export default function LandingPage() {
                 className="w-10 h-10 object-contain" 
               />
               <div>
-                <span className="font-black text-lg">SIPANDA</span>
-                <span className="text-xs text-gray-400 block">Petugas Lapangan</span>
+                <span className="font-black text-lg">MITRA</span>
+                <span className="text-xs text-gray-400 block tracking-widest uppercase font-bold text-[8px]">Petugas Lapangan</span>
               </div>
             </div>
             <div className="text-center">

@@ -86,8 +86,8 @@ export default function PetugasLogin() {
                 alt="Logo Kota Baubau" 
                 className="w-16 h-16 mx-auto mb-4 object-contain" 
               />
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2" style={{ color: BAUBAU_BLUE }}>Selamat Datang</h1>
-              <p className="text-slate-400 text-sm font-medium">Silakan masuk ke akun petugas Anda</p>
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2" style={{ color: BAUBAU_BLUE }}>MITRA Petugas</h1>
+              <p className="text-slate-400 text-sm font-medium">Mitra Bapenda - Manajemen Integrasi Tax, Retribusi, dan Aset Daerah</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
