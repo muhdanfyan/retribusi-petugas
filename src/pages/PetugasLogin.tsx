@@ -53,9 +53,16 @@ export default function PetugasLogin() {
   };
 
   const demoAccounts = [
-    { email: 'petugas@bapenda.go.id', label: 'Petugas BAPENDA' },
-    { email: 'dishub@retribusi.id', label: 'Admin DISHUB' },
+    { email: 'superadmin@sipanda.online', password: 'password', label: 'Super Admin' },
+    { email: 'admin@bapenda.go.id', password: 'password123', label: 'Admin Bapenda' },
+    { email: 'petugas@bapenda.go.id', password: 'password123', label: 'Petugas Bapenda' },
   ];
+
+  const isDev = import.meta.env.MODE === 'development' || 
+                import.meta.env.VITE_APP_ENV === 'local' || 
+                import.meta.env.VITE_APP_ENV === 'development' ||
+                window.location.hostname === 'localhost' || 
+                window.location.hostname === '127.0.0.1';
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden font-sans" style={{ backgroundColor: BAUBAU_BLUE }}>
@@ -87,7 +94,7 @@ export default function PetugasLogin() {
                 className="w-16 h-16 mx-auto mb-4 object-contain" 
               />
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2" style={{ color: BAUBAU_BLUE }}>MITRA Petugas</h1>
-              <p className="text-slate-400 text-sm font-medium">Mitra Bapenda - Manajemen Integrasi Tax, Retribusi, dan Aset Daerah</p>
+              <p className="text-slate-400 text-sm font-medium">Mitra PAD - Manajemen Integrasi Tax, Retribusi, dan Aset Daerah</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -181,20 +188,22 @@ export default function PetugasLogin() {
                 ))}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-slate-100 space-y-4">
-                <p className="text-[10px] text-center text-slate-400 uppercase tracking-widest font-black">Quick Access</p>
-                <div className="grid grid-cols-2 gap-3">
-                  {demoAccounts.map(acc => (
-                    <button
-                      key={acc.email}
-                      onClick={() => quickLogin(acc.email, 'password123')}
-                      className="bg-slate-50 hover:bg-blue-50 text-[#2d5cd5] py-3 px-4 rounded-2xl text-[10px] font-black transition-all border border-slate-100 uppercase tracking-tighter"
-                    >
-                      {acc.label}
-                    </button>
-                  ))}
+              {isDev && (
+                <div className="mt-8 pt-6 border-t border-slate-100 space-y-4">
+                  <p className="text-[10px] text-center text-slate-400 uppercase tracking-widest font-black">Quick Access (Dev)</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {demoAccounts.map(acc => (
+                      <button
+                        key={acc.email}
+                        onClick={() => quickLogin(acc.email, acc.password)}
+                        className="bg-slate-50 hover:bg-blue-50 text-[#2d5cd5] py-3 px-4 rounded-2xl text-[10px] font-black transition-all border border-slate-100 uppercase tracking-tighter"
+                      >
+                        {acc.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <p className="text-center mt-8 sm:mt-10 text-xs sm:text-sm font-bold text-slate-400">
                 Belum punya akun?{' '}

@@ -1,0 +1,55 @@
+name: Deploy Dev to VPS
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy Dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Application
+        run: npm run build
+        env:
+          VITE_API_URL: "https://api-dev.sipanda.online"
+          VITE_APP_ENV: "development"
+
+      - name: Deploy via SSH/SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "dist/*"
+          target: "/home/sipanda/retribusi-petugas-dev/"
+          strip_components: 0
+
+      - name: Cleanup remote dist structure
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            if [ -d "/home/sipanda/retribusi-petugas-dev/dist/dist" ]; then
+              cp -r /home/sipanda/retribusi-petugas-dev/dist/dist/* /home/sipanda/retribusi-petugas-dev/dist/
+              rm -rf /home/sipanda/retribusi-petugas-dev/dist/dist
+            fi
+            echo "✅ Petugas Dev Deploy completed successfully!"
