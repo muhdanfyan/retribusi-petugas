@@ -59,6 +59,8 @@ interface Potential {
   agency: string;
   address?: string;
   status: string;
+  is_paid?: boolean;
+  taxpayer_photo?: string | null;
   icon?: string | null;
   retribution_type_id?: number | string;
 }
@@ -217,23 +219,43 @@ export default function Dashboard() {
   }
 
   const createCustomIcon = (iconUrl: string | null, seed: any, status?: string) => {
-    // If it's a taxpayer, use a user icon
+    // If it's a taxpayer, use a user icon with color based on payment status
     if (status === 'taxpayer') {
+      const color = seed?.is_paid ? '#10b981' : '#ef4444'; // Emerald-500 for paid, Red-500 for unpaid
+      const label = seed?.is_paid ? 'LUNAS' : 'BELUM BAYAR';
+      
+      const photoUrl = seed?.taxpayer_photo?.startsWith('http') 
+        ? seed.taxpayer_photo 
+        : (seed?.taxpayer_photo ? `${import.meta.env.VITE_API_URL}${seed.taxpayer_photo.startsWith('/') ? '' : '/'}${seed.taxpayer_photo}` : null);
+
+      const fallbackAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed?.name || 'default'}&backgroundColor=b6e3f4`;
+
       return L.divIcon({
         className: 'custom-div-icon',
         html: `
-          <div style="
-            width: 32px; height: 32px; 
-            background: #2d5cd5; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 4px 10px rgba(45,92,213,0.3); border: 2px solid white;
-            color: white;
-          ">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <div style="position: relative;">
+            <div style="
+              width: 38px; height: 38px; 
+              background: white; border-radius: 50%; 
+              display: flex; align-items: center; justify-content: center; 
+              box-shadow: 0 4px 12px ${color}4d; border: 3px solid ${color};
+              overflow: hidden;
+              transition: all 0.3s ease;
+            ">
+              <img src="${photoUrl || fallbackAvatar}" style="width: 100%; height: 100%; object-fit: cover;" />
+            </div>
+            <div style="
+              position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+              background: ${color}; color: white; padding: 2px 6px; border-radius: 4px;
+              font-size: 7px; font-weight: 900; white-space: nowrap; border: 1px solid white;
+              letter-spacing: 0.05em;
+            ">
+              ${label}
+            </div>
           </div>
         `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
+        iconSize: [38, 38],
+        iconAnchor: [19, 38],
       });
     }
 
@@ -612,7 +634,7 @@ export default function Dashboard() {
                 </h3>
                 <MoreHorizontal size={18} className="text-slate-300 cursor-pointer" />
               </div>
-              <div className="h-[250px] sm:h-[calc(100%-4rem)] rounded-3xl overflow-hidden">
+              <div className="h-[250px] sm:h-[calc(100%-4rem)] rounded-3xl overflow-hidden relative">
                 <MapContainer center={[-5.47, 122.6]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -621,20 +643,39 @@ export default function Dashboard() {
                     <Marker 
                       key={index} 
                       position={potential.position}
-                      icon={createCustomIcon(potential.icon || null, potential.retribution_type_id || index, potential.status)}
+                      icon={createCustomIcon(potential.icon || null, potential, potential.status)}
                     >
                       <Popup>
                         <div className="p-3 min-w-[200px] font-sans">
                           <h3 className="font-black text-slate-900 text-sm mb-1">{potential.name}</h3>
                           <p className="text-[10px] text-[#2d5cd5] font-black uppercase mb-2 tracking-wider">{potential.agency}</p>
-                          <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${potential.status === 'taxpayer' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                            {potential.status === 'taxpayer' ? 'Wajib Pajak' : 'Zona Potensi'}
-                          </span>
+                          <div className="flex flex-wrap gap-2">
+                             <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${potential.status === 'taxpayer' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                {potential.status === 'taxpayer' ? 'Wajib Pajak' : 'Zona Potensi'}
+                             </span>
+                             {potential.status === 'taxpayer' && (
+                                <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${potential.is_paid ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                                   {potential.is_paid ? 'Lunas' : 'Belum Bayar'}
+                                </span>
+                             )}
+                          </div>
                         </div>
                       </Popup>
                     </Marker>
                   ))}
                 </MapContainer>
+
+                {/* Map Legend */}
+                <div className="absolute bottom-4 left-4 z-[1000] bg-white/90 backdrop-blur-md p-3 rounded-2xl border border-white shadow-xl space-y-2">
+                   <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-[#10b981] rounded-full border border-white shadow-sm"></div>
+                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Lunas</span>
+                   </div>
+                   <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-[#ef4444] rounded-full border border-white shadow-sm"></div>
+                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Belum Bayar</span>
+                   </div>
+                </div>
               </div>
             </div>
           </div>
