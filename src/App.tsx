@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -21,13 +21,32 @@ import UserGuide from './pages/UserGuide';
 import FieldInspection from './pages/FieldInspection';
 import Presentation from './pages/Presentation';
 
+
+function HomeRoute() {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-baubau-blue"></div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <LandingPage />;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<HomeRoute />} />
             <Route path="/login" element={<PetugasLogin />} />
             <Route path="/register" element={<PetugasRegister />} />
             <Route path="/welcome" element={<PetugasWelcome />} />
