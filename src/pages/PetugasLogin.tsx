@@ -62,7 +62,8 @@ export default function PetugasLogin() {
                 import.meta.env.VITE_APP_ENV === 'local' || 
                 import.meta.env.VITE_APP_ENV === 'development' ||
                 window.location.hostname === 'localhost' || 
-                window.location.hostname === '127.0.0.1';
+                window.location.hostname === '127.0.0.1' ||
+                window.location.hostname === 'petugas-dev.sipanda.online';
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden font-sans" style={{ backgroundColor: BAUBAU_BLUE }}>
