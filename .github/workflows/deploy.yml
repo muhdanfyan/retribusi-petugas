@@ -1,18 +1,30 @@
-name: Deploy Dev to VPS
+name: Deploy Petugas to VPS
 
 on:
   push:
     branches:
+      - main
       - dev
 
 jobs:
   build-and-deploy:
-    name: Build and Deploy Dev
+    name: Build and Deploy Petugas App
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Set Target Dir
+        id: vars
+        run: |
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            echo "target_dir=/home/sipanda/retribusi-petugas/dist" >> $GITHUB_OUTPUT
+            echo "api_url=https://api.sipanda.online" >> $GITHUB_OUTPUT
+          else
+            echo "target_dir=/home/sipanda/retribusi-petugas-dev/dist" >> $GITHUB_OUTPUT
+            echo "api_url=https://api-dev.sipanda.online" >> $GITHUB_OUTPUT
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,8 +38,8 @@ jobs:
       - name: Build Application
         run: npm run build
         env:
-          VITE_API_URL: "https://api-dev.sipanda.online"
-          VITE_APP_ENV: "development"
+          VITE_API_URL: ${{ steps.vars.outputs.api_url }}
+          VITE_APP_ENV: ${{ github.ref_name == 'main' && 'production' || 'development' }}
 
       - name: Deploy via SSH/SCP
         uses: appleboy/scp-action@v0.1.7
@@ -37,10 +49,10 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           source: "dist/*"
-          target: "/home/sipanda/retribusi-petugas-dev/dist"
-          strip_components: 0
+          target: ${{ steps.vars.outputs.target_dir }}
+          strip_components: 1
 
-      - name: Cleanup remote dist structure
+      - name: Post-deploy Success
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -48,5 +60,4 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            echo "✅ Petugas Dev Deploy completed successfully!"
-            echo "✅ Petugas Dev Deploy completed successfully!"
+            echo "✅ Petugas Deploy to ${{ github.ref_name }} completed successfully!"
