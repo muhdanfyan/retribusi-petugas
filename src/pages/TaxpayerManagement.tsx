@@ -1,9 +1,11 @@
 import { 
   Plus, Edit, Trash2, Search, Loader2, Filter, X, 
   User, CreditCard, MapPin, Phone, Briefcase, 
-  FileCheck, Camera, Info, CheckCircle2, XCircle
+  FileCheck, Camera, Info, CheckCircle2, XCircle,
+  Eye, FileText, Calendar, Hash, ExternalLink, MapPinned
 } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../lib/api';
 import { Taxpayer, Opd, RetributionType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -56,6 +58,7 @@ export default function TaxpayerManagement() {
   const [currentStep, setCurrentStep] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [taxpayerToDelete, setTaxpayerToDelete] = useState<number | null>(null);
+  const nav = useNavigate();
 
   const [form, setForm] = useState({
     nik: '',
@@ -113,6 +116,19 @@ export default function TaxpayerManagement() {
   useEffect(() => {
     fetchData();
   }, [page, search, opdFilter]);
+
+  // Auto-open edit modal when coming from detail page
+  const location = useLocation();
+  useEffect(() => {
+    const editId = (location.state as any)?.editId;
+    if (editId) {
+      // Clear the state so it doesn't re-trigger on navigation
+      window.history.replaceState({}, '');
+      api.get(`/api/taxpayers/${editId}`).then(res => {
+        handleEdit(res.data);
+      }).catch(() => {});
+    }
+  }, [location.state]);
 
   const handleAdd = () => {
     setEditingTaxpayer(null);
@@ -447,6 +463,13 @@ export default function TaxpayerManagement() {
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       <button 
+                        onClick={() => nav(`/taxpayers/${tp.id}`)}
+                        className="p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors"
+                        title="Lihat Detail"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button 
                         onClick={() => handleEdit(tp)}
                         className="p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                       >
@@ -510,6 +533,12 @@ export default function TaxpayerManagement() {
                     <span className="text-[10px] font-bold truncate max-w-[120px]">{tp.opd?.name || 'No Department'}</span>
                   </div>
                   <div className="flex gap-2">
+                    <button 
+                      onClick={() => nav(`/taxpayers/${tp.id}`)}
+                      className="w-8 h-8 flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-lg active:scale-90 transition-all"
+                    >
+                      <Eye size={14} />
+                    </button>
                     <button 
                       onClick={() => handleEdit(tp)}
                       className="w-8 h-8 flex items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg active:scale-90 transition-all"
@@ -884,6 +913,33 @@ export default function TaxpayerManagement() {
                                         </option>
                                       ))}
                                     </select>
+                                  ) : field.type === 'constant' ? (
+                                    <div className="w-full px-5 md:px-6 py-4 bg-gray-100 dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-2xl font-bold text-sm text-gray-500 cursor-not-allowed">
+                                      {(() => {
+                                        if (!form.metadata[field.key] && field.default_value) {
+                                          setTimeout(() => setForm(prev => ({...prev, metadata: {...prev.metadata, [field.key]: field.default_value}})), 0);
+                                        }
+                                        return form.metadata[field.key] || field.default_value || '-';
+                                      })()}
+                                    </div>
+                                  ) : field.type === 'textarea' ? (
+                                    <textarea
+                                      rows={3}
+                                      value={form.metadata[field.key] || ''}
+                                      onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.value } })}
+                                      className="w-full px-5 md:px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl font-bold text-sm resize-none"
+                                      placeholder={field.label}
+                                    />
+                                  ) : field.type === 'checkbox' ? (
+                                    <label className="flex items-center gap-3 px-5 md:px-6 py-4 bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl cursor-pointer hover:border-blue-300 transition-colors">
+                                      <input
+                                        type="checkbox"
+                                        checked={form.metadata[field.key] === 'Ya' || form.metadata[field.key] === true}
+                                        onChange={(e) => setForm({ ...form, metadata: { ...form.metadata, [field.key]: e.target.checked ? 'Ya' : 'Tidak' } })}
+                                        className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                      />
+                                      <span className="text-sm font-bold text-gray-900 dark:text-white">{form.metadata[field.key] === 'Ya' ? 'Ya' : 'Tidak'}</span>
+                                    </label>
                                   ) : field.type === 'google_map' ? (
                                     <MapPicker
                                       label={field.label}
@@ -1070,6 +1126,7 @@ export default function TaxpayerManagement() {
           </div>
         </div>
       )}
+
       {showDeleteModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4 animate-in fade-in duration-300">
           <div className="bg-white dark:bg-gray-900 rounded-[2rem] shadow-2xl max-w-md w-full p-8 animate-in fade-in zoom-in duration-300">

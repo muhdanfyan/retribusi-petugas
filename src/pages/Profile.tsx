@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
@@ -18,7 +18,11 @@ import {
   X,
   Eye,
   EyeOff,
-  LogOut
+  LogOut,
+  FileText,
+  Upload,
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 
 export default function Profile() {
@@ -40,6 +44,29 @@ export default function Profile() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [uploadingSurat, setUploadingSurat] = useState(false);
+  const suratInputRef = useRef<HTMLInputElement>(null);
+
+  const suratPenugasanUrl = (user as any)?.metadata?.surat_penugasan_url || null;
+
+  const handleUploadSurat = async (file: File) => {
+    setUploadingSurat(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', user?.name || '');
+      formData.append('email', user?.email || '');
+      formData.append('surat_penugasan', file);
+      formData.append('_method', 'PUT');
+
+      const response = await api.post('/api/user/profile', formData);
+      updateUser(response.user);
+      setMessage({ type: 'success', text: 'Surat Penugasan berhasil diupload' });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Gagal upload surat penugasan' });
+    } finally {
+      setUploadingSurat(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -162,6 +189,107 @@ export default function Profile() {
             <Pencil size={14} />
             Edit Profile
           </button>
+        </div>
+      </div>
+
+      {/* Surat Penugasan Section */}
+      <div className="mt-6 mx-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+          <div className="p-5 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center">
+                <FileText size={20} className="text-amber-600" />
+              </div>
+              <div>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Surat Penugasan</h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Scan/foto surat penugasan dari kantor</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5">
+            {message && message.text.includes('Surat') && (
+              <div className={`p-3 rounded-xl flex items-center gap-2 text-sm mb-4 ${
+                message.type === 'success'
+                  ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                  : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+              }`}>
+                {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                {message.text}
+              </div>
+            )}
+
+            {suratPenugasanUrl ? (
+              <div className="space-y-3">
+                {/* Preview */}
+                <div className="relative rounded-2xl overflow-hidden border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                  {suratPenugasanUrl.toLowerCase().endsWith('.pdf') ? (
+                    <div className="flex items-center justify-center py-8">
+                      <FileText size={48} className="text-amber-500" />
+                      <span className="ml-3 text-sm font-bold text-slate-500">Dokumen PDF</span>
+                    </div>
+                  ) : (
+                    <img
+                      src={suratPenugasanUrl}
+                      alt="Surat Penugasan"
+                      className="w-full max-h-48 object-contain"
+                    />
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <a
+                    href={suratPenugasanUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink size={14} />
+                    Lihat
+                  </a>
+                  <button
+                    onClick={() => suratInputRef.current?.click()}
+                    disabled={uploadingSurat}
+                    className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {uploadingSurat ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                    Ganti File
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => suratInputRef.current?.click()}
+                disabled={uploadingSurat}
+                className="w-full py-8 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl hover:border-amber-400 hover:bg-amber-50/50 dark:hover:bg-amber-900/10 transition-all flex flex-col items-center gap-3 disabled:opacity-50"
+              >
+                {uploadingSurat ? (
+                  <Loader2 size={28} className="animate-spin text-amber-500" />
+                ) : (
+                  <Upload size={28} className="text-slate-400" />
+                )}
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-widest text-slate-500">
+                    {uploadingSurat ? 'Mengupload...' : 'Upload Surat Penugasan'}
+                  </p>
+                  <p className="text-[10px] text-slate-400 mt-1">JPG, PNG, atau PDF • Maks. 5MB</p>
+                </div>
+              </button>
+            )}
+
+            <input
+              ref={suratInputRef}
+              type="file"
+              accept="image/jpeg,image/png,application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleUploadSurat(file);
+                e.target.value = '';
+              }}
+            />
+          </div>
         </div>
       </div>
 

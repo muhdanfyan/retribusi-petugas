@@ -12,6 +12,7 @@ import Billing from './pages/Billing';
 import Reporting from './pages/Reporting';
 import MasterData from './pages/MasterData';
 import TaxpayerManagement from './pages/TaxpayerManagement';
+import TaxpayerDetail from './pages/TaxpayerDetail';
 import Profile from './pages/Profile';
 import FieldScanner from './pages/FieldScanner';
 import PaymentConfirmation from './pages/PaymentConfirmation';
@@ -81,6 +82,17 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
                   <Layout>
                     <TaxpayerManagement />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/taxpayers/:id"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
+                  <Layout>
+                    <TaxpayerDetail />
                   </Layout>
                 </ProtectedRoute>
               }
