@@ -19,10 +19,10 @@ jobs:
         id: vars
         run: |
           if [ "${{ github.ref_name }}" == "main" ]; then
-            echo "target_dir=/home/sipanda/retribusi-petugas/dist" >> $GITHUB_OUTPUT
+            echo "target_dir=/home/sipanda/retribusi-petugas" >> $GITHUB_OUTPUT
             echo "api_url=https://api.sipanda.online" >> $GITHUB_OUTPUT
           else
-            echo "target_dir=/home/sipanda/retribusi-petugas-dev/dist" >> $GITHUB_OUTPUT
+            echo "target_dir=/home/sipanda/retribusi-petugas-dev" >> $GITHUB_OUTPUT
             echo "api_url=https://api-dev.sipanda.online" >> $GITHUB_OUTPUT
           fi
 
@@ -48,9 +48,9 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
-          source: "dist/*"
+          source: "dist/"
           target: ${{ steps.vars.outputs.target_dir }}
-          strip_components: 1
+          strip_components: 0
 
       - name: Post-deploy Success
         uses: appleboy/ssh-action@v1.2.0
