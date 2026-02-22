@@ -50,7 +50,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           source: "dist/*"
           target: ${{ steps.vars.outputs.target_dir }}
-          strip_components: 0
+          strip_components: 1
 
       - name: Post-deploy Success
         uses: appleboy/ssh-action@v1.2.0
