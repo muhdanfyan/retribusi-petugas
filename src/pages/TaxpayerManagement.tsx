@@ -1056,7 +1056,12 @@ export default function TaxpayerManagement() {
                         <MapEvents />
                         <Marker position={[form.latitude, form.longitude]}>
                           <Popup>
-                            Lokasi Objek: <br /> {form.latitude.toFixed(6)}, {form.longitude.toFixed(6)}
+                            <div className="p-2 font-sans text-center">
+                              <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-1">Lokasi Terpilih</p>
+                              <p className="text-[10px] text-blue-600 font-mono">
+                                {form.latitude.toFixed(6)}, {form.longitude.toFixed(6)}
+                              </p>
+                            </div>
                           </Popup>
                         </Marker>
                       </MapContainer>

@@ -32,6 +32,7 @@ interface Potential {
   address?: string;
   status: string;
   is_paid?: boolean;
+  classification_name?: string;
   taxpayer_photo?: string | null;
   icon?: string | null;
   retribution_type_id?: number | string;
@@ -220,6 +221,16 @@ export default function PetaLapangan() {
           ">
             ${label}
           </div>
+          ${potential.classification_name ? `
+            <div style="
+              position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+              background: #8b5cf6; color: white; padding: 1px 4px; border-radius: 3px;
+              font-size: 6px; font-weight: 900; white-space: nowrap; border: 1px solid white;
+              letter-spacing: 0.05em; z-index: 10;
+            ">
+              ${potential.classification_name}
+            </div>
+          ` : ''}
         </div>
       `,
       iconSize: [38, 38],
@@ -400,6 +411,17 @@ export default function PetaLapangan() {
                       </span>
                     )}
                   </div>
+
+                  {potential.status === 'taxpayer' && (
+                    <div className="pt-2 border-t mt-2">
+                       <div className="flex items-center justify-between mb-1">
+                         <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Klasifikasi</span>
+                         <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-50 text-blue-600 border border-blue-100">
+                           {potential.classification_name || 'N/A'}
+                         </span>
+                       </div>
+                    </div>
+                  )}
 
                   {/* Distance from petugas */}
                   {distance !== null && (

@@ -4,7 +4,7 @@ import { api } from '../lib/api';
 import {
   ArrowLeft, Edit, Loader2, User, CreditCard, MapPin, Phone,
   Briefcase, FileText, Calendar, Hash, ExternalLink, MapPinned,
-  FileCheck, Image, Download, CheckCircle2, XCircle, Building2,
+  FileCheck, Image, Download, XCircle, Building2,
   Globe, Copy, Check
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -384,8 +384,17 @@ export default function TaxpayerDetail() {
                 />
                 <Marker position={[lat, lng]}>
                   <Popup>
-                    <strong>{taxpayer.object_name || taxpayer.name}</strong><br />
-                    {Number(lat).toFixed(6)}, {Number(lng).toFixed(6)}
+                    <div className="p-3 min-w-[180px] font-sans">
+                      <h3 className="font-black text-slate-900 text-sm mb-1">{taxpayer.object_name || taxpayer.name}</h3>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-50 text-blue-600 border border-blue-100">
+                          {taxpayer.retribution_classifications?.[0]?.name || 'N/A'}
+                        </span>
+                      </div>
+                      <p className="text-[9px] text-slate-400 font-mono">
+                        {Number(lat).toFixed(6)}, {Number(lng).toFixed(6)}
+                      </p>
+                    </div>
                   </Popup>
                 </Marker>
               </MapContainer>
