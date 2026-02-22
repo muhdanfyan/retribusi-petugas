@@ -38,7 +38,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           source: "dist/*"
           target: "/home/sipanda/retribusi-petugas-dev/dist"
-          strip_components: 1
+          strip_components: 0
 
       - name: Cleanup remote dist structure
         uses: appleboy/ssh-action@v1.2.0
