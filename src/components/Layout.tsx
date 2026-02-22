@@ -335,8 +335,31 @@ export default function Layout({ children }: LayoutProps) {
           { icon: QrCode, path: '/scanner', label: 'Scan' },
           { icon: Users, path: '/taxpayers', label: 'WP' },
           { icon: User, path: '/profile', label: 'Profile' }
-        ].map((item, i) => {
+        ].map((item, i, arr) => {
           const isActive = location.pathname === item.path;
+          const isCenter = i === Math.floor(arr.length / 2);
+
+          if (isCenter) {
+            return (
+              <button 
+                key={i}
+                onClick={() => navigate(item.path)}
+                className="flex flex-col items-center -mt-7 active:scale-95 transition-all"
+              >
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all ${
+                  isActive 
+                    ? 'bg-gradient-to-br from-[#2d5cd5] to-blue-400 shadow-blue-500/30' 
+                    : 'bg-gradient-to-br from-slate-700 to-slate-500 shadow-slate-400/20'
+                }`}>
+                  <item.icon size={26} strokeWidth={2.5} className="text-white" />
+                </div>
+                <span className={`text-[9px] font-black uppercase tracking-wider mt-1 ${isActive ? 'text-[#2d5cd5]' : 'text-slate-400'}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          }
+
           return (
             <button 
               key={i}

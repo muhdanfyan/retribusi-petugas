@@ -2,7 +2,7 @@ import {
   Plus, Edit, Trash2, Search, Loader2, Filter, X, 
   User, CreditCard, MapPin, Phone, Briefcase, 
   FileCheck, Camera, Info, CheckCircle2, XCircle,
-  Eye, FileText, Calendar, Hash, ExternalLink, MapPinned
+  Eye, FileText, Calendar, ExternalLink, MapPinned
 } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -55,6 +55,7 @@ export default function TaxpayerManagement() {
   const [editingTaxpayer, setEditingTaxpayer] = useState<Taxpayer | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [isCheckingNik, setIsCheckingNik] = useState(false);
+  const [foundAssets, setFoundAssets] = useState<any[]>([]);
   const [currentStep, setCurrentStep] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [taxpayerToDelete, setTaxpayerToDelete] = useState<number | null>(null);
@@ -132,6 +133,7 @@ export default function TaxpayerManagement() {
 
   const handleAdd = () => {
     setEditingTaxpayer(null);
+    setFoundAssets([]);
     setForm({
       nik: '',
       name: '',
@@ -178,8 +180,10 @@ export default function TaxpayerManagement() {
           district: res.data.district || prev.district,
           sub_district: res.data.sub_district || prev.sub_district,
         }));
-        alert('Data wajib pajak ditemukan! Informasi identitas telah otomatis terisi.');
+        setFoundAssets(res.all_assets || []);
+        alert(`Data wajib pajak ditemukan! (Terdeteksi ${res.count} aset terdaftar). Informasi identitas telah otomatis terisi.`);
       } else {
+        setFoundAssets([]);
         alert('NIK belum terdaftar di sistem. Silakan lengkapi data profil baru.');
       }
     } catch (error: any) {
@@ -192,6 +196,7 @@ export default function TaxpayerManagement() {
 
   const handleEdit = (taxpayer: Taxpayer) => {
     setEditingTaxpayer(taxpayer);
+    setFoundAssets([]);
     setForm({
       nik: taxpayer.nik ?? '',
       name: taxpayer.name ?? '',
@@ -721,6 +726,41 @@ export default function TaxpayerManagement() {
                               {isCheckingNik ? 'Checking...' : 'Cek NIK'}
                             </button>
                           </div>
+
+                          {/* FOUND ASSETS PREVIEW */}
+                          {foundAssets.length > 0 && (
+                            <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Briefcase size={12} className="text-blue-500" />
+                                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Aset Terdaftar ({foundAssets.length})</h4>
+                                <div className="ml-auto flex items-center gap-1">
+                                  <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+                                  <span className="text-[8px] font-bold text-blue-500 uppercase">Potensi Aktif</span>
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                {foundAssets.map((asset, idx) => (
+                                  <div key={idx} className="flex items-center justify-between p-2.5 bg-white dark:bg-gray-800 rounded-xl border border-gray-50 dark:border-gray-700/50 shadow-sm">
+                                    <div className="flex flex-col">
+                                      <span className="text-[11px] font-black text-gray-900 dark:text-white leading-tight">
+                                        {asset.object_name || 'Tanpa Nama Objek'}
+                                      </span>
+                                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">
+                                        {asset.retribution_types?.[0]?.name || 'Tanpa Kategori'}
+                                      </span>
+                                    </div>
+                                    <div className="text-right">
+                                      <span className="block text-[9px] font-black text-gray-400 uppercase">{asset.opd?.name || '-'}</span>
+                                      <span className="block text-[8px] font-bold text-gray-300">{asset.object_address || asset.district || '-'}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="mt-3 text-center">
+                                <p className="text-[9px] font-bold text-gray-400 italic">"Gunakan data di atas sebagai referensi kepemilikan aset wajib pajak ini."</p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                         <div className="group">
                           <label className="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
