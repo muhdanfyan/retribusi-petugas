@@ -10,6 +10,11 @@ export interface User {
   department?: string;
   opd_id?: number;
   opd?: Opd;
+  metadata?: {
+    avatar_url?: string;
+    surat_penugasan_url?: string;
+    [key: string]: any;
+  };
 }
 
 export interface AuthUser extends User {

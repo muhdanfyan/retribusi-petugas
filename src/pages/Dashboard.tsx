@@ -11,7 +11,6 @@ import {
   Map as MapIcon,
   Activity,
   Plus,
-  MoreHorizontal,
   ChevronLeft,
   ChevronRight,
   Calendar
@@ -444,9 +443,66 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Petugas Personal Achievement Section */}
+      {/* Map + Petugas Achievement Section */}
       {stats?.petugas_achievement && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 origin-left">
+          {/* Map - Left Side */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-2 shadow-xl overflow-hidden group h-full min-h-[300px] sm:min-h-[380px]">
+            <div className="p-4 sm:p-5 flex items-center justify-between">
+              <h3 className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
+                <MapIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2d5cd5]" />
+                Peta Potensi
+              </h3>
+              <button 
+                onClick={() => navigate('/peta')}
+                className="text-[9px] font-black text-[#2d5cd5] uppercase tracking-widest hover:underline"
+              >
+                Lihat Peta Penuh →
+              </button>
+            </div>
+            <div className="h-[250px] sm:h-[calc(100%-4rem)] rounded-3xl overflow-hidden relative">
+              <MapContainer center={[-5.47, 122.6]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                {potentials.map((potential, index) => (
+                  <Marker 
+                    key={index} 
+                    position={potential.position}
+                    icon={createCustomIcon(potential.icon || null, potential, potential.status)}
+                  >
+                    <Popup>
+                      <div className="p-3 min-w-[200px] font-sans">
+                        <h3 className="font-black text-slate-900 text-sm mb-1">{potential.name}</h3>
+                        <p className="text-[10px] text-[#2d5cd5] font-black uppercase mb-2 tracking-wider">{potential.agency}</p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${potential.status === 'taxpayer' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                            {potential.status === 'taxpayer' ? 'Wajib Pajak' : 'Zona Potensi'}
+                          </span>
+                          {potential.status === 'taxpayer' && (
+                            <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${potential.is_paid ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                              {potential.is_paid ? 'Lunas' : 'Belum Bayar'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+              {/* Map Legend */}
+              <div className="absolute bottom-4 left-4 z-[1000] bg-white/90 backdrop-blur-md p-3 rounded-2xl border border-white shadow-xl space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-[#10b981] rounded-full border border-white shadow-sm"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Lunas</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-[#ef4444] rounded-full border border-white shadow-sm"></div>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Belum Bayar</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Pencapaian Saya - Right Side */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-xl relative overflow-hidden group">
              <div className="absolute right-0 top-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-emerald-500/10 transition-all duration-700"></div>
              <div className="relative z-10 flex items-center justify-between">
@@ -601,7 +657,7 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="col-span-12 lg:col-span-7 space-y-4">
+          <div className="col-span-12 space-y-4">
             {[
               { id: 1, title: 'PT Berkah Sejahtera', category: 'Pajak Restoran', amount: 'Rp 1.800.000', date: '2 Hari lalu', status: 'Verified', icon: FileText, color: 'text-[#2d5cd5]', bg: 'bg-blue-50' },
               { id: 2, title: 'Hotel Grand Baubau', category: 'Pajak Hotel', amount: 'Rp 4.250.000', date: '1 Minggu lalu', status: 'Pending', icon: CreditCard, color: 'text-amber-500', bg: 'bg-amber-50' },
@@ -623,61 +679,6 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className="col-span-12 lg:col-span-5 h-full min-h-[300px] sm:min-h-[400px]">
-            <div className="bg-white dark:bg-slate-900 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-2 shadow-sm h-full overflow-hidden group">
-              <div className="p-4 sm:p-6 flex items-center justify-between">
-                <h3 className="text-[11px] sm:text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                  <MapIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2d5cd5]" />
-                  Potensi Langsung
-                </h3>
-                <MoreHorizontal size={18} className="text-slate-300 cursor-pointer" />
-              </div>
-              <div className="h-[250px] sm:h-[calc(100%-4rem)] rounded-3xl overflow-hidden relative">
-                <MapContainer center={[-5.47, 122.6]} zoom={13} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  {potentials.map((potential, index) => (
-                    <Marker 
-                      key={index} 
-                      position={potential.position}
-                      icon={createCustomIcon(potential.icon || null, potential, potential.status)}
-                    >
-                      <Popup>
-                        <div className="p-3 min-w-[200px] font-sans">
-                          <h3 className="font-black text-slate-900 text-sm mb-1">{potential.name}</h3>
-                          <p className="text-[10px] text-[#2d5cd5] font-black uppercase mb-2 tracking-wider">{potential.agency}</p>
-                          <div className="flex flex-wrap gap-2">
-                             <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${potential.status === 'taxpayer' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                                {potential.status === 'taxpayer' ? 'Wajib Pajak' : 'Zona Potensi'}
-                             </span>
-                             {potential.status === 'taxpayer' && (
-                                <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${potential.is_paid ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-                                   {potential.is_paid ? 'Lunas' : 'Belum Bayar'}
-                                </span>
-                             )}
-                          </div>
-                        </div>
-                      </Popup>
-                    </Marker>
-                  ))}
-                </MapContainer>
-
-                {/* Map Legend */}
-                <div className="absolute bottom-4 left-4 z-[1000] bg-white/90 backdrop-blur-md p-3 rounded-2xl border border-white shadow-xl space-y-2">
-                   <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-[#10b981] rounded-full border border-white shadow-sm"></div>
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Lunas</span>
-                   </div>
-                   <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-[#ef4444] rounded-full border border-white shadow-sm"></div>
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Belum Bayar</span>
-                   </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

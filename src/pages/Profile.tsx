@@ -22,7 +22,8 @@ import {
   FileText,
   Upload,
   ExternalLink,
-  Loader2
+  Loader2,
+  Camera
 } from 'lucide-react';
 
 export default function Profile() {
@@ -45,9 +46,62 @@ export default function Profile() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [uploadingSurat, setUploadingSurat] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const suratInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  const suratPenugasanUrl = (user as any)?.metadata?.surat_penugasan_url || null;
+  const avatarUrl = user?.metadata?.avatar_url || null;
+  const suratPenugasanUrl = user?.metadata?.surat_penugasan_url || null;
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.name,
+        email: user.email,
+      });
+      setAvatarPreview(user.metadata?.avatar_url || null);
+    }
+  }, [user]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setMessage({ type: 'error', text: 'Ukuran foto maksimal 2MB' });
+        return;
+      }
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = '';
+  };
+
+  const handleUploadAvatar = async () => {
+    if (!avatarFile) return;
+    setUploadingAvatar(true);
+    setMessage(null);
+    try {
+      const formData = new FormData();
+      formData.append('name', user?.name || '');
+      formData.append('email', user?.email || '');
+      formData.append('avatar', avatarFile);
+
+      const response = await api.post('/api/me/update', formData);
+      updateUser(response.data);
+      setAvatarFile(null);
+      setMessage({ type: 'success', text: 'Foto profil berhasil diperbarui' });
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message || 'Gagal upload foto profil' });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleUploadSurat = async (file: File) => {
     setUploadingSurat(true);
@@ -56,10 +110,9 @@ export default function Profile() {
       formData.append('name', user?.name || '');
       formData.append('email', user?.email || '');
       formData.append('surat_penugasan', file);
-      formData.append('_method', 'PUT');
 
-      const response = await api.post('/api/user/profile', formData);
-      updateUser(response.user);
+      const response = await api.post('/api/me/update', formData);
+      updateUser(response.data);
       setMessage({ type: 'success', text: 'Surat Penugasan berhasil diupload' });
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Gagal upload surat penugasan' });
@@ -68,24 +121,23 @@ export default function Profile() {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      setProfileForm({
-        name: user.name,
-        email: user.email,
-      });
-    }
-  }, [user]);
-
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
 
     try {
-      const response = await api.put('/api/user/profile', profileForm);
-      updateUser(response.user);
+      const formData = new FormData();
+      formData.append('name', profileForm.name);
+      formData.append('email', profileForm.email);
+      if (avatarFile) {
+        formData.append('avatar', avatarFile);
+      }
+
+      const response = await api.post('/api/me/update', formData);
+      updateUser(response.data);
       setMessage({ type: 'success', text: response.message || 'Profil berhasil diperbarui' });
+      setAvatarFile(null);
       setTimeout(() => setShowEditModal(false), 1500);
     } catch (error: any) {
       setMessage({ type: 'error', text: error.message || 'Gagal memperbarui profil' });
@@ -161,12 +213,73 @@ export default function Profile() {
       {/* Profile Card */}
       <div className="relative z-10 -mt-4 mx-4">
         <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-6 text-center">
-          {/* Avatar Area */}
+          {/* Avatar Area with Photo Upload */}
           <div className="relative inline-block">
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[#2d5cd5] to-blue-500 rounded-[2rem] flex items-center justify-center text-3xl font-black text-white shadow-2xl shadow-blue-500/30 border-4 border-white dark:border-slate-800 rotate-3 group-hover:rotate-0 transition-transform duration-500">
-              {user?.name?.charAt(0) || <User size={40} />}
+            <div className="w-24 h-24 mx-auto rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-500/30 border-4 border-white dark:border-slate-800 rotate-3 hover:rotate-0 transition-transform duration-500">
+              {avatarPreview || avatarUrl ? (
+                <img 
+                  src={avatarPreview || avatarUrl || ''} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).parentElement!.classList.add('bg-gradient-to-br', 'from-[#2d5cd5]', 'to-blue-500', 'flex', 'items-center', 'justify-center');
+                    (e.target as HTMLImageElement).parentElement!.innerHTML = `<span class="text-3xl font-black text-white">${user?.name?.charAt(0) || '?'}</span>`;
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#2d5cd5] to-blue-500 flex items-center justify-center text-3xl font-black text-white">
+                  {user?.name?.charAt(0) || <User size={40} />}
+                </div>
+              )}
             </div>
+            {/* Camera Button */}
+            <button 
+              onClick={() => avatarInputRef.current?.click()}
+              className="absolute -bottom-1 -right-1 w-9 h-9 bg-[#2d5cd5] hover:bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all active:scale-90 z-10"
+            >
+              {uploadingAvatar ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
           </div>
+
+          {/* Upload confirmation */}
+          {avatarFile && (
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <button
+                onClick={handleUploadAvatar}
+                disabled={uploadingAvatar}
+                className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+              >
+                {uploadingAvatar ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                Simpan Foto
+              </button>
+              <button
+                onClick={() => { setAvatarFile(null); setAvatarPreview(avatarUrl); }}
+                className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+              >
+                Batal
+              </button>
+            </div>
+          )}
+
+          {/* Success/Error Messages */}
+          {message && (
+            <div className={`mt-3 p-2.5 rounded-xl flex items-center justify-center gap-2 text-xs ${
+              message.type === 'success'
+                ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+            }`}>
+              {message.type === 'success' ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+              {message.text}
+            </div>
+          )}
           
           {/* User Info */}
           <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">{user?.name}</h2>
@@ -208,17 +321,6 @@ export default function Profile() {
           </div>
 
           <div className="p-5">
-            {message && message.text.includes('Surat') && (
-              <div className={`p-3 rounded-xl flex items-center gap-2 text-sm mb-4 ${
-                message.type === 'success'
-                  ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                  : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
-              }`}>
-                {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                {message.text}
-              </div>
-            )}
-
             {suratPenugasanUrl ? (
               <div className="space-y-3">
                 {/* Preview */}
@@ -357,6 +459,26 @@ export default function Profile() {
                   {message.text}
                 </div>
               )}
+
+              {/* Avatar in Edit Modal */}
+              <div className="flex flex-col items-center">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-md">
+                    {avatarPreview || avatarUrl ? (
+                      <img src={avatarPreview || avatarUrl || ''} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#2d5cd5] to-blue-500 flex items-center justify-center text-2xl font-black text-white">
+                        {user?.name?.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#2d5cd5] hover:bg-blue-600 text-white rounded-lg shadow-md flex items-center justify-center cursor-pointer transition-all active:scale-90">
+                    <Camera size={14} />
+                    <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
+                  </label>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-2">Format JPG, PNG (Maks. 2MB)</p>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nama Lengkap</label>

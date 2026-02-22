@@ -1,0 +1,463 @@
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import { api } from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
+import {
+  ArrowLeft,
+  Maximize2,
+  Minimize2,
+  Navigation,
+  Loader2,
+  MapPin,
+  User,
+  Crosshair,
+  RefreshCw
+} from 'lucide-react';
+
+// Fix for default marker icon
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+interface Potential {
+  position: [number, number];
+  name: string;
+  agency: string;
+  address?: string;
+  status: string;
+  is_paid?: boolean;
+  taxpayer_photo?: string | null;
+  icon?: string | null;
+  retribution_type_id?: number | string;
+}
+
+// Component to recenter map when position changes
+function RecenterMap({ position }: { position: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (position) {
+      map.setView(position, map.getZoom());
+    }
+  }, [position, map]);
+  return null;
+}
+
+// Haversine distance calculation in meters
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371e3; // Earth's radius in meters
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
+function formatDistance(meters: number): string {
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
+}
+
+export default function PetaLapangan() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [potentials, setPotentials] = useState<Potential[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [myPosition, setMyPosition] = useState<[number, number] | null>(null);
+  const [gpsStatus, setGpsStatus] = useState<'loading' | 'active' | 'error'>('loading');
+  const [shouldRecenter, setShouldRecenter] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const watchIdRef = useRef<number | null>(null);
+
+  const userAvatarUrl = (user as any)?.metadata?.avatar_url || null;
+
+  // Fetch map potentials
+  const fetchPotentials = useCallback(async () => {
+    try {
+      const res = await api.get('/api/dashboard/map-potentials');
+      setPotentials(res);
+    } catch (error) {
+      console.error('Error fetching map potentials:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Start GPS tracking
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setGpsStatus('error');
+      // Default to Baubau city center
+      setMyPosition([-5.47, 122.6]);
+      return;
+    }
+
+    setGpsStatus('loading');
+    
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        const newPos: [number, number] = [position.coords.latitude, position.coords.longitude];
+        setMyPosition(newPos);
+        setGpsStatus('active');
+      },
+      (error) => {
+        console.error('GPS Error:', error);
+        setGpsStatus('error');
+        // Default to Baubau city center
+        setMyPosition([-5.47, 122.6]);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5000,
+      }
+    );
+
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchPotentials();
+  }, [fetchPotentials]);
+
+  // Fullscreen toggle
+  const toggleFullscreen = () => {
+    if (!isFullscreen) {
+      containerRef.current?.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+    setIsFullscreen(!isFullscreen);
+  };
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  // Create petugas marker icon with photo
+  const createPetugasIcon = () => {
+    const photoUrl = userAvatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'default'}&backgroundColor=b6e3f4`;
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html: `
+        <div style="position: relative;">
+          <div style="
+            width: 48px; height: 48px; 
+            background: white; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 4px 20px rgba(45,92,213,0.4); border: 4px solid #2d5cd5;
+            overflow: hidden;
+            animation: pulse 2s ease-in-out infinite;
+          ">
+            <img src="${photoUrl}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=default&backgroundColor=b6e3f4'" />
+          </div>
+          <div style="
+            position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+            background: #2d5cd5; color: white; padding: 3px 8px; border-radius: 6px;
+            font-size: 8px; font-weight: 900; white-space: nowrap; border: 2px solid white;
+            letter-spacing: 0.1em;
+          ">
+            SAYA
+          </div>
+          <div style="
+            position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+            width: 12px; height: 12px; background: #2d5cd5; border-radius: 50%;
+            border: 3px solid white; box-shadow: 0 0 0 4px rgba(45,92,213,0.2);
+          "></div>
+        </div>
+      `,
+      iconSize: [48, 48],
+      iconAnchor: [24, 48],
+    });
+  };
+
+  // Create taxpayer marker icon
+  const createTaxpayerIcon = (potential: Potential) => {
+    const color = potential.is_paid ? '#10b981' : '#ef4444';
+    const label = potential.is_paid ? 'LUNAS' : 'BELUM BAYAR';
+    
+    const photoUrl = potential.taxpayer_photo?.startsWith('http')
+      ? potential.taxpayer_photo
+      : (potential.taxpayer_photo ? `${import.meta.env.VITE_API_URL}${potential.taxpayer_photo.startsWith('/') ? '' : '/'}${potential.taxpayer_photo}` : null);
+    
+    const fallbackAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${potential.name || 'default'}&backgroundColor=b6e3f4`;
+
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html: `
+        <div style="position: relative;">
+          <div style="
+            width: 38px; height: 38px; 
+            background: white; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 4px 12px ${color}4d; border: 3px solid ${color};
+            overflow: hidden;
+          ">
+            <img src="${photoUrl || fallbackAvatar}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='${fallbackAvatar}'" />
+          </div>
+          <div style="
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: ${color}; color: white; padding: 2px 6px; border-radius: 4px;
+            font-size: 7px; font-weight: 900; white-space: nowrap; border: 1px solid white;
+            letter-spacing: 0.05em;
+          ">
+            ${label}
+          </div>
+        </div>
+      `,
+      iconSize: [38, 38],
+      iconAnchor: [19, 38],
+    });
+  };
+
+  // Create zone/retribution icon
+  const createZoneIcon = (potential: Potential) => {
+    const iconUrl = potential.icon?.startsWith('http')
+      ? potential.icon
+      : (potential.icon ? `${import.meta.env.VITE_API_URL}${potential.icon.startsWith('/') ? '' : '/'}${potential.icon}` : `https://api.dicebear.com/7.x/shapes/svg?seed=${potential.name}&backgroundColor=2563eb&shape1Color=white`);
+
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html: `
+        <div style="
+          width: 32px; height: 32px; 
+          background: white; border-radius: 50%; 
+          display: flex; align-items: center; justify-content: center; 
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+          overflow: hidden; border: 2px solid #10b981;
+        ">
+          <img src="${iconUrl}" style="width: 100%; height: 100%; object-fit: contain; padding: 2px;" />
+        </div>
+      `,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+    });
+  };
+
+  if (loading && !myPosition) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 animate-spin text-[#2d5cd5]" />
+          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Memuat Peta...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const mapCenter: [number, number] = myPosition || [-5.47, 122.6];
+
+  return (
+    <div ref={containerRef} className="relative h-[calc(100vh-6rem)] lg:h-[calc(100vh-7rem)] -m-4 sm:-m-6 lg:-m-10">
+      {/* Top Controls */}
+      <div className="absolute top-4 left-4 right-4 z-[1000] flex items-center justify-between pointer-events-none">
+        <div className="flex items-center gap-3 pointer-events-auto">
+          <button 
+            onClick={() => navigate(-1)}
+            className="w-11 h-11 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-xl border border-white/50 active:scale-90 transition-all"
+          >
+            <ArrowLeft size={20} className="text-slate-600 dark:text-slate-400" />
+          </button>
+          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl px-4 py-2.5 shadow-xl border border-white/50">
+            <h1 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest flex items-center gap-2">
+              <MapPin size={14} className="text-[#2d5cd5]" />
+              Peta Lapangan
+            </h1>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 pointer-events-auto">
+          {/* GPS Status */}
+          <div className={`h-11 px-4 backdrop-blur-xl rounded-2xl flex items-center gap-2 shadow-xl border border-white/50 ${
+            gpsStatus === 'active' ? 'bg-emerald-500/90 text-white' : 
+            gpsStatus === 'loading' ? 'bg-amber-500/90 text-white' : 
+            'bg-red-500/90 text-white'
+          }`}>
+            {gpsStatus === 'active' ? <Navigation size={14} /> : 
+             gpsStatus === 'loading' ? <Loader2 size={14} className="animate-spin" /> :
+             <Crosshair size={14} />}
+            <span className="text-[9px] font-black uppercase tracking-widest">
+              {gpsStatus === 'active' ? 'GPS Aktif' : gpsStatus === 'loading' ? 'Mencari...' : 'GPS Error'}
+            </span>
+          </div>
+
+          {/* Recenter */}
+          <button
+            onClick={() => setShouldRecenter(prev => !prev)}
+            className="w-11 h-11 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-xl border border-white/50 active:scale-90 transition-all"
+          >
+            <Crosshair size={18} className="text-[#2d5cd5]" />
+          </button>
+
+          {/* Refresh data */}
+          <button
+            onClick={() => { setLoading(true); fetchPotentials(); }}
+            className="w-11 h-11 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-xl border border-white/50 active:scale-90 transition-all"
+          >
+            <RefreshCw size={18} className={`text-slate-600 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+
+          {/* Fullscreen */}
+          <button
+            onClick={toggleFullscreen}
+            className="w-11 h-11 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-xl border border-white/50 active:scale-90 transition-all"
+          >
+            {isFullscreen ? <Minimize2 size={18} className="text-slate-600" /> : <Maximize2 size={18} className="text-slate-600" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Map */}
+      <MapContainer
+        center={mapCenter}
+        zoom={14}
+        scrollWheelZoom={true}
+        style={{ height: '100%', width: '100%' }}
+        className="z-0"
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {shouldRecenter && myPosition && <RecenterMap position={myPosition} />}
+
+        {/* Petugas Position */}
+        {myPosition && (
+          <>
+            <Circle
+              center={myPosition}
+              radius={100}
+              pathOptions={{ color: '#2d5cd5', fillColor: '#2d5cd5', fillOpacity: 0.08, weight: 1 }}
+            />
+            <Marker position={myPosition} icon={createPetugasIcon()}>
+              <Popup>
+                <div className="p-3 min-w-[180px] font-sans text-center">
+                  <div className="w-12 h-12 mx-auto mb-2 rounded-xl overflow-hidden border-2 border-[#2d5cd5] shadow-md">
+                    {userAvatarUrl ? (
+                      <img src={userAvatarUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-[#2d5cd5] flex items-center justify-center text-white font-black text-lg">
+                        {user?.name?.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="font-black text-slate-900 text-sm">{user?.name}</h3>
+                  <p className="text-[10px] text-[#2d5cd5] font-black uppercase tracking-wider mt-1">Posisi Saya</p>
+                  <p className="text-[9px] text-slate-400 mt-1">
+                    {myPosition[0].toFixed(6)}, {myPosition[1].toFixed(6)}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+          </>
+        )}
+
+        {/* Taxpayer & Zone Markers */}
+        {potentials.map((potential, index) => {
+          const distance = myPosition ? calculateDistance(myPosition[0], myPosition[1], potential.position[0], potential.position[1]) : null;
+          const icon = potential.status === 'taxpayer' ? createTaxpayerIcon(potential) : createZoneIcon(potential);
+
+          return (
+            <Marker
+              key={index}
+              position={potential.position}
+              icon={icon}
+            >
+              <Popup>
+                <div className="p-3 min-w-[220px] font-sans">
+                  <h3 className="font-black text-slate-900 text-sm mb-1">{potential.name}</h3>
+                  <p className="text-[10px] text-[#2d5cd5] font-black uppercase mb-2 tracking-wider">{potential.agency}</p>
+                  
+                  {potential.address && (
+                    <p className="text-[10px] text-slate-500 mb-2">{potential.address}</p>
+                  )}
+
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${
+                      potential.status === 'taxpayer' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'
+                    }`}>
+                      {potential.status === 'taxpayer' ? 'Wajib Pajak' : 'Zona Potensi'}
+                    </span>
+                    {potential.status === 'taxpayer' && (
+                      <span className={`inline-flex px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-[0.15em] ${
+                        potential.is_paid ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+                      }`}>
+                        {potential.is_paid ? 'Lunas' : 'Belum Bayar'}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Distance from petugas */}
+                  {distance !== null && (
+                    <div className="mt-2 pt-2 border-t border-slate-100 flex items-center gap-2">
+                      <Navigation size={12} className="text-[#2d5cd5]" />
+                      <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                        Jarak: {formatDistance(distance)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+      </MapContainer>
+
+      {/* Bottom Legend */}
+      <div className="absolute bottom-6 left-4 z-[1000] bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-4 rounded-2xl border border-white/50 shadow-2xl space-y-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-4 h-4 bg-[#2d5cd5] rounded-full border-2 border-white shadow-sm flex items-center justify-center">
+            <User size={8} className="text-white" />
+          </div>
+          <span className="text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Posisi Saya</span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-4 h-4 bg-[#10b981] rounded-full border-2 border-white shadow-sm"></div>
+          <span className="text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Lunas</span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-4 h-4 bg-[#ef4444] rounded-full border-2 border-white shadow-sm"></div>
+          <span className="text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Belum Bayar</span>
+        </div>
+      </div>
+
+      {/* Bottom Stats */}
+      {myPosition && (
+        <div className="absolute bottom-6 right-4 z-[1000] bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-4 rounded-2xl border border-white/50 shadow-2xl">
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div>
+              <p className="text-lg font-black text-[#2d5cd5]">{potentials.filter(p => p.status === 'taxpayer').length}</p>
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Wajib Pajak</p>
+            </div>
+            <div>
+              <p className="text-lg font-black text-amber-500">{potentials.filter(p => p.status === 'taxpayer' && !p.is_paid).length}</p>
+              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Belum Lunas</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CSS for pulse animation */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(45,92,213,0.4); }
+          50% { box-shadow: 0 0 0 12px rgba(45,92,213,0); }
+        }
+      `}</style>
+    </div>
+  );
+}

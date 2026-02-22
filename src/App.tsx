@@ -20,6 +20,7 @@ import TaxCalculator from './pages/TaxCalculator';
 import UserGuide from './pages/UserGuide';
 import FieldInspection from './pages/FieldInspection';
 import Presentation from './pages/Presentation';
+import PetaLapangan from './pages/PetaLapangan';
 
 
 function HomeRoute() {
@@ -50,6 +51,17 @@ function App() {
             <Route path="/login" element={<PetugasLogin />} />
             <Route path="/register" element={<PetugasRegister />} />
             <Route path="/welcome" element={<PetugasWelcome />} />
+
+            <Route
+              path="/peta"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
+                  <Layout>
+                    <PetaLapangan />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/dashboard"

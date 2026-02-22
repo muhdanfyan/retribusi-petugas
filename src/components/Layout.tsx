@@ -19,7 +19,8 @@ import {
   QrCode,
   Home,
   User,
-  Calculator
+  Calculator,
+  Map
 } from 'lucide-react';
 import { UserRole } from '../types';
 
@@ -40,6 +41,12 @@ const menuItems: MenuItem[] = [
     path: '/dashboard',
     icon: <LayoutDashboard className="w-5 h-5" />,
     roles: ['super_admin', 'opd', 'verifikator', 'petugas', 'viewer'],
+  },
+  {
+    label: 'Peta Lapangan',
+    path: '/peta',
+    icon: <Map className="w-5 h-5" />,
+    roles: ['super_admin', 'opd', 'petugas'],
   },
   {
     label: 'Wajib Pajak',
@@ -80,6 +87,8 @@ export default function Layout({ children }: LayoutProps) {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
+  
+  const userAvatarUrl = (user as any)?.metadata?.avatar_url || null;
 
   const handleLogout = () => {
     logout();
@@ -148,7 +157,11 @@ export default function Layout({ children }: LayoutProps) {
               className="flex items-center gap-3 p-1.5 pr-4 pl-1.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-xl shadow-sm hover:shadow-md hover:border-[#2d5cd5]/20 transition-all group"
             >
               <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-[#2d5cd5]/10 group-hover:text-[#2d5cd5] transition-colors font-black overflow-hidden relative">
-                {user?.name?.charAt(0) || <User size={20} />}
+                {userAvatarUrl ? (
+                  <img src={userAvatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  user?.name?.charAt(0) || <User size={20} />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#2d5cd5]/10 to-transparent"></div>
               </div>
               <div className="text-left">
@@ -193,8 +206,12 @@ export default function Layout({ children }: LayoutProps) {
               onClick={() => setProfileOpen(!profileOpen)}
               className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none p-1 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-800 group active:scale-95 transition-all"
             >
-              <div className="w-full h-full rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-black">
-                {user?.name?.charAt(0) || <User size={20} />}
+              <div className="w-full h-full rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-black overflow-hidden">
+                {userAvatarUrl ? (
+                  <img src={userAvatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  user?.name?.charAt(0) || <User size={20} />
+                )}
               </div>
             </button>
 
