@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      # - dev # Disabled Dev VPS deployment (Use Netlify for dev)
+      - dev 
 
 jobs:
   build-and-deploy:
@@ -23,7 +23,8 @@ jobs:
             echo "api_url=https://api.sipanda.online" >> $GITHUB_OUTPUT
           else
             echo "target_dir=/home/sipanda/retribusi-petugas-dev" >> $GITHUB_OUTPUT
-            echo "api_url=https://api-dev.sipanda.online" >> $GITHUB_OUTPUT
+            echo "api_url=https://api.sipanda.online" >> $GITHUB_OUTPUT 
+            # Note: Changed from api-dev to api due to 500 error on api-dev
           fi
 
       - name: Setup Node.js
