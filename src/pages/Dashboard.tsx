@@ -292,7 +292,7 @@ export default function Dashboard() {
       {/* Desktop Top Section */}
       <div className="hidden lg:flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 bg-[#2d5cd5] rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/20">
+          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-xl shadow-slate-200 border border-slate-100">
             <img src="/mitra-logo.png" alt="Logo" className="w-9 h-9 object-contain" />
           </div>
           <div>
