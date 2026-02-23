@@ -198,7 +198,7 @@ export default function Layout({ children }: LayoutProps) {
               <Menu size={22} className="text-slate-600 dark:text-slate-400" />
             </button>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#2d5cd5] rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md border border-slate-100">
                 <img src="/mitra-logo.png" alt="Logo" className="w-7 h-7 object-contain" />
               </div>
               <div>
@@ -276,7 +276,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* Mobile Header in Sidebar */}
           <div className="lg:hidden flex items-center justify-between mb-8">
             <Link to="/dashboard" className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-[#2d5cd5] rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center border border-slate-100">
                 <img src="/mitra-logo.png" alt="Logo" className="w-5 h-5 object-contain" />
               </div>
               <h1 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">MITRA PAD (M-PAD)</h1>
