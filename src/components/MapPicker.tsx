@@ -77,12 +77,23 @@ export function MapPicker({ value, onChange, label }: MapPickerProps) {
         setPos(newPos);
         setIsLocating(false);
       },
-      (error) => {
-        console.error("Geolocation error:", error);
-        alert("Gagal mendapatkan lokasi. Pastikan izin lokasi aktif.");
-        setIsLocating(false);
+      () => {
+        // Retry without high accuracy (fixes macOS CoreLocation / desktop)
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const newPos: [number, number] = [position.coords.latitude, position.coords.longitude];
+            setPos(newPos);
+            setIsLocating(false);
+          },
+          () => {
+            console.warn("Geolocation unavailable after retry");
+            alert("GPS tidak tersedia. Silakan pilih lokasi secara manual di peta.");
+            setIsLocating(false);
+          },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+        );
       },
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
   }, []);
 

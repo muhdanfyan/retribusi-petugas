@@ -73,9 +73,15 @@ const menuItems: MenuItem[] = [
     roles: ['super_admin', 'opd', 'petugas'],
   },
   {
-    label: 'Simulator Pajak',
+    label: 'Kalkulator Pajak',
     path: '/calculator',
     icon: <Calculator className="w-5 h-5" />,
+    roles: ['super_admin', 'opd', 'petugas'],
+  },
+  {
+    label: 'PBB Bapenda',
+    path: '/pbb-bapenda',
+    icon: <FileText className="w-5 h-5" />,
     roles: ['super_admin', 'opd', 'petugas'],
   },
 ];

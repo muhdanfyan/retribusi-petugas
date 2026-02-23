@@ -87,7 +87,7 @@ export default function TaxCalculator() {
       });
       setResult(res);
     } catch (err: any) {
-      setError(err.message || 'Gagal menghitung simulasi.');
+      setError(err.message || 'Gagal menghitung kalkulator.');
     } finally {
       setCalculating(false);
     }
@@ -130,7 +130,7 @@ export default function TaxCalculator() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">
-            Simulasi <span className="text-[#2d5cd5]">Pajak</span>
+            Kalkulator <span className="text-[#2d5cd5]">Pajak</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">Hitung perkiraan tagihan retribusi sesuai regulasi Perwali Nomor 58 Tahun 2024</p>
         </div>
@@ -149,7 +149,7 @@ export default function TaxCalculator() {
               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
                 <Sparkles size={20} />
               </div>
-              <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Parameter Simulasi</h2>
+              <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Parameter Kalkulator</h2>
             </div>
 
             <div className="space-y-6">
@@ -233,7 +233,7 @@ export default function TaxCalculator() {
                   ) : (
                     <>
                       <Calculator size={18} />
-                      Hitung Simulasi Sekarang
+                      Hitung Kalkulator Sekarang
                     </>
                   )}
                 </button>
@@ -244,7 +244,7 @@ export default function TaxCalculator() {
           <div className="p-6 bg-amber-50 dark:bg-amber-900/10 rounded-3xl border border-amber-100 dark:border-amber-900/30">
             <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-relaxed flex gap-3">
               <AlertCircle size={18} className="flex-shrink-0" />
-              Hasil simulasi ini hanya bersifat estimasi berdasarkan parameter yang Anda masukkan. Besaran tagihan final akan ditentukan oleh verifikator dinas terkait saat proses penagihan resmi.
+              Hasil kalkulator ini hanya bersifat estimasi berdasarkan parameter yang Anda masukkan. Besaran tagihan final akan ditentukan oleh verifikator dinas terkait saat proses penagihan resmi.
             </p>
           </div>
         </div>
@@ -291,7 +291,7 @@ export default function TaxCalculator() {
               <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
                 <Calculator size={32} className="text-slate-300" />
               </div>
-              <h3 className="text-lg font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Hasil Simulasi</h3>
+              <h3 className="text-lg font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-2">Hasil Kalkulator</h3>
               <p className="text-slate-400 dark:text-slate-600 text-sm font-medium">Lengkapi parameter dan klik tombol hitung untuk melihat estimasi tagihan</p>
             </div>
           )}

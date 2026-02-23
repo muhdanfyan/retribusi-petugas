@@ -21,6 +21,7 @@ import UserGuide from './pages/UserGuide';
 import FieldInspection from './pages/FieldInspection';
 import Presentation from './pages/Presentation';
 import PetaLapangan from './pages/PetaLapangan';
+import PbbBapenda from './pages/PbbBapenda';
 
 
 function HomeRoute() {
@@ -168,6 +169,17 @@ function App() {
                 <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
                   <Layout>
                     <TaxCalculator />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/pbb-bapenda"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin', 'opd', 'petugas']}>
+                  <Layout>
+                    <PbbBapenda />
                   </Layout>
                 </ProtectedRoute>
               }

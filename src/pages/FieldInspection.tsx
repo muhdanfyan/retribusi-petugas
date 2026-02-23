@@ -28,10 +28,23 @@ export default function FieldInspection() {
             lng: position.coords.longitude
           });
         },
-        (err) => {
-          console.error("Error getting location:", err);
-          setError("Gagal mendapatkan lokasi GPS. Pastikan GPS aktif.");
-        }
+        () => {
+          // Retry without high accuracy
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setLocation({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              });
+            },
+            (retryErr) => {
+              console.warn("Geolocation unavailable:", retryErr.message);
+              setError("GPS tidak tersedia. Pastikan lokasi/GPS aktif di perangkat Anda.");
+            },
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+          );
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
       );
     }
   }, [noticeId]);
