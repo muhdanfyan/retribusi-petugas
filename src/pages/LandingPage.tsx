@@ -63,12 +63,12 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <img 
-                src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" 
+                src="/mitra-logo.png" 
                 alt="Logo Kota Baubau" 
                 className="w-10 h-10 object-contain" 
               />
               <div>
-                <span className="font-black text-gray-900 text-lg tracking-tighter">MITRA</span>
+                <span className="font-black text-gray-900 text-lg tracking-tighter">MITRA PAD (M-PAD)</span>
                 <span className="text-[10px] text-gray-500 block uppercase font-bold tracking-widest leading-none -mt-1">Petugas Lapangan</span>
               </div>
             </div>
@@ -169,12 +169,12 @@ export default function LandingPage() {
                       {/* App Header */}
                       <div className="flex items-center gap-2 mb-4">
                         <img 
-                          src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" 
+                          src="/mitra-logo.png" 
                           alt="Logo" 
                           className="w-8 h-8 object-contain bg-white rounded-lg p-1" 
                         />
                         <div>
-                          <div className="text-white text-sm font-bold">MITRA</div>
+                          <div className="text-white text-sm font-bold">MITRA PAD (M-PAD)</div>
                           <div className="text-white/60 text-[10px]">Petugas</div>
                         </div>
                       </div>
@@ -356,12 +356,12 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8 items-center">
             <div className="flex items-center gap-3">
               <img 
-                src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" 
+                src="/mitra-logo.png" 
                 alt="Logo Kota Baubau" 
                 className="w-10 h-10 object-contain" 
               />
               <div>
-                <span className="font-black text-lg">MITRA</span>
+                <span className="font-black text-lg">MITRA PAD (M-PAD)</span>
                 <span className="text-xs text-gray-400 block tracking-widest uppercase font-bold text-[8px]">Petugas Lapangan</span>
               </div>
             </div>

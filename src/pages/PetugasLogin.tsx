@@ -90,12 +90,12 @@ export default function PetugasLogin() {
           <div className="max-w-md mx-auto">
             <div className="text-center mb-8 sm:mb-10">
               <img 
-                src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" 
+                src="/mitra-logo.png" 
                 alt="Logo Kota Baubau" 
                 className="w-16 h-16 mx-auto mb-4 object-contain" 
               />
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2" style={{ color: BAUBAU_BLUE }}>MITRA Petugas</h1>
-              <p className="text-slate-400 text-sm font-medium">Mitra PAD - Manajemen Integrasi Tax, Retribusi, dan Aset Daerah</p>
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2" style={{ color: BAUBAU_BLUE }}>MITRA PAD (M-PAD) Petugas</h1>
+              <p className="text-slate-400 text-sm font-medium">Management Information of Tax, Retribution & Assets</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">

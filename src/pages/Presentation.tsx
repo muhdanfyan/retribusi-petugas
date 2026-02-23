@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 const slides = [
   {
     id: 'intro',
-    title: 'SIPANDA PETUGAS',
+    title: 'MITRA PAD (M-PAD) PETUGAS',
     subtitle: 'Sistem Informasi Pendapatan Daerah',
     content: (
       <div className="text-center space-y-4">
@@ -30,7 +30,7 @@ const slides = [
           <BookOpen className="w-10 h-10 text-white" />
         </div>
         <div>
-          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">SIPANDA PETUGAS</h1>
+          <h1 className="text-4xl font-black text-white mb-2 tracking-tight">MITRA PAD (M-PAD) PETUGAS</h1>
           <p className="text-lg text-blue-200 font-bold">Panduan Pengguna Aplikasi Petugas Lapangan</p>
           <p className="text-blue-300/60 text-sm">Pemerintah Kota Baubau</p>
         </div>
@@ -330,15 +330,15 @@ const slides = [
   {
     id: 'closing',
     title: 'Terima Kasih',
-    subtitle: 'SIPANDA Petugas',
+    subtitle: 'MITRA PAD (M-PAD) Petugas',
     content: (
       <div className="text-center space-y-4">
         <div className="w-20 h-20 mx-auto bg-white rounded-2xl flex items-center justify-center shadow-xl">
-          <img src="/logo-baubau.png" alt="Logo" className="w-14 h-14 object-contain" />
+          <img src="/mitra-logo.png" alt="Logo" className="w-14 h-14 object-contain" />
         </div>
         <div>
           <h1 className="text-4xl font-black text-white mb-2 tracking-tight">Terima Kasih</h1>
-          <p className="text-lg text-blue-200 font-bold">SIPANDA PETUGAS</p>
+          <p className="text-lg text-blue-200 font-bold">MITRA PAD (M-PAD) PETUGAS</p>
           <p className="text-blue-300/60 text-sm">Pemerintah Kota Baubau</p>
         </div>
         <p className="text-white/60 text-sm pt-2">

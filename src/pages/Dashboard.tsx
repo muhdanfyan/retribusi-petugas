@@ -293,7 +293,7 @@ export default function Dashboard() {
       <div className="hidden lg:flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <div className="w-14 h-14 bg-[#2d5cd5] rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/20">
-            <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" alt="Logo" className="w-9 h-9 object-contain" />
+            <img src="/mitra-logo.png" alt="Logo" className="w-9 h-9 object-contain" />
           </div>
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
@@ -593,11 +593,11 @@ export default function Dashboard() {
             >
               <div className="w-16 h-16 mx-auto mb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
                 <img 
-                  src={type.icon?.startsWith('http') ? type.icon : (type.icon ? `${import.meta.env.VITE_API_URL}${type.icon.startsWith('/') ? '' : '/'}${type.icon}` : `https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png`)} 
+                  src={type.icon?.startsWith('http') ? type.icon : (type.icon ? `${import.meta.env.VITE_API_URL}${type.icon.startsWith('/') ? '' : '/'}${type.icon}` : `/mitra-logo.png`)} 
                   alt={type.name} 
                   className="w-10 h-10 object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png`;
+                    (e.target as HTMLImageElement).src = `/mitra-logo.png`;
                   }}
                 />
               </div>

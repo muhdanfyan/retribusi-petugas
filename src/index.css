@@ -306,7 +306,7 @@
 
   /* Print header - document title */
   .max-w-4xl::before {
-    content: "SIPANDA PETUGAS - PANDUAN PENGGUNA";
+    content: "MITRA PAD (M-PAD) PETUGAS - PANDUAN PENGGUNA";
     display: block;
     text-align: center;
     font-size: 14pt;

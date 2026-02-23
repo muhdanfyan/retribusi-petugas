@@ -114,12 +114,12 @@ export default function Layout({ children }: LayoutProps) {
           
           {/* Left: Brand */}
           <Link to="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-[#2d5cd5] rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:rotate-6 transition-transform">
-              <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" alt="Logo" className="w-7 h-7 object-contain" />
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md group-hover:rotate-6 transition-transform border border-slate-100">
+              <img src="/mitra-logo.png" alt="Logo" className="w-7 h-7 object-contain" />
             </div>
             <div>
                 <h1 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
-                  MITRA <span className="text-blue-600 dark:text-blue-400">Petugas</span>
+                  MITRA PAD (M-PAD) <span className="text-blue-600 dark:text-blue-400">Petugas</span>
                 </h1>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Kota Baubau</p>
             </div>
@@ -199,7 +199,7 @@ export default function Layout({ children }: LayoutProps) {
             </button>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#2d5cd5] rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" alt="Logo" className="w-7 h-7 object-contain" />
+                <img src="/mitra-logo.png" alt="Logo" className="w-7 h-7 object-contain" />
               </div>
               <div>
                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest leading-none mb-1">Hello,</p>
@@ -277,9 +277,9 @@ export default function Layout({ children }: LayoutProps) {
           <div className="lg:hidden flex items-center justify-between mb-8">
             <Link to="/dashboard" className="flex items-center gap-3">
               <div className="w-8 h-8 bg-[#2d5cd5] rounded-lg flex items-center justify-center">
-                <img src="https://res.cloudinary.com/ddhgtgsed/image/upload/v1769878859/branding/logo-baubau.png" alt="Logo" className="w-5 h-5 object-contain" />
+                <img src="/mitra-logo.png" alt="Logo" className="w-5 h-5 object-contain" />
               </div>
-              <h1 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">SIPANDA</h1>
+              <h1 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">MITRA PAD (M-PAD)</h1>
             </Link>
             <button 
               onClick={() => setSidebarOpen(false)}
