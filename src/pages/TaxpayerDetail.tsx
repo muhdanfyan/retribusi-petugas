@@ -10,6 +10,7 @@ import {
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import TaxpayerEditModal from '../components/TaxpayerEditModal';
 import 'leaflet/dist/leaflet.css';
+import { Calculator } from 'lucide-react';
 
 export default function TaxpayerDetail() {
   const { id } = useParams<{ id: string }>();
@@ -134,11 +135,30 @@ export default function TaxpayerDetail() {
             {taxpayer.is_active ? '● Aktif' : '● Non-Aktif'}
           </span>
           <button
+            onClick={() => {
+              // Try to find the primary tax object
+              const taxObject = taxpayer.tax_objects?.[0] || taxpayer;
+              if (taxObject) {
+                 navigate('/calculator', {
+                   state: {
+                     taxObjectId: taxObject.id,
+                     classificationId: taxObject.retribution_classification_id,
+                     defaultVars: taxObject.metadata || {}
+                   }
+                 });
+              }
+            }}
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95"
+          >
+            <Calculator size={13} />
+            Buat SKPD
+          </button>
+          <button
             onClick={() => setShowEditModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 active:scale-95"
           >
             <Edit size={13} />
-            Edit
+            <span className="hidden sm:inline">Edit</span>
           </button>
         </div>
       </div>

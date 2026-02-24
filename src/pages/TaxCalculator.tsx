@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Calculator, ChevronDown, Loader2, Sparkles, AlertCircle, RefreshCw, Info, ArrowRight } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Calculator, ChevronDown, Loader2, Sparkles, AlertCircle, RefreshCw, Info, Receipt } from 'lucide-react';
 import { api } from '../lib/api';
 
 interface TaxClassification {
@@ -31,9 +31,21 @@ export default function TaxCalculator() {
   const [calculating, setCalculating] = useState(false);
   const [error, setError] = useState('');
 
+  const location = useLocation();
+  const prefilledState = location.state as { taxObjectId?: string | number, classificationId?: string | number, defaultVars?: Record<string, any> } | null;
+
+  const [creatingBill, setCreatingBill] = useState(false);
+
   useEffect(() => {
     loadClassifications();
   }, []);
+
+  // Effect to auto-select classification if coming from Map/Detail
+  useEffect(() => {
+    if (classifications.length > 0 && prefilledState?.classificationId) {
+      handleSelectClassification(prefilledState.classificationId.toString(), prefilledState.defaultVars);
+    }
+  }, [classifications, prefilledState]);
 
   const loadClassifications = async () => {
     try {
@@ -48,7 +60,7 @@ export default function TaxCalculator() {
 
   const selected = classifications.find(c => c.id.toString() === selectedId);
 
-  const handleSelectClassification = (id: string) => {
+  const handleSelectClassification = (id: string, overrideVars?: Record<string, any>) => {
     setSelectedId(id);
     setResult(null);
     setError('');
@@ -62,8 +74,12 @@ export default function TaxCalculator() {
       
       const newVars: Record<string, string> = {};
       formulaVars.forEach(v => { 
-        const field = cls.form_schema?.find((f: any) => f.key === v);
-        newVars[v] = field?.defaultValue !== undefined ? field.defaultValue.toString() : ''; 
+        if (overrideVars && overrideVars[v] !== undefined) {
+          newVars[v] = overrideVars[v].toString();
+        } else {
+          const field = cls.form_schema?.find((f: any) => f.key === v);
+          newVars[v] = field?.defaultValue !== undefined ? field.defaultValue.toString() : ''; 
+        }
       });
       setVariables(newVars);
     }
@@ -94,10 +110,47 @@ export default function TaxCalculator() {
   };
 
   const handleReset = () => {
+    if (prefilledState?.classificationId) return; // Prevent reset if locked to a specific object
     setSelectedId('');
     setVariables({});
     setResult(null);
     setError('');
+  };
+
+  const handleCreateBill = async () => {
+    if (!result || !prefilledState?.taxObjectId) return;
+    
+    setCreatingBill(true);
+    setError('');
+    
+    try {
+      const numericVars: Record<string, number> = {};
+      Object.entries(variables).forEach(([key, val]) => {
+        numericVars[key] = parseFloat(val) || 0;
+      });
+
+      // Get current period like '2024-05'
+      const date = new Date();
+      const period = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      // Due date is end of current month
+      const dueDate = new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0];
+
+      const res = await api.post('/api/bills', {
+        tax_object_id: prefilledState.taxObjectId,
+        amount: result.result, // from simulation
+        period: period,
+        due_date: dueDate,
+        metadata: numericVars
+      });
+      
+      // Navigate to Payment Confirmation implicitly by going to Billing Page or specialized payment page
+      // Assuming Petugas has a Billing page or we stay and notify. Redirecting to Billing is safest.
+      navigate('/billing', { state: { highlightBillId: res.data.id } });
+    } catch (err: any) {
+      setError(err.message || 'Gagal membuat tagihan SKPD.');
+      setCreatingBill(false); // only reset on error, if success we navigate away
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -154,12 +207,15 @@ export default function TaxCalculator() {
 
             <div className="space-y-6">
               <div className="group">
-                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Jenis Pajak / Retribusi</label>
+                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">
+                  Jenis Pajak / Retribusi {prefilledState?.classificationId && <span className="text-emerald-500 normal-case">(Terkunci berdasarkan Objek)</span>}
+                </label>
                 <div className="relative">
                   <select
                     value={selectedId}
                     onChange={e => handleSelectClassification(e.target.value)}
-                    className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 rounded-2xl font-bold text-slate-900 dark:text-white appearance-none cursor-pointer focus:border-blue-500/50 transition-all text-base"
+                    disabled={!!prefilledState?.classificationId}
+                    className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 rounded-2xl font-bold text-slate-900 dark:text-white appearance-none cursor-pointer focus:border-blue-500/50 transition-all text-base disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     <option value="">Pilih Klasifikasi Pajak...</option>
                     {classifications.map(cls => (
@@ -168,9 +224,18 @@ export default function TaxCalculator() {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  {!prefilledState?.classificationId && (
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  )}
                 </div>
               </div>
+
+              {error && (
+                <div className="p-4 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-xl text-xs font-bold flex items-center gap-2">
+                  <AlertCircle size={14} />
+                  {error}
+                </div>
+              )}
 
               {selected && (
                 <div className="animate-in slide-in-from-top-4 duration-500">
@@ -283,6 +348,26 @@ export default function TaxCalculator() {
                       {result.formula}
                     </code>
                   </div>
+
+                  {prefilledState?.taxObjectId && (
+                    <button
+                      onClick={handleCreateBill}
+                      disabled={creatingBill}
+                      className="w-full mt-6 py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/30 active:scale-95 disabled:opacity-50 disabled:shadow-none"
+                    >
+                      {creatingBill ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Menerbitkan SKPD...
+                        </>
+                      ) : (
+                        <>
+                          <Receipt size={18} />
+                          Buat & Bayar SKPD
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

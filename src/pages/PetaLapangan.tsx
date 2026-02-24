@@ -36,6 +36,8 @@ interface Potential {
   taxpayer_photo?: string | null;
   icon?: string | null;
   retribution_type_id?: number | string;
+  retribution_classification_id?: number | string;
+  tax_object_id?: number | string;
 }
 
 // Component to recenter map when position changes
@@ -420,6 +422,24 @@ export default function PetaLapangan() {
                            {potential.classification_name || 'N/A'}
                          </span>
                        </div>
+                       
+                       {!potential.is_paid && potential.tax_object_id && (
+                         <button 
+                           onClick={() => navigate('/calculator', {
+                             state: {
+                               taxObjectId: potential.tax_object_id,
+                               classificationId: potential.retribution_classification_id,
+                               defaultVars: {
+                                 // We can pass pre-filled variables here if needed
+                               }
+                             }
+                           })}
+                           className="w-full mt-2 py-2 bg-[#2d5cd5] hover:bg-blue-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-blue-500/20 active:scale-95 text-center flex items-center justify-center gap-1.5"
+                         >
+                           <Calculator size={12} />
+                           Buat SKPD Baru
+                         </button>
+                       )}
                     </div>
                   )}
 
