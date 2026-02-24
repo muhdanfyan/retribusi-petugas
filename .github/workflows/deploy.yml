@@ -21,10 +21,11 @@ jobs:
           if [ "${{ github.ref_name }}" == "main" ]; then
             echo "target_dir=/home/sipanda/retribusi-petugas" >> $GITHUB_OUTPUT
             echo "api_url=https://api.sipanda.online" >> $GITHUB_OUTPUT
+            echo "build_cmd=build" >> $GITHUB_OUTPUT
           else
             echo "target_dir=/home/sipanda/retribusi-petugas-dev" >> $GITHUB_OUTPUT
-            echo "api_url=https://api.sipanda.online" >> $GITHUB_OUTPUT 
-            # Note: Changed from api-dev to api due to 500 error on api-dev
+            echo "api_url=https://api-dev.sipanda.online" >> $GITHUB_OUTPUT
+            echo "build_cmd=build:staging" >> $GITHUB_OUTPUT
           fi
 
       - name: Setup Node.js
@@ -37,7 +38,7 @@ jobs:
         run: npm install
 
       - name: Build Application
-        run: npm run build
+        run: npm run ${{ steps.vars.outputs.build_cmd }}
         env:
           VITE_API_URL: ${{ steps.vars.outputs.api_url }}
           VITE_APP_ENV: ${{ github.ref_name == 'main' && 'production' || 'development' }}
