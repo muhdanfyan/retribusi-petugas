@@ -12,6 +12,7 @@ import {
   Navigation,
   Loader2,
   MapPin,
+  User,
   Crosshair,
   RefreshCw,
   Calculator,
