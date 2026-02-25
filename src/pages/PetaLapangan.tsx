@@ -12,10 +12,11 @@ import {
   Navigation,
   Loader2,
   MapPin,
-  User,
   Crosshair,
   RefreshCw,
-  Calculator
+  Calculator,
+  CreditCard,
+  X
 } from 'lucide-react';
 
 // Fix for default marker icon
@@ -84,7 +85,60 @@ export default function PetaLapangan() {
   const containerRef = useRef<HTMLDivElement>(null);
   const watchIdRef = useRef<number | null>(null);
 
+  // Modal Pembayaran State
+  const [paymentModal, setPaymentModal] = useState<{
+    isOpen: boolean;
+    taxObjectId: string | number | null;
+    taxpayerName: string;
+    loading: boolean;
+    submitting: boolean;
+    periods: any[];
+    selectedPeriod: string;
+  }>({
+    isOpen: false, taxObjectId: null, taxpayerName: '', loading: false, submitting: false, periods: [], selectedPeriod: ''
+  });
+
   const userAvatarUrl = (user as any)?.metadata?.avatar_url || null;
+
+  const handleOpenPayment = async (taxObjectId: string | number, taxpayerName: string) => {
+    setPaymentModal(prev => ({ ...prev, isOpen: true, loading: true, taxObjectId, taxpayerName, periods: [], selectedPeriod: '' }));
+    try {
+      const res = await api.get(`/api/tax-objects/${taxObjectId}/pending-periods`);
+      const periods = res.data || res;
+      setPaymentModal(prev => ({ 
+        ...prev, 
+        loading: false, 
+        periods,
+        selectedPeriod: periods.length > 0 ? periods[0].period : ''
+      }));
+    } catch (error) {
+      console.error('Failed to load periods', error);
+      alert('Gagal mengambil tagihan pending');
+      setPaymentModal(prev => ({ ...prev, isOpen: false, loading: false }));
+    }
+  };
+
+  const handleProcessPayment = async () => {
+    if (!paymentModal.taxObjectId || !paymentModal.selectedPeriod) return;
+    setPaymentModal(prev => ({ ...prev, submitting: true }));
+    try {
+      const selectedObj = paymentModal.periods.find(p => p.period === paymentModal.selectedPeriod);
+      await api.post('/api/payments', {
+        tax_object_id: Number(paymentModal.taxObjectId),
+        billing_period: paymentModal.selectedPeriod,
+        payment_method: 'cash',
+        amount: selectedObj?.total_amount || selectedObj?.amount || 0,
+      });
+      alert(`Pembayaran periode ${paymentModal.selectedPeriod} berhasil dicatat`);
+      setPaymentModal(prev => ({ ...prev, isOpen: false, submitting: false }));
+      // Refresh marker status (akan menjadi hijau lunas)
+      fetchPotentials();
+    } catch (error) {
+      console.error('Payment failed', error);
+      alert('Gagal mencatat pembayaran');
+      setPaymentModal(prev => ({ ...prev, submitting: false }));
+    }
+  };
 
   // Fetch map potentials
   const fetchPotentials = useCallback(async () => {
@@ -437,21 +491,31 @@ export default function PetaLapangan() {
                        </div>
                        
                        {potential.tax_object_id && (
-                         <button 
-                           onClick={() => navigate('/calculator', {
-                             state: {
-                               taxObjectId: potential.tax_object_id,
-                               classificationId: potential.retribution_classification_id,
-                               defaultVars: {
-                                 // We can pass pre-filled variables here if needed
+                         <div className="flex flex-col gap-2 mt-3">
+                           <button 
+                             onClick={() => navigate('/calculator', {
+                               state: {
+                                 taxObjectId: potential.tax_object_id,
+                                 classificationId: potential.retribution_classification_id,
+                                 defaultVars: {}
                                }
-                             }
-                           })}
-                           className="w-full mt-2 py-2 bg-[#2d5cd5] hover:bg-blue-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-blue-500/20 active:scale-95 text-center flex items-center justify-center gap-1.5"
-                         >
-                           <Calculator size={12} />
-                           Buat SKPD (On-Site Billing)
-                         </button>
+                             })}
+                             className="w-full py-2 bg-[#2d5cd5] hover:bg-blue-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-blue-500/20 active:scale-95 text-center flex items-center justify-center gap-1.5"
+                           >
+                             <Calculator size={12} />
+                             Buat SKPD (On-Site Billing)
+                           </button>
+                           
+                           {!potential.is_paid && (
+                             <button
+                               onClick={() => handleOpenPayment(potential.tax_object_id!, potential.name)}
+                               className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-500/20 active:scale-95 text-center flex items-center justify-center gap-1.5"
+                             >
+                               <CreditCard size={12} />
+                               Bayar Tagihan
+                             </button>
+                           )}
+                         </div>
                        )}
                     </div>
                   )}
@@ -513,6 +577,86 @@ export default function PetaLapangan() {
           50% { box-shadow: 0 0 0 12px rgba(45,92,213,0); }
         }
       `}</style>
+      
+      {paymentModal.isOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-500 border border-slate-100 dark:border-slate-800 flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <CreditCard size={20} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Bayar Tagihan</h3>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{paymentModal.taxpayerName}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setPaymentModal(prev => ({ ...prev, isOpen: false }))}
+                className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+                disabled={paymentModal.submitting}
+              >
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto">
+              {paymentModal.loading ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-[#2d5cd5] mb-4" />
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mencari Tagihan...</p>
+                </div>
+              ) : paymentModal.periods.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CreditCard size={24} className="text-slate-400" />
+                  </div>
+                  <p className="text-sm font-black text-slate-900 dark:text-white mb-1">Tidak ada tagihan tertunggak</p>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest leading-relaxed">Wajib Pajak ini telah melunasi semua tagihan.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Pilih Periode Tunggakan</label>
+                     <select
+                       value={paymentModal.selectedPeriod}
+                       onChange={(e) => setPaymentModal(prev => ({...prev, selectedPeriod: e.target.value}))}
+                       className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold focus:ring-2 focus:ring-[#2d5cd5] outline-none"
+                     >
+                       {paymentModal.periods.map(p => (
+                         <option key={p.period} value={p.period}>
+                           Periode {p.period} - Rp {(p.total_amount || p.amount || 0).toLocaleString('id-ID')}
+                         </option>
+                       ))}
+                     </select>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                    <div className="flex justify-between items-center mb-2">
+                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Bayar Kasir</span>
+                       <span className="text-lg font-black text-[#2d5cd5]">
+                         Rp {(paymentModal.periods.find(p => p.period === paymentModal.selectedPeriod)?.total_amount || paymentModal.periods.find(p => p.period === paymentModal.selectedPeriod)?.amount || 0).toLocaleString('id-ID')}
+                       </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {paymentModal.periods.length > 0 && !paymentModal.loading && (
+              <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                 <button
+                   onClick={handleProcessPayment}
+                   disabled={paymentModal.submitting}
+                   className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:active:scale-100"
+                 >
+                   {paymentModal.submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Proses Pembayaran TUNAI'}
+                 </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
