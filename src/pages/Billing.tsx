@@ -117,6 +117,8 @@ export default function Billing() {
       // Traditional bill payment
       if (selectedBill) {
         await api.post(`/api/bills/${selectedBill.id}/pay`, {
+          tax_object_id: Number(selectedBill.taxObjectId),
+          billing_period: selectedBill.period,
           payment_method: 'cash',
           amount: selectedBill.amount,
           proof_url: uploadedProofUrl // Optional attachment
