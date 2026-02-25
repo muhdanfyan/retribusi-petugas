@@ -116,15 +116,27 @@ export default function PetaLapangan() {
         setGpsStatus('active');
       },
       (error) => {
-        console.error('GPS Error:', error);
-        setGpsStatus('error');
-        // Default to Baubau city center
-        setMyPosition([-5.47, 122.6]);
+        console.warn('GPS Watch High-Accuracy Error:', error.message);
+        
+        // Coba pertolongan pertama dengan akurasi rendah (low-accuracy fallback)
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setMyPosition([pos.coords.latitude, pos.coords.longitude]);
+            setGpsStatus('active');
+          },
+          (fallbackErr) => {
+             console.error('GPS Fallback Error:', fallbackErr.message);
+             setGpsStatus('error');
+             // Hanya set default ke Baubau jika belum pernah dapat posisi
+             setMyPosition(prev => prev || [-5.47, 122.6]);
+          },
+          { enableHighAccuracy: false, timeout: 15000, maximumAge: 60000 }
+        );
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 5000,
+        timeout: 30000, // Tingkatkan dari 10000 ke 30000 ms agar HP punya waktu mengunci satelit
+        maximumAge: 15000,
       }
     );
 
