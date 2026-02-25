@@ -438,7 +438,7 @@ export default function PetaLapangan() {
                            className="w-full mt-2 py-2 bg-[#2d5cd5] hover:bg-blue-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-blue-500/20 active:scale-95 text-center flex items-center justify-center gap-1.5"
                          >
                            <Calculator size={12} />
-                           Buat SKPD Baru
+                           Buat SKPD (On-Site Billing)
                          </button>
                        )}
                     </div>
