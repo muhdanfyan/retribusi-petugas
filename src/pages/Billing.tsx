@@ -63,6 +63,8 @@ export default function Billing() {
           dueDate: b.due_date,
           status: b.status as any,
           createdAt: b.created_at,
+          taxObjectId: b.tax_object_id,
+          period: b.period,
         }));
 
         setBillings(mappedBills);
@@ -166,6 +168,8 @@ export default function Billing() {
         dueDate: b.due_date,
         status: b.status as any,
         createdAt: b.created_at,
+        taxObjectId: b.tax_object_id,
+        period: b.period,
       })));
     } catch (error) {
       console.error(error);

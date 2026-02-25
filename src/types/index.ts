@@ -100,6 +100,9 @@ export interface Billing {
   status: 'lunas' | 'pending' | 'overdue';
   createdAt: string;
   tax_object_id?: number | string;
+  taxObjectId?: number | string;
+  period?: string;
+  penalty_amount?: number;
   tax_object?: TaxObject;
 }
 
