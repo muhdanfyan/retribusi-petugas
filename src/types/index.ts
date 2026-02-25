@@ -104,6 +104,7 @@ export interface Billing {
   period?: string;
   penalty_amount?: number;
   tax_object?: TaxObject;
+  bank_accounts?: { bank_name: string; account_number: string; account_name?: string; qr_image_url?: string }[];
 }
 
 export interface Payment {

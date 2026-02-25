@@ -26,6 +26,7 @@ export default function Billing() {
   
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'transfer'>('cash');
   
   const [selectedBill, setSelectedBill] = useState<BillingType | null>(null);
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
@@ -59,6 +60,7 @@ export default function Billing() {
           taxpayerId: b.taxpayer?.npwpd || 'N/A',
           type: b.classification?.name || b.retribution_type?.name || 'N/A',
           amount: Number(b.total_amount || b.amount),
+          bank_accounts: b.classification?.bank_accounts || [],
           penalty_amount: Number(b.penalty_amount || 0),
           dueDate: b.due_date,
           status: b.status as any,
@@ -121,7 +123,7 @@ export default function Billing() {
         await api.post(`/api/bills/${selectedBill.id}/pay`, {
           tax_object_id: Number(selectedBill.taxObjectId),
           billing_period: selectedBill.period,
-          payment_method: 'cash',
+          payment_method: paymentMethod,
           amount: selectedBill.amount,
           proof_url: uploadedProofUrl // Optional attachment
         });
@@ -145,7 +147,7 @@ export default function Billing() {
       await api.post('/api/payments', {
         tax_object_id: Number(formData.tax_object_id),
         billing_period: formData.period,
-        payment_method: 'cash',
+        payment_method: paymentMethod,
         amount: selectedPeriod?.total_amount || selectedPeriod?.amount || 0,
         proof_url: uploadedProofUrl
       });
@@ -164,6 +166,7 @@ export default function Billing() {
         taxpayerName: b.taxpayer?.name || b.user?.name || 'Unknown',
         taxpayerId: b.taxpayer?.taxpayer_id || b.taxpayer?.npwpd || 'N/A',
         type: b.classification?.name || b.retribution_type?.name || 'N/A',
+        bank_accounts: b.classification?.bank_accounts || [],
         amount: Number(b.total_amount || b.amount),
         dueDate: b.due_date,
         status: b.status as any,
@@ -596,13 +599,88 @@ export default function Billing() {
               </div>
 
               {/* Amount Highlight */}
-              <div className="mt-5 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-2xl p-5 text-center border border-emerald-100 dark:border-emerald-800">
-                <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
-                <p className="text-3xl font-black text-emerald-700 dark:text-emerald-400">{formatCurrency(selectedBill.amount)}</p>
-                {Number((selectedBill as any).penalty_amount) > 0 && (
-                  <p className="text-[10px] text-amber-600 font-black mt-1 uppercase">Termasuk Denda: {formatCurrency((selectedBill as any).penalty_amount)}</p>
+              <div className="mt-5 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-800">
+                <div className="text-center mb-4">
+                  <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
+                  <p className="text-3xl font-black text-emerald-700 dark:text-emerald-400">{formatCurrency(selectedBill.amount)}</p>
+                  {Number((selectedBill as any).penalty_amount) > 0 && (
+                    <p className="text-[10px] text-amber-600 font-black mt-1 uppercase">Termasuk Denda: {formatCurrency((selectedBill as any).penalty_amount)}</p>
+                  )}
+                </div>
+
+                <div className="border-t border-emerald-200/50 dark:border-emerald-800/50 pt-4 mt-4">
+                  <p className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest mb-3 text-center">Metode Pembayaran</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('cash')}
+                      className={`py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                        paymentMethod === 'cash' 
+                          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' 
+                          : 'bg-white dark:bg-gray-800 text-slate-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800'
+                      }`}
+                    >
+                      Tunai (Cash)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('transfer')}
+                      className={`py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                        paymentMethod === 'transfer' 
+                          ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' 
+                          : 'bg-white dark:bg-gray-800 text-slate-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800'
+                      }`}
+                    >
+                      Transfer / QRIS
+                    </button>
+                  </div>
+                </div>
+
+                {/* Bank Accounts Section if Transfer selected */}
+                {paymentMethod === 'transfer' && (
+                  <div className="mt-4 border-t border-emerald-200/50 dark:border-emerald-800/50 pt-4 animate-in slide-in-from-top-2 duration-300">
+                    <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 text-center">Rekening Tujuan</p>
+                    
+                    {selectedBill.bank_accounts && selectedBill.bank_accounts.length > 0 ? (
+                      <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                        {selectedBill.bank_accounts.map((bank, idx) => (
+                          <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-xl border border-slate-100 dark:border-gray-700 shadow-sm">
+                            <div className="flex justify-between items-start mb-1">
+                              <p className="text-xs font-black text-slate-800 dark:text-white">{bank.bank_name}</p>
+                              <span 
+                                className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[9px] font-bold rounded cursor-pointer"
+                                onClick={() => navigator.clipboard.writeText(bank.account_number)}
+                              >
+                                Salin
+                              </span>
+                            </div>
+                            
+                            {bank.qr_image_url && (
+                              <div className="flex justify-center my-3 bg-white p-2 border border-slate-100 dark:border-slate-700 rounded-lg">
+                                <img src={bank.qr_image_url} alt="QR Code" className="w-24 h-24 object-contain rounded" />
+                              </div>
+                            )}
+
+                            <p className="text-sm font-mono text-slate-600 dark:text-slate-300 tracking-wider mb-1">
+                              {bank.account_number}
+                            </p>
+                            {bank.account_name && (
+                              <p className="text-[10px] text-slate-400 uppercase font-bold">
+                                a.n {bank.account_name}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl text-center border border-amber-100 dark:border-amber-800">
+                        <p className="text-xs font-bold text-amber-700 dark:text-amber-500">
+                          Tidak ada rekening tersedia untuk klasifikasi ini.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 )}
-                <p className="text-[9px] text-emerald-600/70 dark:text-emerald-400/70 font-medium mt-2 uppercase tracking-wider">Metode: Tunai (Cash)</p>
               </div>
 
               {/* Upload Bukti Pembayaran */}
