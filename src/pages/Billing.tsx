@@ -149,14 +149,20 @@ export default function Billing() {
     }
   };
 
-  const filteredBillings = billings.filter((billing) => {
-    const matchesSearch =
-      billing.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      billing.taxpayerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      billing.taxpayerId.toString().toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || billing.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredBillings = billings
+    .filter((billing) => {
+      const matchesSearch =
+        billing.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        billing.taxpayerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        billing.taxpayerId.toString().toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = filterStatus === 'all' || billing.status === filterStatus;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (a.status === 'pending' && b.status !== 'pending') return -1;
+      if (a.status !== 'pending' && b.status === 'pending') return 1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
   const summary = {
     total: billings.length,
