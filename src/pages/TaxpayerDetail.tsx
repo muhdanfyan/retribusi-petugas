@@ -148,10 +148,11 @@ export default function TaxpayerDetail() {
                  });
               }
             }}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95"
+            className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95"
           >
             <Calculator size={13} />
-            Buat SKPD
+            <span className="hidden sm:inline">Buat SKPD</span>
+            <span className="sm:hidden">SKPD</span>
           </button>
           <button
             onClick={() => setShowEditModal(true)}
@@ -482,6 +483,25 @@ export default function TaxpayerDetail() {
                         +{asset.retribution_classifications.length - 2}
                       </span>
                     )}
+                  </div>
+                  
+                  {/* Shortcut Buat SKPD */}
+                  <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex justify-end">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/calculator', {
+                          state: {
+                            taxObjectId: asset.id,
+                            classificationId: asset.retribution_classifications?.[0]?.id || '',
+                            defaultVars: asset.metadata || {}
+                          }
+                        });
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase tracking-widest rounded-lg transition-colors border border-emerald-100 dark:border-emerald-800"
+                    >
+                      <Calculator size={11} /> Buat SKPD
+                    </button>
                   </div>
                 </div>
               </div>

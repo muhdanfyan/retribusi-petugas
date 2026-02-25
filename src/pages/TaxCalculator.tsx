@@ -144,9 +144,8 @@ export default function TaxCalculator() {
         metadata: numericVars
       });
       
-      // Navigate to Payment Confirmation implicitly by going to Billing Page or specialized payment page
-      // Assuming Petugas has a Billing page or we stay and notify. Redirecting to Billing is safest.
-      navigate('/billing', { state: { highlightBillId: res.data.id } });
+      const billNumber = res.data?.bill_number || res.bill_number;
+      navigate(`/billing?search=${billNumber || ''}`);
     } catch (err: any) {
       setError(err.message || 'Gagal membuat tagihan SKPD.');
       setCreatingBill(false); // only reset on error, if success we navigate away
