@@ -1,6 +1,9 @@
-# retribusi-petugas
+# 👮 M-PAD Petugas (Field App)
 
-## Contributors
+Aplikasi lapangan untuk petugas Kota Bau-Bau dalam melakukan pengawasan, input potensi, dan verifikasi data pajak/retribusi daerah.
 
-- [muhdanfyan](https://github.com/muhdanfyan)
-- [arif-rizal1122](https://github.com/arif-rizal1122)
+- **URL Production**: `petugas.sipanda.online`
+- **URL Dev**: `petugas-dev.sipanda.online`
+- **Tech Stack**: React, Vite, Tailwind CSS.
+
+*Lihat [SYSTEM_OVERVIEW.md](https://github.com/muhdanfyan/retribusi-api/blob/dev/SYSTEM_OVERVIEW.md) untuk dokumentasi arsitektur lengkap.*
