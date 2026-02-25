@@ -564,7 +564,6 @@ export default function Dashboard() {
                                   Buat SKPD (On-Site Billing)
                                 </button>
                                 
-                                {!potential.is_paid && (
                                   <button
                                     onClick={() => handleOpenPayment(potential.tax_object_id!, potential.name)}
                                     className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-500/20 active:scale-95 text-center flex items-center justify-center gap-1.5"
@@ -572,9 +571,8 @@ export default function Dashboard() {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                                     Bayar Tagihan
                                   </button>
-                                )}
-                              </div>
-                            )}
+                                </div>
+                              )}
                           </div>
                         )}
                       </div>

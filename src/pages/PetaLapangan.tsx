@@ -507,15 +507,13 @@ export default function PetaLapangan() {
                              Buat SKPD (On-Site Billing)
                            </button>
                            
-                           {!potential.is_paid && (
-                             <button
-                               onClick={() => handleOpenPayment(potential.tax_object_id!, potential.name)}
-                               className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-500/20 active:scale-95 text-center flex items-center justify-center gap-1.5"
-                             >
-                               <CreditCard size={12} />
-                               Bayar Tagihan
-                             </button>
-                           )}
+                           <button
+                             onClick={() => handleOpenPayment(potential.tax_object_id!, potential.name)}
+                             className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-500/20 active:scale-95 text-center flex items-center justify-center gap-1.5"
+                           >
+                             <CreditCard size={12} />
+                             Bayar Tagihan
+                           </button>
                          </div>
                        )}
                     </div>
