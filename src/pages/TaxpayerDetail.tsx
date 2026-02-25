@@ -136,17 +136,14 @@ export default function TaxpayerDetail() {
           </span>
           <button
             onClick={() => {
-              // Try to find the primary tax object
               const taxObject = taxpayer.tax_objects?.[0] || taxpayer;
-              if (taxObject) {
-                 navigate('/calculator', {
-                   state: {
-                     taxObjectId: taxObject.id,
-                     classificationId: taxObject.retribution_classification_id,
-                     defaultVars: taxObject.metadata || {}
-                   }
-                 });
-              }
+              navigate('/calculator', {
+                state: {
+                  taxObjectId: taxObject.id,
+                  classificationId: taxObject.retribution_classification_id || '',
+                  defaultVars: taxObject.metadata || {}
+                }
+              });
             }}
             className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95"
           >

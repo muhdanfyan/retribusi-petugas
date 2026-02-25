@@ -14,7 +14,8 @@ import {
   MapPin,
   User,
   Crosshair,
-  RefreshCw
+  RefreshCw,
+  Calculator
 } from 'lucide-react';
 
 // Fix for default marker icon
@@ -423,7 +424,7 @@ export default function PetaLapangan() {
                          </span>
                        </div>
                        
-                       {!potential.is_paid && potential.tax_object_id && (
+                       {potential.tax_object_id && (
                          <button 
                            onClick={() => navigate('/calculator', {
                              state: {
