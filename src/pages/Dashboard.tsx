@@ -88,12 +88,14 @@ export default function Dashboard() {
     submitting: boolean;
     periods: any[];
     selectedPeriod: string;
+    proofFile: File | null;
+    uploadingProof: boolean;
   }>({
-    isOpen: false, taxObjectId: null, taxpayerName: '', loading: false, submitting: false, periods: [], selectedPeriod: ''
+    isOpen: false, taxObjectId: null, taxpayerName: '', loading: false, submitting: false, periods: [], selectedPeriod: '', proofFile: null, uploadingProof: false
   });
 
   const handleOpenPayment = async (taxObjectId: string | number, taxpayerName: string) => {
-    setPaymentModal(prev => ({ ...prev, isOpen: true, loading: true, taxObjectId, taxpayerName, periods: [], selectedPeriod: '' }));
+    setPaymentModal(prev => ({ ...prev, isOpen: true, loading: true, taxObjectId, taxpayerName, periods: [], selectedPeriod: '', proofFile: null, uploadingProof: false }));
     try {
       const res = await api.get(`/api/tax-objects/${taxObjectId}/pending-periods`);
       const periods = res.data || res;
@@ -110,16 +112,35 @@ export default function Dashboard() {
     }
   };
 
+  const uploadToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('folder', 'retribusi/bukti_bayar');
+
+    const res = await api.post('/api/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data?.url || res.url;
+  };
+
   const handleProcessPayment = async () => {
     if (!paymentModal.taxObjectId || !paymentModal.selectedPeriod) return;
     setPaymentModal(prev => ({ ...prev, submitting: true }));
+    let uploadedProofUrl = null;
+
     try {
+      if (paymentModal.proofFile) {
+        setPaymentModal(prev => ({ ...prev, uploadingProof: true }));
+        uploadedProofUrl = await uploadToCloudinary(paymentModal.proofFile);
+      }
+
       const selectedObj = paymentModal.periods.find(p => p.period === paymentModal.selectedPeriod);
       await api.post('/api/payments', {
         tax_object_id: Number(paymentModal.taxObjectId),
         billing_period: paymentModal.selectedPeriod,
         payment_method: 'cash',
         amount: selectedObj?.total_amount || selectedObj?.amount || 0,
+        proof_url: uploadedProofUrl // Terlampir if available
       });
       alert(`Pembayaran periode ${paymentModal.selectedPeriod} berhasil dicatat`);
       setPaymentModal(prev => ({ ...prev, isOpen: false, submitting: false }));
@@ -127,8 +148,8 @@ export default function Dashboard() {
       fetchDashboardData();
     } catch (error) {
       console.error('Payment failed', error);
-      alert('Gagal mencatat pembayaran');
-      setPaymentModal(prev => ({ ...prev, submitting: false }));
+      alert('Gagal memproses pembayaran atau mengunggah gambar');
+      setPaymentModal(prev => ({ ...prev, submitting: false, uploadingProof: false }));
     }
   };
 
@@ -841,12 +862,51 @@ export default function Dashboard() {
 
             {paymentModal.periods.length > 0 && !paymentModal.loading && (
               <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                  {/* Upload Bukti Pembayaran */}
+                  <div className="mb-4">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Bukti Pembayaran (Opsional)</label>
+                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all overflow-hidden relative ${paymentModal.proofFile ? 'border-[#2d5cd5] bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 bg-slate-50 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800'}`}>
+                      {paymentModal.proofFile ? (
+                        <>
+                          <img src={URL.createObjectURL(paymentModal.proofFile)} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                          <div className="z-10 flex flex-col items-center bg-white/80 dark:bg-black/60 px-4 py-2 rounded-xl text-center">
+                            <span className="text-xs font-black text-[#2d5cd5] dark:text-blue-400 truncate max-w-[150px]">{paymentModal.proofFile.name}</span>
+                            <span className="text-[9px] font-bold text-blue-500 uppercase mt-1">Ganti Foto</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <ImagePlus className="w-8 h-8 text-slate-400 mb-2" />
+                          <span className="text-xs font-bold text-slate-500">Ketuk untuk Ambil Foto</span>
+                          <span className="text-[9px] font-medium text-slate-400 mt-1">PNG, JPG up to 5MB</span>
+                        </>
+                      )}
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        capture="environment" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            setPaymentModal(prev => ({...prev, proofFile: e.target.files![0]}));
+                          }
+                        }} 
+                      />
+                    </label>
+                  </div>
+
                  <button
                    onClick={handleProcessPayment}
                    disabled={paymentModal.submitting}
                    className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:active:scale-100"
                  >
-                   {paymentModal.submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Proses Pembayaran TUNAI'}
+                   {paymentModal.uploadingProof ? (
+                     <><Loader2 className="w-4 h-4 animate-spin"/> MENGUNGGAH BUKTI...</>
+                   ) : paymentModal.submitting ? (
+                     <><Loader2 className="w-4 h-4 animate-spin" /> MEMPROSES...</>
+                   ) : (
+                     'Proses Pembayaran TUNAI'
+                   )}
                  </button>
               </div>
             )}

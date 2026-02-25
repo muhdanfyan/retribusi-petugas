@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Download, Search, FileText, Loader2, QrCode, Plus } from 'lucide-react';
+import { 
+  Download, 
+  Search, 
+  FileText, 
+  Loader2, 
+  QrCode, 
+  Plus, 
+  ImagePlus, 
+  X 
+} from 'lucide-react';
 import SearchableSelect from '../components/SearchableSelect';
 import { Billing as BillingType } from '../types';
 import { api } from '../lib/api';
@@ -29,6 +38,11 @@ export default function Billing() {
 
   const [pendingPeriods, setPendingPeriods] = useState<any[]>([]);
   const [fetchingPeriods, setFetchingPeriods] = useState(false);
+
+  // Bukti Pembayaran State (Cloudinary)
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
+  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -75,43 +89,68 @@ export default function Billing() {
     }
   };
 
+  const uploadToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('folder', 'retribusi/bukti_bayar');
+
+    const res = await api.post('/api/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    
+    // API returns either { url: '...' } or { data: { url: '...' } }
+    return res.data?.url || res.url;
+  };
+
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Traditional bill payment
-    if (selectedBill) {
-      try {
+    setPaymentSubmitting(true);
+    let uploadedProofUrl = null;
+
+    try {
+      if (proofFile) {
+        setUploadingProof(true);
+        uploadedProofUrl = await uploadToCloudinary(proofFile);
+        setUploadingProof(false);
+      }
+
+      // Traditional bill payment
+      if (selectedBill) {
         await api.post(`/api/bills/${selectedBill.id}/pay`, {
           payment_method: 'cash',
           amount: selectedBill.amount,
+          proof_url: uploadedProofUrl // Optional attachment
         });
         alert('Pembayaran berhasil dicatat');
         setShowPaymentModal(false);
         setSelectedBill(null);
+        setProofFile(null);
         setBillings(prev => prev.map(b => b.id === selectedBill.id ? { ...b, status: 'lunas' } : b));
-      } catch (error) {
-        alert('Gagal mencatat pembayaran');
+        setPaymentSubmitting(false);
+        return;
       }
-      return;
-    }
 
-    // New dynamic period payment
-    if (!formData.tax_object_id || !formData.period) return;
-    
-    const selectedPeriod = pendingPeriods.find(p => p.period === formData.period);
+      // New dynamic period payment
+      if (!formData.tax_object_id || !formData.period) {
+        setPaymentSubmitting(false);
+        return;
+      }
+      
+      const selectedPeriod = pendingPeriods.find(p => p.period === formData.period);
 
-    try {
       await api.post('/api/payments', {
         tax_object_id: Number(formData.tax_object_id),
         billing_period: formData.period,
         payment_method: 'cash',
         amount: selectedPeriod?.total_amount || selectedPeriod?.amount || 0,
+        proof_url: uploadedProofUrl
       });
 
       alert(`Pembayaran periode ${formData.period} berhasil dicatat`);
       setShowModal(false);
       setFormData({ tax_object_id: '', period: '' });
       setPendingPeriods([]);
+      setProofFile(null);
       
       // Refresh list
       const billsRes = await api.get('/api/bills');
@@ -127,7 +166,11 @@ export default function Billing() {
         createdAt: b.created_at,
       })));
     } catch (error) {
-      alert('Gagal mencatat pembayaran');
+      console.error(error);
+      alert('Gagal memproses pembayaran atau mengunggah gambar');
+      setUploadingProof(false);
+    } finally {
+      setPaymentSubmitting(false);
     }
   };
 
@@ -394,15 +437,15 @@ export default function Billing() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden border border-gray-100">
-            <div className="p-8 border-b border-gray-50 flex justify-between items-center">
+          <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl max-w-md w-full overflow-y-auto max-h-[90vh] border border-gray-100 relative">
+            <div className="p-6 md:p-8 border-b border-gray-50 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
               <div>
                 <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Pembayaran Baru</h2>
                 <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Sistem Otomatis (Virtual Ledger)</p>
               </div>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
             </div>
-            <form onSubmit={handlePayment} className="p-8 space-y-5">
+            <form onSubmit={handlePayment} className="p-6 md:p-8 space-y-5">
               <SearchableSelect
                 label="Cari Objek Pajak"
                 options={taxObjects.map(obj => ({
@@ -450,12 +493,53 @@ export default function Billing() {
                 </div>
               )}
 
+              {/* Upload Bukti Pembayaran */}
+              {formData.period && (
+                <div className="animate-in fade-in duration-300 border-t border-slate-100 pt-4 mt-2">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Bukti Pembayaran (Opsional)</label>
+                  <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all overflow-hidden relative ${proofFile ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'border-slate-300 bg-slate-50 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900'}`}>
+                    {proofFile ? (
+                      <>
+                        <img src={URL.createObjectURL(proofFile)} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                        <div className="z-10 flex flex-col items-center bg-white/80 dark:bg-black/60 px-4 py-2 rounded-xl text-center">
+                           <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 truncate max-w-[150px]">{proofFile.name}</span>
+                           <span className="text-[9px] font-bold text-emerald-500 uppercase mt-1">Ganti Foto</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <ImagePlus className="w-8 h-8 text-slate-400 mb-2" />
+                        <span className="text-xs font-bold text-slate-500">Ketuk untuk Ambil Foto</span>
+                        <span className="text-[9px] font-medium text-slate-400 mt-1">PNG, JPG up to 5MB</span>
+                      </>
+                    )}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      capture="environment" 
+                      className="hidden" 
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          setProofFile(e.target.files[0]);
+                        }
+                      }} 
+                    />
+                  </label>
+                </div>
+              )}
+
               <button 
                 type="submit" 
-                disabled={!formData.period || pendingPeriods.length === 0}
-                className="w-full py-4 bg-emerald-600 disabled:bg-gray-300 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all mt-4"
+                disabled={!formData.period || pendingPeriods.length === 0 || paymentSubmitting}
+                className="w-full py-4 bg-emerald-600 disabled:bg-gray-300 flex items-center justify-center gap-2 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all mt-6"
               >
-                KONFIRMASI BAYAR
+                {uploadingProof ? (
+                  <><Loader2 className="w-4 h-4 animate-spin"/> MENGUNGGAH BUKTI...</>
+                ) : paymentSubmitting ? (
+                  <><Loader2 className="w-4 h-4 animate-spin"/> MEMPROSES...</>
+                ) : (
+                  'KONFIRMASI BAYAR'
+                )}
               </button>
             </form>
           </div>
@@ -464,67 +548,115 @@ export default function Billing() {
 
       {showPaymentModal && selectedBill && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl max-w-md w-full p-8 animate-in zoom-in duration-300">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FileText className="w-10 h-10 text-emerald-600" />
+          <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in duration-300 relative border border-gray-100">
+            {/* Header Sticky */}
+            <div className="shrink-0 p-6 md:p-8 pb-0 text-center sticky top-0 bg-white dark:bg-gray-800 z-10">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-emerald-50 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
+                <FileText className="w-8 h-8 md:w-10 md:h-10 text-emerald-600" />
               </div>
               <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">Konfirmasi Pembayaran</h2>
-              <p className="text-slate-400 text-sm font-medium">Verifikasi detail tagihan sebelum mencatat pembayaran</p>
+              <p className="text-slate-400 text-xs md:text-sm font-medium px-4">Verifikasi detail tagihan sebelum mencatat pembayaran</p>
             </div>
             
-            {/* Invoice Details */}
-            <div className="mt-6 space-y-3">
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">No. Invoice</p>
-                    <p className="text-sm font-black text-blue-600 dark:text-blue-400">{selectedBill.invoiceNumber}</p>
+            {/* Scrollable Content */}
+            <div className="p-6 md:p-8 overflow-y-auto w-full custom-scrollbar flex-1">
+              {/* Invoice Details */}
+              <div className="space-y-3">
+                <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">No. Invoice</p>
+                      <p className="text-sm font-black text-blue-600 dark:text-blue-400 truncate">{selectedBill.invoiceNumber}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Jatuh Tempo</p>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                        {new Date(selectedBill.dueDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Jatuh Tempo</p>
-                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                      {new Date(selectedBill.dueDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </p>
-                  </div>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Wajib Pajak</p>
+                  <p className="text-base font-black text-slate-900 dark:text-white truncate">{selectedBill.taxpayerName}</p>
+                  <p className="text-[10px] font-bold text-slate-500 mt-1 truncate">{selectedBill.taxpayerId}</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Jenis Retribusi</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide truncate">{selectedBill.type}</p>
                 </div>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Wajib Pajak</p>
-                <p className="text-base font-black text-slate-900 dark:text-white">{selectedBill.taxpayerName}</p>
-                <p className="text-[10px] font-bold text-slate-500 mt-1">{selectedBill.taxpayerId}</p>
+              {/* Amount Highlight */}
+              <div className="mt-5 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-2xl p-5 text-center border border-emerald-100 dark:border-emerald-800">
+                <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
+                <p className="text-3xl font-black text-emerald-700 dark:text-emerald-400">{formatCurrency(selectedBill.amount)}</p>
+                {Number((selectedBill as any).penalty_amount) > 0 && (
+                  <p className="text-[10px] text-amber-600 font-black mt-1 uppercase">Termasuk Denda: {formatCurrency((selectedBill as any).penalty_amount)}</p>
+                )}
+                <p className="text-[9px] text-emerald-600/70 dark:text-emerald-400/70 font-medium mt-2 uppercase tracking-wider">Metode: Tunai (Cash)</p>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Jenis Retribusi</p>
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">{selectedBill.type}</p>
+              {/* Upload Bukti Pembayaran */}
+              <div className="border-t border-slate-100 pt-5 mt-5">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 text-center md:text-left">Bukti Pembayaran (Opsional)</label>
+                <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all overflow-hidden relative ${proofFile ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'border-slate-300 bg-slate-50 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900'}`}>
+                  {proofFile ? (
+                    <>
+                      <img src={URL.createObjectURL(proofFile)} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                      <div className="z-10 flex flex-col items-center bg-white/80 dark:bg-black/60 px-4 py-2 rounded-xl text-center">
+                         <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 truncate max-w-[150px]">{proofFile.name}</span>
+                         <span className="text-[9px] font-bold text-emerald-500 uppercase mt-1">Ganti Foto</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <ImagePlus className="w-8 h-8 text-slate-400 mb-2" />
+                      <span className="text-xs font-bold text-slate-500">Ketuk untuk Ambil Foto</span>
+                      <span className="text-[9px] font-medium text-slate-400 mt-1">PNG, JPG up to 5MB</span>
+                    </>
+                  )}
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    capture="environment" 
+                    className="hidden" 
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        setProofFile(e.target.files[0]);
+                      }
+                    }} 
+                  />
+                </label>
               </div>
             </div>
 
-            {/* Amount Highlight */}
-            <div className="mt-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-2xl p-5 text-center border border-emerald-100 dark:border-emerald-800">
-              <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
-              <p className="text-3xl font-black text-emerald-700 dark:text-emerald-400">{formatCurrency(selectedBill.amount)}</p>
-              {Number((selectedBill as any).penalty_amount) > 0 && (
-                <p className="text-[10px] text-amber-600 font-black mt-1 uppercase">Termasuk Denda: {formatCurrency((selectedBill as any).penalty_amount)}</p>
-              )}
-              <p className="text-[9px] text-emerald-600/70 dark:text-emerald-400/70 font-medium mt-2 uppercase tracking-wider">Metode: Tunai (Cash)</p>
-            </div>
-
-            <div className="flex gap-4 mt-8">
-              <button
-                onClick={() => setShowPaymentModal(false)}
-                className="flex-1 py-4 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-              >
-                BATAL
-              </button>
-              <button
-                onClick={handlePayment}
-                className="flex-[2] px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
-              >
-                KONFIRMASI BAYAR
-              </button>
+            {/* Sticky Bottom Actions */}
+            <div className="shrink-0 p-6 md:p-8 pt-4 border-t border-slate-50 dark:border-slate-700/50 bg-white dark:bg-gray-800 z-10">
+              <div className="flex gap-3 md:gap-4">
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  disabled={paymentSubmitting}
+                  className="flex-1 py-3.5 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 rounded-2xl transition-colors"
+                >
+                  BATAL
+                </button>
+                <button
+                  onClick={handlePayment}
+                  disabled={paymentSubmitting}
+                  className="flex-[2] px-4 md:px-8 py-3.5 bg-emerald-600 disabled:bg-slate-300 disabled:text-slate-500 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase text-[10px] md:text-xs tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  {uploadingProof ? (
+                    <><Loader2 className="w-4 h-4 animate-spin"/> MENGUNGGAH BUKTI...</>
+                  ) : paymentSubmitting ? (
+                    <><Loader2 className="w-4 h-4 animate-spin"/> MEMPROSES...</>
+                  ) : (
+                    'KONFIRMASI BAYAR'
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
