@@ -436,7 +436,7 @@ export default function Billing() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
           <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl max-w-md w-full overflow-y-auto max-h-[90vh] border border-gray-100 relative">
             <div className="p-6 md:p-8 border-b border-gray-50 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
               <div>
@@ -547,7 +547,7 @@ export default function Billing() {
       )}
 
       {showPaymentModal && selectedBill && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
           <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in duration-300 relative border border-gray-100">
             {/* Header Sticky */}
             <div className="shrink-0 p-6 md:p-8 pb-0 text-center sticky top-0 bg-white dark:bg-gray-800 z-10">
