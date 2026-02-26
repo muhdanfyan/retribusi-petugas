@@ -14,7 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
-  X
+  X,
+  ImagePlus
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -73,6 +74,7 @@ export default function Dashboard() {
   const [revenueData, setRevenueData] = useState<RevenueItem[]>([]);
   const [potentials, setPotentials] = useState<Potential[]>([]);
   const [retributionTypes, setRetributionTypes] = useState<any[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Date Filtering State
@@ -194,17 +196,19 @@ export default function Dashboard() {
         end_date: range.end.toISOString().split('T')[0]
       };
 
-      const [statsRes, trendRes, mapRes, typesRes] = await Promise.all([
+      const [statsRes, trendRes, mapRes, typesRes, recentRes] = await Promise.all([
         api.get('/api/dashboard/stats', { params }),
         api.get('/api/dashboard/revenue-trend', { params }),
         api.get('/api/dashboard/map-potentials'),
         api.get('/api/retribution-types?is_active=1'),
+        api.get('/api/reports/recent'),
       ]);
 
       setStats(statsRes);
       setRevenueData(trendRes);
       setPotentials(mapRes);
       setRetributionTypes(typesRes.data || typesRes);
+      setRecentTransactions(recentRes.data || recentRes);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -771,27 +775,31 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="col-span-12 space-y-4">
-            {[
-              { id: 1, title: 'PT Berkah Sejahtera', category: 'Pajak Restoran', amount: 'Rp 1.800.000', date: '2 Hari lalu', status: 'Verified', icon: FileText, color: 'text-[#2d5cd5]', bg: 'bg-blue-50' },
-              { id: 2, title: 'Hotel Grand Baubau', category: 'Pajak Hotel', amount: 'Rp 4.250.000', date: '1 Minggu lalu', status: 'Pending', icon: CreditCard, color: 'text-amber-500', bg: 'bg-amber-50' },
-              { id: 3, title: 'CV Maju Jaya', category: 'Retribusi Parkir', amount: 'Rp 750.000', date: '15 Menit lalu', status: 'Baru', icon: Activity, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-            ].map((item) => (
-              <div key={item.id} className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 ${item.bg} dark:bg-slate-800 rounded-2xl flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform shadow-sm`}>
-                    <item.icon size={24} />
+            {recentTransactions.length > 0 ? (
+              recentTransactions.map((item) => (
+                <div key={item.id} className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-blue-50`}>
+                      <FileText className={`w-7 h-7 text-[#2d5cd5]`} />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-black text-slate-900 dark:text-white mb-1 group-hover:text-blue-600 transition-colors uppercase tracking-tight line-clamp-1">{item.taxpayer_name}</h4>
+                      <p className="text-[10px] font-bold text-slate-400 group-hover:text-slate-500 transition-colors uppercase tracking-widest">{item.type}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h5 className="text-sm font-black text-slate-900 dark:text-white mb-0.5">{item.title}</h5>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.category}</p>
+                  <div className="text-right">
+                    <p className="text-sm font-black text-slate-900 dark:text-white mb-1">{formatCurrency(Number(item.amount))}</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-[#2d5cd5] bg-blue-50 px-2 py-0.5 rounded-md inline-block">
+                      {recentTransactions.find(t => t.id === item.id)?.status || 'Verified'}
+                    </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-black text-slate-900 dark:text-white mb-0.5">{item.amount}</p>
-                  <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{item.date}</p>
-                </div>
+              ))
+            ) : (
+              <div className="py-12 text-center text-gray-400 font-bold uppercase tracking-widest text-xs italic">
+                Belum ada riwayat transaksi
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
